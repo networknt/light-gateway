@@ -112,7 +112,7 @@ java -jar target/petstore-service-api-3.0.1.jar
 The petstore light-api will start on local https 8443 port. 
 
 
-- Try the call by using http-sidecar:
+- Try the call by using light-gateway:
 
 #### Egress traffic (http protocol, port 9080)
 
