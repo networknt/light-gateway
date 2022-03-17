@@ -9,7 +9,7 @@ server.httpsPort: 9445
 server.serviceId: light-mesh-1.0.0
 
 ## proxy yaml
-proxy.containerPort: '8080'
+proxy.host: http://localhost:8080
 
 router.hostWhitelist:
   - 192.168.0.*
