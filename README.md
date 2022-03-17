@@ -30,16 +30,16 @@ Please refer to default setting for detail:
  [handler](https://github.com/networknt/light-gateway/blob/master/src/main/resources/config/handler.yml)  
  [values](https://github.com/networknt/light-gateway/blob/master/src/main/resources/config/values.yml)  
 
-### Light-gateway feature and config:
+### Light-gateway features and config setting:
 
 - Proxy 
 
   Light-gateway Proxy used for dispatch the request from light-4j API to existing system (legacy). Since existing system may not have some microservice features, for example:
   
-  Audit log
-  JWT verify
-  Metrics
-  openapi schema validation
+  - Audit log
+  - JWT verify
+  - Metrics  
+  - Openapi schema validation
   
   Light-gateway proxy can handle those features and forward the request to  existing system.
       
@@ -51,14 +51,16 @@ Please refer to default setting for detail:
 
   Light-gateway Router used for dispatch the request from existing system to light-4j restful API. Normally the existing system doesn't support some microservice feature for service call:
    
-  Service discovery 
-  Audit log
-  JWT populate
-  Metrics
+  - Service discovery 
+  - Audit log
+  - JWT populate
+  - Metrics
 
   Light-gateway Router can handle those features and forward the request to new microservice API.
+  
+  Light-gateway Router be triggered if the request header include key "service_id" or "service_url" (if both existing, service_url will be taken first)
 
-  The major config for router includes:
+  The major config for the router includes:
   
   serviceDict.mapping:
   router.hostWhitelist:
