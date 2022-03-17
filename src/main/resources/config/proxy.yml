@@ -8,7 +8,7 @@ http2Enabled: ${proxy.http2Enabled:true}
 httpsEnabled: ${proxy.httpsEnabled:true}
 
 # Target URIs
-hosts: http://localhost:${proxy.containerPort:}
+hosts: ${proxy.host:http://localhost:8080}
 
 # Connections per thread to the target servers
 connectionsPerThread: ${proxy.connectionsPerThread:20}

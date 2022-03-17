@@ -8,5 +8,9 @@ service.singletons:
 
 server.serviceId: com.networknt.petstore-1.0.0
 server.environment: dev-proxy
-proxy.containerPort: '9080'
+proxy.host: https://localhost:9443
 handler.basePath: /v1
+
+router.hostWhitelist:
+  - 192.168.0.*
+  - localhost

@@ -23,6 +23,46 @@ A standalone gateway combined both light-router and light-proxy
 
 ![Ligh-Mesh Architecture](docs/mesh-2.png)
 
+By default, the light-gateway works as internet gateway for both proxy/router features. Most of middleware handlers are commented out. User can enable it  based on different user cases.
+
+Please refer to default setting for detail:
+
+ [handler](https://github.com/networknt/light-gateway/blob/master/src/main/resources/config/handler.yml)  
+ [values](https://github.com/networknt/light-gateway/blob/master/src/main/resources/config/values.yml)  
+
+### Light-gateway feature and config:
+
+- Proxy 
+
+  Light-gateway Proxy used for dispatch the request from light-4j API to existing system (legacy). Since existing system may not have some microservice features, for example:
+  
+  Audit log
+  JWT verify
+  Metrics
+  openapi schema validation
+  
+  Light-gateway proxy can handle those features and forward the request to  existing system.
+      
+  The major config for proxy is "proxy.host", user can define a list of proxy destination host separate by ",'. For example
+  
+  proxy.host: https://localhost:9443,http://localhost:8080,https://www.networknt.com
+
+- Router
+
+  Light-gateway Router used for dispatch the request from existing system to light-4j restful API. Normally the existing system doesn't support some microservice feature for service call:
+   
+  Service discovery 
+  Audit log
+  JWT populate
+  Metrics
+
+  Light-gateway Router can handle those features and forward the request to new microservice API.
+
+  The major config for router includes:
+  
+  serviceDict.mapping:
+  router.hostWhitelist:
+
 
 ### Note:
 
@@ -30,11 +70,13 @@ If you want to use SidecarServiceDictHandler to get the service Id by the path u
 will be used for next handler chain.
   
 ```
-  - com.networknt.router.middleware.SidecarServiceDictHandler@path
-  - com.networknt.router.middleware.SidecarSAMLTokenHandler@saml
-  - com.networknt.router.SidecarRouterHandler@router
+  - com.networknt.router.middleware.GatewayServiceDictHandler@path
+  - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
+  - com.networknt.router.GatewayRouterHandler@router
 
 ```
+
+
 
 
 ### start light-gateway locally and verify:
@@ -116,7 +158,7 @@ The petstore light-api will start on local https 8443 port.
 
 #### Egress traffic (http protocol, port 9080)
 
-Send request from service in the pod to light API petstore through sidecar
+Send request from service in the pod to light API petstore through light-gateway
 
 ```
 curl --location --request GET 'http://localhost:9080/v1/pets' \
@@ -126,7 +168,7 @@ curl --location --request GET 'http://localhost:9080/v1/pets' \
 
 #### Ingress traffic (https protocol, port 9445)
 
-Send request from outside service to the service in the pod through sidecar
+Send request from outside service to the service in the pod through light-gateway
 
 ```
 curl --location --request GET 'https://localhost:9445/api/books/' \
