@@ -91,26 +91,26 @@ handlers:
 chains:
   default:
     - exception
-    - metrics
-    - limit
-    - traceability
-    - correlation
+    #- metrics
+    #- limit
+    #- traceability
+    #- correlation
     - killapp
     - latency
     - memory
     - exchaos
     - audit
     # - cors
-    - header
+    #- header
     # - path
     - token
     - router
-    - specification
-    - security
+    #- specification
+    #- security
     - proxybody
-    - sanitizer
+    #- sanitizer
     # - dump
-    - validator
+    #- validator
     - proxy
   admin:
     - exception
