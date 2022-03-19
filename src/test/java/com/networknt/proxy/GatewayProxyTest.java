@@ -50,8 +50,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @ExtendWith(TestServer.class)
-public class SidecarProxyTest {
-    static final Logger logger = LoggerFactory.getLogger(SidecarProxyTest.class);
+public class GatewayProxyTest {
+    static final Logger logger = LoggerFactory.getLogger(GatewayProxyTest.class);
 
     static Undertow backend = null;
 
