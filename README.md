@@ -1,6 +1,46 @@
 ## light-gateway:   
 
-A standalone gateway combined both light-router and light-proxy
+A standalone gateway combined light-proxy and light-router to address cross-cutting concerns for incoming and outgoing requests. Compared with the [http-sidecar](https://github.com/networknt/http-sidecar), which has the same light-proxy and light-router features, the light-gateway is more flexible for deployment. It can be deployed in a container, a Windows service or a Linux service. There might be multiple clients and services for light-gateway to support many-to-many communication. However, the http-sidecar is designed to deploy in the same Kubernetes pod with the backend API to form a one-to-one relationship. In other words, the http-sidecar is a stripped-down version of the light-gateway. 
+
+### Deployment Pattern
+
+There are 6 patterns to deploy the light-gateway and the only difference is the configuration. The same jar file or docker image can be used for different use cases. 
+
+* External Gateway
+
+The external gateway is deployed in the DMZ to help the third-party clients access APIs in the DMZ or corporate network. It is a shared gateway for multiple clients to access a limited number of APIs inside. Compared with the internal gateway, it has more security handlers configured. For example, an IP whitelist handler will allow certain IP addresses to access the gateway, or a rate-limiting handler is set up to prevent DDoS attacks, etc. 
+
+Verifying the JWT tokens is a very common practice on the external gateway to ensure only the valid requests will be passed through the firewall and sent to the internal gateway. 
+
+* Internal Gateway
+
+The internal gateway is another shared gateway deployed inside the corporate network to help legacy clients to communicate with legacy services. The configuration should be very similar to the external gateway but remove some middleware handlers. For example, JWT token signature verification might not be enabled on the internal gateway. 
+
+* Client Router
+
+In this pattern, only the router feature of the light-gateway is used to bring the legacy client to the light ecosystem. The instance is dedicated to a particular client application like a monolithic web server and deployed on the same host. 
+
+The gateway is responsible for getting the JWT token on behalf of the client, caching it, and renewing it before expiration. Also, the gateway will route all the API accesses so that the client will only deal with one API regardless of how many are behind the gateway. 
+
+* Service Proxy
+
+In this pattern, only the reverse proxy feature of the light-gateway is used to bring the legacy service to the light ecosystem. The instance is dedicated to a particular service that exposes some API endpoints. 
+
+The gateway is responsible for verifying the JWT token, validating the incoming requests, and all other cross-cutting concerns. Then the request will be forwarded to one or many backend instances. With the light-gateway deployed on the same server, you don't need to update anything on the legacy server. 
+
+
+* Service Gateway
+
+This pattern is similar to the service proxy but has the router feature enabled simultaneously. It is for legacy a service that accepts incoming requests and calls other APIs. 
+
+
+* Backend as Frontend
+
+This is for a big application that will access a lot of backend microservices. The light-gateway will aggregate all the backend API together so that the client application can deal with only one API instead of hundreds. For example, a mobile banking application needs to access a lot of microservices for its functionalities. 
+
+* SPA Server
+
+This is a similar pattern like the Backend as Frontend with added feature to serve the single page application on the same server without cors enabled. 
 
 
   
