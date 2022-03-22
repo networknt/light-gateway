@@ -11,6 +11,14 @@
     <description>Light Gateway</description>
     <url>https://github.com/networknt/light-gateway</url>
 
+    <developers>
+        <developer>
+            <id>GavinChenYan</id>
+            <name>Gavin Chen</name>
+            <email>gavin.chenyan@gmail.com</email>
+        </developer>
+    </developers>
+
     <issueManagement>
         <system>github</system>
         <url>https://github.com/networknt/light-gateway/issues</url>
@@ -70,6 +78,7 @@
     <properties>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.main.class>com.networknt.server.Server</project.main.class>
         <version.light-4j>2.1.1-SNAPSHOT</version.light-4j>
         <version.jackson>2.12.1</version.jackson>
         <version.slf4j>1.7.32</version.slf4j>
@@ -449,7 +458,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.networknt.server.Server</mainClass>
+                            <mainClass>${project.main.class}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
