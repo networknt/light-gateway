@@ -8,7 +8,7 @@ httpPort: ${server.httpPort:8080}
 
 # Enable HTTP for the backend to invoke other APIs through the router with http connection in the same pod.
 # The call to the other pods or external will be HTTPS as all outside communication from the pod is HTTPS.
-enableHttp: ${server.enableHttp:true}
+enableHttp: ${server.enableHttp:false}
 
 # Https port if enableHttps is true.
 httpsPort: ${server.httpsPort:8443}
@@ -46,7 +46,7 @@ bootstrapStoreName: ${server.bootstrapStoreName:bootstrap.truststore}
 bootstrapStorePass: ${server.bootstrapStorePass:password}
 
 # Unique service identifier. Used in service registration and discovery etc.
-serviceId: ${server.serviceId:http-sidecar-1.0.0}
+serviceId: ${server.serviceId:com.networknt.gateway-1.0.0}
 
 # Flag to enable self service registration. This should be turned on on official test and production. And
 # dyanmicPort should be enabled if any orchestration tool is used like Kubernetes.

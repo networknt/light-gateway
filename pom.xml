@@ -296,6 +296,16 @@
             <artifactId>specification</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>config-reload</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>cors</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
