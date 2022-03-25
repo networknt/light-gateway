@@ -1,3 +1,4 @@
+# service.yml
 service.singletons:
   - com.networknt.utility.Decryptor:
       - com.networknt.decrypt.AESDecryptor
@@ -6,11 +7,17 @@ service.singletons:
   - com.networknt.cluster.Cluster:
       - com.networknt.cluster.LightCluster
 
-server.serviceId: com.networknt.gateway
-server.environment: dev-proxy
-proxy.host: https://localhost:9443
+# handler.yml
 handler.basePath: /v1
 
+# server.yml
+server.serviceId: com.networknt.gateway-1.0.0
+
+# proxy.yml
+proxy.host: https://localhost:9443
+
+# router.yml
 router.hostWhitelist:
   - 192.168.0.*
   - localhost
+
