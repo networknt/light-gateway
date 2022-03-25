@@ -1,11 +1,31 @@
+# server.yml
+server.httpPort: 9080
+server.httpsPort: 9445
+
 
 serviceDict.mapping:
   /v1/pets@get: com.networknt.petstore-1.0.0
   /v2/address@get: party.address-2.0.0
   /v1/contact@post: party.contact-1.0.0
 
-server.httpPort: 9080
-server.httpsPort: 9445
+
+# service.yml
+service.singletons:
+  - com.networknt.registry.URL:
+      - com.networknt.registry.URLImpl:
+          protocol: https
+          host: localhost
+          port: 7080
+          path: direct
+          parameters:
+            com.networknt.petstore-1.0.0: https://localhost:8443
+  - com.networknt.registry.Registry:
+      - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+      - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+      - com.networknt.cluster.LightCluster
+
 server.serviceId: light-mesh-1.0.0
 
 ## proxy yaml
@@ -62,35 +82,35 @@ handler.chains:
     - router
     - specification
     - security
-    - body
-    #- audit
+    #- body
+    - audit
     #- sanitizer
     - validator
     - proxy
 
 handler.paths:
   - path: '/*'
-    method: 'get'
+    method: 'GET'
     exec:
       - default
   - path: '/*'
-    method: 'post'
+    method: 'POST'
     exec:
       - default
   - path: '/*'
-    method: 'delete'
+    method: 'PUT'
     exec:
       - default
   - path: '/*'
-    method: 'put'
+    method: 'DELETE'
     exec:
       - default
   - path: '/*'
-    method: 'patch'
+    method: 'PATCH'
     exec:
       - default
 
-  - path: '/health/com.networknt.backend-1.0.0'
+  - path: '/health/com.networknt.gateway-1.0.0'
     method: 'get'
     exec:
       - health
@@ -100,6 +120,4 @@ handler.paths:
     method: 'get'
     exec:
       - proxyServerInfo
-
-##handler.basePath: /v1
 
