@@ -270,7 +270,6 @@ public class GatewayProxyTest {
         }
     }
 
-    @Disabled
     @Test
     public void testPostInvalidJson() throws Exception {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
