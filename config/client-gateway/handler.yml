@@ -71,7 +71,7 @@ handlers:
   - com.networknt.logging.handler.LoggerPostHandler@postLogger
   - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
   # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
-  - com.networknt.auth.StatelessAuthHandler@stateless
+  # - com.networknt.auth.StatelessAuthHandler@stateless
 
 chains:
   default:
@@ -80,7 +80,7 @@ chains:
     - traceability
     - correlation
     - cors
-    - stateless
+    # - stateless
     - header
     #- path
     #- prefix
