@@ -48,18 +48,18 @@ handlers:
   - com.networknt.correlation.CorrelationHandler@correlation
   # Cors handler to handler post/put pre-flight. It is not used in the sidecar but only in the router.
   - com.networknt.cors.CorsHttpHandler@cors
-  - com.networknt.openapi.OpenApiHandler@specification
-  - com.networknt.openapi.JwtVerifyHandler@security
-  - com.networknt.body.ProxyBodyHandler@body
+  # - com.networknt.openapi.OpenApiHandler@specification
+  # - com.networknt.openapi.JwtVerifyHandler@security
+  # - com.networknt.body.BodyHandler@body
   # - com.networknt.audit.AuditHandler@audit
   # - com.networknt.sanitizer.SanitizerHandler@sanitizer
-  - com.networknt.openapi.ValidatorHandler@validator
+  # - com.networknt.openapi.ValidatorHandler@validator
   # Header middleware to manipulate request and/or response headers before or after downstream server
   - com.networknt.header.HeaderHandler@header
   # Rate limit middleware to prevent DDoS attacks externally or throttle requests internally
   - com.networknt.limit.LimitHandler@limit
   # IP whitelist handler to allow only one or several IPs to connect to the gateway.
-  - com.networknt.whitelist.WhitelistHandler@whitelist
+  # - com.networknt.whitelist.WhitelistHandler@whitelist
   # Direct requests to named services based on the request path
   #- com.networknt.router.middleware.ServiceDictHandler@path
   #- com.networknt.router.middleware.PathServiceHandler@path
@@ -75,7 +75,7 @@ handlers:
   - com.networknt.logging.handler.LoggerPostHandler@postLogger
   - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
   # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
-  - com.networknt.auth.StatelessAuthHandler@stateless
+  # - com.networknt.auth.StatelessAuthHandler@stateless
 
 chains:
   default:
@@ -88,8 +88,8 @@ chains:
     - cors
     # - stateless
     - header
-    - body
-    #- path
+    # - body
+    # - path
     - prefix
     - router
     #- specification
