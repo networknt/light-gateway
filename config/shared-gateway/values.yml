@@ -2,7 +2,27 @@
 server.serviceId: com.networknt.router-1.0.0
 server.httpsPort: 7443
 # router.yml
-router.maxRequestTime: 1000
+router.maxRequestTime: 5000
+router.urlRewriteRules:
+  - /v1/market(.*)$ /dev-test-ns/market/v1/market$1
+  - /v1/pets(.*)$ /dev-test-ns/petstore/v1/pets$1
+  - /gateway/Migration/1.0.0(.*)$ /1.0.0/Migration$1
+
+#client.yml
+client.verifyHostname: false
+#client.tokenCcClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.tokenRtClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.tokenKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.signClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.signKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.derefClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.injectOpenTracing: true
+#client.tokenServerUrl: https://dev-corp-wk-ca1-k8s.sunlifecorp.com/dev-eadpapiops-lighttoken-ns/light-token
+#client.tokenServiceId: com.networknt.oauth-token-1.0.0
+#client.tokenKeyServiceId: com.networknt.oauth-key-1.0.0
+#client.signServiceId: com.networknt.oauth-token-1.0.0
+#client.signKeyServiceId: com.networknt.oauth-key-1.0.0
+#client.derefServiceId: com.networknt.oauth-token-1.0.0
 
 # service.yml
 service.singletons:
@@ -19,6 +39,7 @@ service.singletons:
             # com.networknt.controller-1.0.0: https://controller-node1:8438,https://controller-node2:8437,https://controller-node3:8436
             # com.networknt.scheduler-1.0.0: https://scheduler-node1:8401,https://scheduler-node2:8402,https://scheduler-node3:8403
             com.networknt.petstore-1.0.0: https://localhost:9443
+            Migration: http://dev-webservices.networknt.com
   - com.networknt.registry.Registry:
       - com.networknt.registry.support.DirectRegistry
   - com.networknt.balance.LoadBalance:
@@ -41,6 +62,7 @@ pathPrefixService.mapping:
   # /services: com.networknt.controller-1.0.0
   # /schedulers: com.networknt.scheduler-1.0.0
   /v1: com.networknt.petstore-1.0.0
+  /gateway/Migration/1.0.0: Migration
 
 # whitelist.yml
 whitelist.enabled: false
