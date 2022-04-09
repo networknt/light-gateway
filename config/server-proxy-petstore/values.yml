@@ -1,0 +1,114 @@
+# server.yml
+server.httpsPort: 7443
+server.serviceId: com.networknt.server-proxy-1.0.0
+
+# router.yml
+# router.maxRequestTime: 3000
+
+# proxy.yml
+proxy.host: https://localhost:9443
+
+# header.yml
+header.enabled: true
+header.response.update:
+  Content-Security-Policy: default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self' https://images.example.com;
+
+# cors.yml
+cors.enabled: true
+
+# limit.yml
+limit.enabled: false
+limit.rateLimit: 10/s
+limit.errorCode: 429
+
+# sanitizer.yml
+sanitizer.enabled: true
+sanitizer.bodyEnabled: false
+sanitizer.headerEnabled: true
+sanitizer.headerEncoder: html-content
+#sanitizer.headerAttributesToEncode: x-traceability-id
+#sanitizer.headerAttributesToIgnore: test
+
+#Audit.yml
+audit.enabled: true
+audit.mask: true
+audit.statusCode: true
+audit.responseTime: true
+audit.auditOnError: false
+audit.logLevelIsError: false
+
+#okta security start
+# client.yml
+client.verifyHostname: false
+client.tokenKeyServerUrl: https://localhost:6886
+client.tokenKeyUri: /oauth2/keys
+client.tokenProxyHost:
+client.tokenProxyPort:
+client.timeout: 1000
+client.tokenKeyEnableHttp2: true
+#client.tokenCcClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.tokenRtClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.tokenKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.signClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.signKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.derefClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.injectOpenTracing: true
+
+#security.yml
+security.enableVerifyJwt: false
+security.enableExtractScopeToken: false
+security.enableVerifyScope: false
+security.keyResolver: JsonWebKeySet
+security.bootstrapFromKeyService: true
+# okta security end
+
+# service.yml
+service.singletons:
+  - com.networknt.registry.URL:
+      - com.networknt.registry.URLImpl:
+          parameters:
+            com.networknt.petstore-1.0.0: https://localhost:9443
+            Migration: https://lightgateway-dev.networknt.com:8443
+  - com.networknt.registry.Registry:
+      - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+      - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+      - com.networknt.cluster.LightCluster
+  - com.networknt.utility.Decryptor:
+      - com.networknt.decrypt.AESDecryptor
+
+# pathPrefixService.yml
+# pathPrefixService.enabled: true
+# pathPrefixService.mapping:
+#   /router/dev/de-asia-ekyc-service: de-asia-ekyc-service-1.0.0
+
+# whitelist.yml
+whitelist.enabled: false
+whitelist.paths:
+  # For a particular endpoint(path@method), there are three IPs can access
+  '/health/com.networknt.petstore-1.0.0@get':
+    # IPv4 Exact
+    - '127.0.0.1'
+    # IPv4 Wildcard
+    - '10.10.*.*'
+    # IPv4 Slash
+    - '127.0.0.48/30'
+
+  # For a path, the following IP can access regardless the method
+  '/prometheus@get':
+    # IPv6 Exact
+    - 'FE45:00:00:000:0:AAA:FFFF:0045'
+    # IPv6 Prefix
+    - 'FE45:00:00:000:0:AAA:FFFF:*'
+    # IPv6 Slash
+    - 'FE45:00:00:000:0:AAA:FFFF:01F4/127'
+
+  # For a particular endpoint(path@method), there are three IPs can access
+  '/data@get':
+    # IPv4 Exact
+    - '127.0.0.2'
+    # IPv4 Wildcard
+    - '10.10.*.*'
+    # IPv4 Slash
+    - '127.0.0.48/30'

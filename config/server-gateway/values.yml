@@ -42,7 +42,6 @@ client.verifyHostname: false
 #client.signKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
 #client.derefClientId: f7d42348-c647-4efb-a52d-4c5787421e73
 #client.injectOpenTracing: true
-#client.tokenServerUrl: https://dev-corp-wk-ca1-k8s.sunlifecorp.com/dev-eadpapiops-lighttoken-ns/light-token
 #client.tokenServiceId: com.networknt.oauth-token-1.0.0
 #client.tokenKeyServiceId: com.networknt.oauth-key-1.0.0
 #client.signServiceId: com.networknt.oauth-token-1.0.0
