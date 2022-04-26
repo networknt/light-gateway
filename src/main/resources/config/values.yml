@@ -7,9 +7,6 @@ service.singletons:
   - com.networknt.cluster.Cluster:
       - com.networknt.cluster.LightCluster
 
-# handler.yml
-handler.basePath: /
-
 # server.yml
 server.serviceId: com.networknt.gateway-1.0.0
 
@@ -21,6 +18,8 @@ router.hostWhitelist:
   - 192.168.0.*
   - localhost
 
+# handler.yml
+handler.basePath: /
 handler.handlers:
   # Light-framework cross-cutting concerns implemented in the microservice
   - com.networknt.exception.ExceptionHandler@exception
