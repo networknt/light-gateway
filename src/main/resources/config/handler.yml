@@ -142,3 +142,7 @@ paths:
     method: 'get'
     exec:
       - swaggerui
+  - path: '/favicon.ico'
+    method: 'get'
+    exec:
+      - favicon
