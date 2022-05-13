@@ -163,11 +163,11 @@ handler.chains.default:
   # - stateless
   - header
   # - body
-  # - path
-  - prefix
-  - router
   # - specification
   # - security
   # - audit
   # - sanitizer
   # - validator
+  # - path
+  - prefix
+  - router
