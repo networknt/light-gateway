@@ -182,13 +182,13 @@ handler.chains.default:
   - cors
   # - stateless
   - header
-  # - path
-  # - prefix
-  # - router
   - body
   - specification
   - security
   - audit
   - sanitizer
   - validator
+  # - path
+  # - prefix
+  # - router
   - proxy

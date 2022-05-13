@@ -98,11 +98,11 @@ handler.chains.default:
   # - stateless
   - header
   #- path
-  #- prefix
-  - router
   #- specification
   #- security
   #- body
   #- audit
   #- sanitizer
   #- validator
+  #- prefix
+  - router

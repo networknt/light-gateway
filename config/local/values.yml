@@ -107,13 +107,13 @@ handler.chains.default:
   - cors
   # - stateless
   - header
-  - prefix
-  - router
   - specification
   - security
   - body
   - audit
   - sanitizer
   - validator
+  - prefix
+  - router
   - proxy
 

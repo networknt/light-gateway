@@ -92,12 +92,12 @@ handler.chains.default:
   - cors
   # - stateless
   - header
-  #- path
-  #- prefix
-  - router
   #- specification
   #- security
   #- body
   #- audit
   #- sanitizer
   #- validator
+  #- path
+  #- prefix
+  - router
