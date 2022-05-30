@@ -68,7 +68,8 @@ handler.handlers:
   - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
-  # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
+  - com.networknt.specification.FaviconHandler@favicon
+
   # Business Handlers
 handler.chains.default:
   - exception
