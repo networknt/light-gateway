@@ -78,7 +78,7 @@ paths:
     method: 'get'
     exec:
       - admin
-      - proxyServerInfo
+      - info
   # the health endpoint for the proxy itself without security, this for both Kubernetes liveness and readiness.
   - path: '/health'
     method: 'get'

@@ -65,7 +65,7 @@ handler.handlers:
   - com.networknt.chaos.ExceptionAssaultHandler@exchaos
   - com.networknt.chaos.ChaosMonkeyGetHandler@chaosget
   - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
-  - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
+  - com.networknt.info.ServerInfoGetHandler@info
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
