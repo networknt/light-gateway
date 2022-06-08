@@ -1,11 +1,17 @@
 # service.yml
 service.singletons:
-  - com.networknt.utility.Decryptor:
-      - com.networknt.decrypt.AESDecryptor
+  - com.networknt.registry.URL:
+    - com.networknt.registry.URLImpl:
+        parameters:
+          com.networknt.petstore-1.0.0: https://localhost:9443
+  - com.networknt.registry.Registry:
+    - com.networknt.registry.support.DirectRegistry
   - com.networknt.balance.LoadBalance:
-      - com.networknt.balance.RoundRobinLoadBalance
+    - com.networknt.balance.RoundRobinLoadBalance
   - com.networknt.cluster.Cluster:
-      - com.networknt.cluster.LightCluster
+    - com.networknt.cluster.LightCluster
+  - com.networknt.utility.Decryptor:
+    - com.networknt.decrypt.AESDecryptor
 
 # server.yml
 server.serviceId: com.networknt.gateway-1.0.0
