@@ -17,7 +17,9 @@ service.singletons:
 server.serviceId: com.networknt.gateway-1.0.0
 
 # proxy.yml
-proxy.host: https://localhost:9443
+proxy.http2Enabled: true
+proxy.httpsEnabled: true
+proxy.hosts: https://localhost:9443
 
 # router.yml
 router.hostWhitelist:
