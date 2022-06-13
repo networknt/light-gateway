@@ -16,6 +16,12 @@ service.singletons:
 # server.yml
 server.serviceId: com.networknt.gateway-1.0.0
 
+# openapi-security.yml
+openapi-security.enableVerifyJwt: false
+
+# openapi-validator.yml
+openapi-validator.enable: true
+
 # proxy.yml
 proxy.http2Enabled: true
 proxy.httpsEnabled: true
