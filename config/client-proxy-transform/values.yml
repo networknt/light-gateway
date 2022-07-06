@@ -1,78 +1,34 @@
 # server.yml
-server.httpsPort: 7443
-server.serviceId: com.networknt.server-proxy-1.0.0
+server.httpPort: 9080
+server.enableHttp: true
+server.enableHttps: false
+server.enableHttp2: false
+server.serviceId: com.networknt.client-gateway-1.0.0
+server.environment: dev
 
 # router.yml
-# router.maxRequestTime: 3000
+router.maxRequestTime: 30000
 
-# proxy.yml
-proxy.hosts: https://localhost:9443
-
-# header.yml
-header.enabled: true
-header.response.update:
-  Content-Security-Policy: default-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self' https://images.example.com;
-
-# cors.yml
-cors.enabled: true
-
-# limit.yml
-limit.enabled: false
-limit.rateLimit: 10/s
-limit.errorCode: 429
-
-# sanitizer.yml
-sanitizer.enabled: true
-sanitizer.bodyEnabled: false
-sanitizer.headerEnabled: true
-sanitizer.headerEncoder: html-content
-#sanitizer.headerAttributesToEncode: x-traceability-id
-#sanitizer.headerAttributesToIgnore: test
-
-#Audit.yml
-audit.enabled: true
-audit.mask: true
-audit.statusCode: true
-audit.responseTime: true
-audit.auditOnError: false
-audit.logLevelIsError: false
-
-#okta security start
-# client.yml
-client.verifyHostname: false
-client.tokenKeyServerUrl: https://localhost:6886
-client.tokenKeyUri: /oauth2/keys
-client.tokenProxyHost:
-client.tokenProxyPort:
-client.timeout: 1000
-client.tokenKeyEnableHttp2: true
-#client.tokenCcClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.tokenRtClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.tokenKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.signClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.signKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.derefClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.injectOpenTracing: true
-
-#security.yml
-openapi-security.enableVerifyJwt: false
-openapi-security.enableExtractScopeToken: false
-openapi-security.enableVerifyScope: false
-openapi-security.keyResolver: X509Certificate
-openapi-security.bootstrapFromKeyService: false
-# okta security end
-
+# pathPrefixService.yml
+pathPrefixService.mapping:
+  # /gateway/Migration/1.0.0: Migration
+  /v1/pets: com.networknt.petstore-1.0.0
 # service.yml
 service.singletons:
   - com.networknt.registry.URL:
       - com.networknt.registry.URLImpl:
-          protocol: https
-          host: localhost
-          port: 7080
-          path: direct
           parameters:
+            # com.networknt.portal.hybrid.query-1.0.0: https://hybrid-query1:8440,https://hybrid-query2:8441,https://hybrid-query3:8442
+            # com.networknt.portal.hybrid.command-1.0.0: https://hybrid-command:8439
+            # com.networknt.oauth-key-1.0.0: https://oauth-key:6886
+            # com.networknt.oauth-token-1.0.0: https://oauth-token:6882
+            # com.networknt.oauth-code-1.0.0: https://oauth-code:6881
+            # com.networknt.reference-1.0.0: https://reference:2498
+            # com.networknt.config-server-1.0.0: https://localhost:8435
+            # com.networknt.controller-1.0.0: https://controller-node1:8438,https://controller-node2:8437,https://controller-node3:8436
+            # com.networknt.scheduler-1.0.0: https://scheduler-node1:8401,https://scheduler-node2:8402,https://scheduler-node3:8403
+            # Migration: https://lightgateway-dev.networknt.com:8443
             com.networknt.petstore-1.0.0: https://localhost:9443
-            Migration: https://lightgateway-dev.networknt.com:8443
   - com.networknt.registry.Registry:
       - com.networknt.registry.support.DirectRegistry
   - com.networknt.balance.LoadBalance:
@@ -81,44 +37,11 @@ service.singletons:
       - com.networknt.cluster.LightCluster
   - com.networknt.utility.Decryptor:
       - com.networknt.decrypt.AESDecryptor
-
-# pathPrefixService.yml
-# pathPrefixService.enabled: true
-# pathPrefixService.mapping: {"/v1/pets":"com.networknt.petstore-1.0.0"}
-
-# whitelist.yml
-whitelist.enabled: false
-whitelist.paths:
-  # For a particular endpoint(path@method), there are three IPs can access
-  '/health/com.networknt.petstore-1.0.0@get':
-    # IPv4 Exact
-    - '127.0.0.1'
-    # IPv4 Wildcard
-    - '10.10.*.*'
-    # IPv4 Slash
-    - '127.0.0.48/30'
-
-  # For a path, the following IP can access regardless the method
-  '/prometheus@get':
-    # IPv6 Exact
-    - 'FE45:00:00:000:0:AAA:FFFF:0045'
-    # IPv6 Prefix
-    - 'FE45:00:00:000:0:AAA:FFFF:*'
-    # IPv6 Slash
-    - 'FE45:00:00:000:0:AAA:FFFF:01F4/127'
-
-  # For a particular endpoint(path@method), there are three IPs can access
-  '/data@get':
-    # IPv4 Exact
-    - '127.0.0.2'
-    # IPv4 Wildcard
-    - '10.10.*.*'
-    # IPv4 Slash
-    - '127.0.0.48/30'
+  - com.networknt.handler.ResponseInterceptorHandler:
+      - com.networknt.restrans.ResponseTransformerHandler
 
 # handler.yml
-handler.enabled: true
-handler.basePath: /v1
+handler.basePath: /
 handler.handlers:
   # Light-framework cross-cutting concerns implemented in the microservice
   - com.networknt.exception.ExceptionHandler@exception
@@ -129,7 +52,7 @@ handler.handlers:
   - com.networknt.cors.CorsHttpHandler@cors
   - com.networknt.openapi.OpenApiHandler@specification
   - com.networknt.openapi.JwtVerifyHandler@security
-  - com.networknt.body.ProxyBodyHandler@body
+  - com.networknt.body.BodyHandler@body
   - com.networknt.audit.AuditHandler@audit
   - com.networknt.sanitizer.SanitizerHandler@sanitizer
   - com.networknt.openapi.ValidatorHandler@validator
@@ -141,10 +64,11 @@ handler.handlers:
   #  - com.networknt.whitelist.WhitelistHandler@whitelist
   # Direct requests to named services based on the request path
   # - com.networknt.router.middleware.GatewayServiceDictHandler@path
-  # - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
-  # - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
-  # - com.networknt.router.GatewayRouterHandler@router
+  - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
+  - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
+  - com.networknt.router.GatewayRouterHandler@router
   - com.networknt.proxy.LightProxyHandler@proxy
+  - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
   # - com.networknt.resource.VirtualHostHandler@virtual
   # Customer business domain specific cross-cutting concerns handlers
   # - com.example.validator.CustomizedValidator@custvalidator
@@ -166,6 +90,7 @@ handler.handlers:
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.handler.SinkConduitInjectorHandler@sink
 
 handler.chains.default:
   - exception
@@ -173,16 +98,16 @@ handler.chains.default:
   - limit
   - traceability
   - correlation
-  - killapp
-  - latency
-  - memory
-  - exchaos
   - cors
+  # - stateless
+  - sink
   - header
-  - body
-  - specification
-  - security
-  - audit
-  - sanitizer
-  - validator
-  - proxy
+  #- path
+  #- specification
+  #- security
+  #- body
+  #- audit
+  #- sanitizer
+  #- validator
+  - prefix
+  - router
