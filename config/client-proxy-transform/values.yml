@@ -1,20 +1,28 @@
 # server.yml
 server.httpPort: 9080
 server.enableHttp: true
-server.enableHttps: false
-server.enableHttp2: false
+server.enableHttps: true
+server.enableHttp2: true
 server.serviceId: com.networknt.client-gateway-1.0.0
 server.environment: dev
 
 # router.yml
 router.maxRequestTime: 30000
 
+# rule-loader.yml
+rule-Loader.ruleSource: config-folder
+rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]}}
+
 # pathPrefixService.yml
 pathPrefixService.mapping:
   # /gateway/Migration/1.0.0: Migration
   /v1/pets: com.networknt.petstore-1.0.0
+  /v1/notifications: com.networknt.petstore-1.0.0
+
 # service.yml
 service.singletons:
+  - com.networknt.server.StartupHookProvider:
+      - com.networknt.rule.RuleLoaderStartupHook
   - com.networknt.registry.URL:
       - com.networknt.registry.URLImpl:
           parameters:
@@ -90,7 +98,8 @@ handler.handlers:
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
-  - com.networknt.handler.SinkConduitInjectorHandler@sink
+  - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  # - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
 
 handler.chains.default:
   - exception
@@ -100,11 +109,12 @@ handler.chains.default:
   - correlation
   - cors
   # - stateless
-  - sink
+  - responseInterceptor
   - header
   #- path
   #- specification
   #- security
+  # - requestInterceptor
   #- body
   #- audit
   #- sanitizer
