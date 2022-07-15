@@ -15,6 +15,7 @@ log/
 *.tmp
 *.zip
 *.bak
+*.jar
 *.versionsBackup
 dependency-reduced-pom.xml
 

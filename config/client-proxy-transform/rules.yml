@@ -1,0 +1,20 @@
+# local rules
+
+petstore-notifications-transformer:
+  ruleId: petstore-notifications-transformer
+  host: lightapi.net
+  ruleType: response-transform
+  visibility: public
+  description: Transform the response body from a complicated structure to a simple one in the light-gateway or http-sidecar.
+  conditions:
+    - conditionId: path-notifications
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/notifications
+  actions:
+    - actionId: notification-transform
+      actionClassName: com.networknt.notification.NotificationTransformAction
