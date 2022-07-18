@@ -11,12 +11,19 @@ router.maxRequestTime: 30000
 
 # rule-loader.yml
 rule-Loader.ruleSource: config-folder
-rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]}}
+rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]}}
+
+# response-transformer.yml
+response-transformer.appliedPathPrefixes: ["/v1/notifications"]
+
+# request-transformer.yml
+request-transformer.appliedPathPrefixes: ["/pets"]
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
   # /gateway/Migration/1.0.0: Migration
   /v1/pets: com.networknt.petstore-1.0.0
+  /pets: com.networknt.petstore-1.0.0
   /v1/notifications: com.networknt.petstore-1.0.0
 
 # service.yml
@@ -47,6 +54,8 @@ service.singletons:
       - com.networknt.decrypt.AESDecryptor
   - com.networknt.handler.ResponseInterceptorHandler:
       - com.networknt.restrans.ResponseTransformerHandler
+  - com.networknt.handler.RequestInterceptorHandler:
+      - com.networknt.reqtrans.RequestTransformerHandler
 
 # handler.yml
 handler.basePath: /
@@ -99,22 +108,22 @@ handler.handlers:
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
   - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
-  # - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
 
 handler.chains.default:
+  - requestInterceptor
   - exception
-  - metrics
-  - limit
+  # - metrics
+  # - limit
   - traceability
   - correlation
-  - cors
+  # - cors
   # - stateless
-  - responseInterceptor
+  # - responseInterceptor
   - header
   #- path
   #- specification
   #- security
-  # - requestInterceptor
   #- body
   #- audit
   #- sanitizer
