@@ -111,7 +111,6 @@ handler.handlers:
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
 
 handler.chains.default:
-  - requestInterceptor
   - exception
   # - metrics
   # - limit
@@ -119,7 +118,8 @@ handler.chains.default:
   - correlation
   # - cors
   # - stateless
-  # - responseInterceptor
+  - requestInterceptor
+  - responseInterceptor
   - header
   #- path
   #- specification
