@@ -38,7 +38,6 @@ handlers:
   # - com.networknt.cors.CorsHttpHandler@cors
   - com.networknt.openapi.OpenApiHandler@specification
   - com.networknt.openapi.JwtVerifyHandler@security
-  - com.networknt.body.ProxyBodyHandler@body
   # - com.networknt.audit.AuditHandler@audit
   - com.networknt.sanitizer.SanitizerHandler@sanitizer
   - com.networknt.openapi.ValidatorHandler@validator
@@ -59,6 +58,8 @@ handlers:
   - com.networknt.health.HealthGetHandler@health
   - com.networknt.info.ServerInfoGetHandler@info
   # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
+  # - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
 
 chains:
   default:
@@ -68,13 +69,14 @@ chains:
     - traceability
     - correlation
     # - cors
+    - requestInterceptor
+    # - responseInterceptor
     - header
    # - saml
     - path
     - router
     - specification
     - security
-    - body
     #- audit
     - sanitizer
     - validator

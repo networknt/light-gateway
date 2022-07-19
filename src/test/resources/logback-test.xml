@@ -63,8 +63,8 @@
         <appender-ref ref="stdout"/>
     </root>
 
-    <logger name="com.networknt" level="error">
-        <appender-ref ref="log"/>
+    <logger name="com.networknt" level="info" additivity="false">
+        <appender-ref ref="stdout"/>
     </logger>
 
     <logger name="Audit" level="error" additivity="false">
