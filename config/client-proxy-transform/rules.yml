@@ -37,3 +37,41 @@ petstore-request-path:
   actions:
     - actionId: path-transform
       actionClassName: com.networknt.path.HeaderPathTransformAction
+
+petstore-flower-request:
+  ruleId: petstore-flower-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body from json to xml to access backend SOAP service with REST style of API
+  conditions:
+    - conditionId: path-flowers
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/flowers
+  actions:
+    - actionId: flowers-request-transform
+      actionClassName: com.networknt.json2xml.Json2XmlRequestTransformAction
+
+petstore-flower-response:
+  ruleId: petstore-flower-response
+  host: lightapi.net
+  ruleType: response-transform
+  visibility: public
+  description: Transform the response body from xml to json to allow the consumer to access SOAP API as REST style.
+  conditions:
+    - conditionId: path-flowers
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/flowers
+  actions:
+    - actionId: flowers-response-transform
+      actionClassName: com.networknt.json2xml.Xml2JsonResponseTransformAction
