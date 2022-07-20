@@ -11,13 +11,13 @@ router.maxRequestTime: 30000
 
 # rule-loader.yml
 rule-Loader.ruleSource: config-folder
-rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]}}
+rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]},"/v1/flowers@post":{"request-transform":[{"ruleId":"petstore-flower-request"}],"response-transform":[{"ruleId":"petstore-flower-response"}]}}
 
 # response-transformer.yml
-response-transformer.appliedPathPrefixes: ["/v1/notifications"]
+response-transformer.appliedPathPrefixes: ["/v1/notifications","/v1/flowers"]
 
 # request-transformer.yml
-request-transformer.appliedPathPrefixes: ["/pets"]
+request-transformer.appliedPathPrefixes: ["/pets","/v1/flowers"]
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
@@ -25,6 +25,7 @@ pathPrefixService.mapping:
   /v1/pets: com.networknt.petstore-1.0.0
   /pets: com.networknt.petstore-1.0.0
   /v1/notifications: com.networknt.petstore-1.0.0
+  /v1/flowers: com.networknt.petstore-1.0.0
 
 # service.yml
 service.singletons:
