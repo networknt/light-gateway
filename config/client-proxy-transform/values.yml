@@ -53,10 +53,10 @@ service.singletons:
       - com.networknt.cluster.LightCluster
   - com.networknt.utility.Decryptor:
       - com.networknt.decrypt.AESDecryptor
-  - com.networknt.handler.ResponseInterceptorHandler:
-      - com.networknt.restrans.ResponseTransformerHandler
-  - com.networknt.handler.RequestInterceptorHandler:
-      - com.networknt.reqtrans.RequestTransformerHandler
+  - com.networknt.handler.ResponseInterceptor:
+      - com.networknt.restrans.ResponseTransformerInterceptor
+  - com.networknt.handler.RequestInterceptor:
+      - com.networknt.reqtrans.RequestTransformerInterceptor
 
 # handler.yml
 handler.basePath: /
