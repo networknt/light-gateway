@@ -54,8 +54,10 @@ service.singletons:
   - com.networknt.utility.Decryptor:
       - com.networknt.decrypt.AESDecryptor
   - com.networknt.handler.ResponseInterceptor:
+      - com.networknt.body.ResponseBodyInterceptor
       - com.networknt.restrans.ResponseTransformerInterceptor
   - com.networknt.handler.RequestInterceptor:
+      - com.networknt.body.RequestBodyInterceptor
       - com.networknt.reqtrans.RequestTransformerInterceptor
 
 # handler.yml
@@ -126,8 +128,11 @@ handler.chains.default:
   #- specification
   #- security
   #- body
-  #- audit
+  - audit
   #- sanitizer
   #- validator
   - prefix
   - router
+
+# audit.yml
+audit.auditOnError: true
