@@ -136,3 +136,6 @@ handler.chains.default:
 
 # audit.yml
 audit.auditOnError: true
+
+# body.yml
+body.cacheRequestBody: true
