@@ -302,10 +302,12 @@ public class GatewayProxyTest {
             IoUtils.safeClose(connection);
         }
         int statusCode = reference.get().getResponseCode();
+        String responseBody = reference.get().getAttachment(Http2Client.RESPONSE_BODY);
+        System.out.println("statusCode = " + statusCode + " responseBody = " + responseBody);
         // as content type and body is mismatched, the body will be ignored.
         Assertions.assertEquals(400, statusCode);
         if (statusCode == 400) {
-            Status status = Config.getInstance().getMapper().readValue(reference.get().getAttachment(Http2Client.RESPONSE_BODY), Status.class);
+            Status status = Config.getInstance().getMapper().readValue(responseBody, Status.class);
             Assertions.assertNotNull(status);
             Assertions.assertEquals("ERR10015", status.getCode());
         }
