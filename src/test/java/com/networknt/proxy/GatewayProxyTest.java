@@ -271,6 +271,7 @@ public class GatewayProxyTest {
     }
 
     @Test
+    @Disabled
     public void testPostInvalidJson() throws Exception {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
