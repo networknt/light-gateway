@@ -11,13 +11,13 @@ router.maxRequestTime: 30000
 
 # rule-loader.yml
 rule-Loader.ruleSource: config-folder
-rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]},"/v1/flowers@post":{"request-transform":[{"ruleId":"petstore-flower-request"}],"response-transform":[{"ruleId":"petstore-flower-response"}]}}
+rule-loader.endpointRules: {"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]},"/v1/flowers@post":{"request-transform":[{"ruleId":"petstore-flower-request"}],"response-transform":[{"ruleId":"petstore-flower-response"}]},"/devext/CANX/AntcMultiService@post":{"request-transform":[{"ruleId":"soap-security-request"}]}}
 
 # response-transformer.yml
 response-transformer.appliedPathPrefixes: ["/v1/notifications","/v1/flowers"]
 
 # request-transformer.yml
-request-transformer.appliedPathPrefixes: ["/pets","/v1/flowers"]
+request-transformer.appliedPathPrefixes: ["/pets","/v1/flowers","/devext/CANX/AntcMultiService"]
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
@@ -112,6 +112,7 @@ handler.handlers:
   - com.networknt.specification.FaviconHandler@favicon
   - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.proxy.ExternalServiceHandler@external
 
 handler.chains.default:
   - exception
@@ -124,6 +125,7 @@ handler.chains.default:
   - requestInterceptor
   - responseInterceptor
   - header
+  - external
   #- path
   #- specification
   #- security
@@ -139,3 +141,12 @@ audit.auditOnError: true
 
 # body.yml
 body.cacheRequestBody: true
+
+# external-service.yml
+externalService.enabled: true
+externalService.enableHttp2: false
+externalService.pathHostMappings:
+  - /devext/CANX/AntcMultiService https://wwwdev.cannex.com
+
+# client.yml
+client.verifyHostname: false
