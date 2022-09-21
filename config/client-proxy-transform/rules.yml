@@ -75,3 +75,27 @@ petstore-flower-response:
   actions:
     - actionId: flowers-response-transform
       actionClassName: com.networknt.json2xml.Xml2JsonResponseTransformAction
+
+soap-security-request:
+  ruleId: soap-security-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body to add the security section into the header for soap API call for external service.
+  conditions:
+    - conditionId: path-soap
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /devext/CANX/AntcMultiService
+  actions:
+    - actionId: soap-request-transform
+      actionClassName: com.networknt.soap.SoapSecurityTransformAction
+      actionValues:
+        - actionValueId: username
+          value: real-user
+        - actionValueId: password
+          value: real-pass
