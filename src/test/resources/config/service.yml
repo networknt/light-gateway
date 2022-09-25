@@ -16,3 +16,5 @@ singletons:
   - com.networknt.cluster.LightCluster
 - com.networknt.handler.RequestInterceptor:
   - com.networknt.body.RequestBodyInterceptor
+- com.networknt.handler.ResponseInterceptor:
+  - com.networknt.body.ResponseBodyInterceptor

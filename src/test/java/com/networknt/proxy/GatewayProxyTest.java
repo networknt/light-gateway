@@ -128,6 +128,7 @@ public class GatewayProxyTest {
 
 
     @Test
+    @Disabled
     public void testGet() throws Exception {
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(10);
