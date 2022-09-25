@@ -58,7 +58,7 @@ handlers:
   - com.networknt.health.HealthGetHandler@health
   - com.networknt.info.ServerInfoGetHandler@info
   # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
-  # - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
 
 chains:
@@ -70,7 +70,7 @@ chains:
     - correlation
     # - cors
     - requestInterceptor
-    # - responseInterceptor
+    - responseInterceptor
     - header
    # - saml
     - path
@@ -104,13 +104,13 @@ paths:
     exec:
       - default
 
-  - path: '/health/com.networknt.backend-1.0.0'
+  - path: '/adm/health/com.networknt.backend-1.0.0'
     method: 'get'
     exec:
       - health
 
   # In most case, the /server/info endpoint shouldn't be exposed. If it is, then it must be protected by OAuth 2.0 or Basic Auth
-  - path: '/server/info'
+  - path: '/adm/server/info'
     method: 'get'
     exec:
       - proxyServerInfo
