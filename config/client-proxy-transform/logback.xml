@@ -95,7 +95,7 @@
         <appender-ref ref="stdout-file"/>
     </root>
 
-    <logger name="audit" level="info" additivity="false">
+    <logger name="Audit" level="info" additivity="false">
         <appender-ref ref="audit"/>
     </logger>
 

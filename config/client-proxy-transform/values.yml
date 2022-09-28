@@ -137,7 +137,7 @@ handler.chains.default:
   - router
 
 # audit.yml
-audit.auditOnError: true
+audit.auditOnError: false
 
 # body.yml
 body.cacheRequestBody: true
