@@ -125,12 +125,12 @@ handler.chains.default:
   - requestInterceptor
   - responseInterceptor
   - header
+  - audit
   - external
   #- path
   #- specification
   #- security
   #- body
-  - audit
   #- sanitizer
   #- validator
   - prefix
@@ -144,9 +144,10 @@ body.cacheRequestBody: true
 
 # external-service.yml
 externalService.enabled: true
-externalService.enableHttp2: false
+externalService.enableHttp2: true
 externalService.pathHostMappings:
   - /devext/CANX/AntcMultiService https://wwwdev.cannex.com
+  - /direct/services/request/init https://www.chasepaymentechhostedpay-var.com
 
 # client.yml
 client.verifyHostname: false
