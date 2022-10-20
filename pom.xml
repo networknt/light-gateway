@@ -340,6 +340,11 @@
             <artifactId>ip-whitelist</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>basic-auth</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
