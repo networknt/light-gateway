@@ -1,6 +1,6 @@
 # Change Log
 
-## [2.1.2](https://github.com/networknt/light-gateway/tree/2.1.2) (2022-10-22)
+## [2.1.2](https://github.com/networknt/light-gateway/tree/2.1.2) (2022-10-23)
 
 
 **Merged pull requests:**
@@ -31,6 +31,8 @@
 - fixes \#37 update the handler.yml and specification.yml in resources c… [\#38](https://github.com/networknt/light-gateway/pull/38) ([stevehu](https://github.com/stevehu))
 - fixes \#35 update config folder to externalize handler.yml to values.yml [\#36](https://github.com/networknt/light-gateway/pull/36) ([stevehu](https://github.com/stevehu))
 - fixes \#33 add salesforce.yml templete to the resources config folder [\#34](https://github.com/networknt/light-gateway/pull/34) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.1](https://github.com/networknt/light-gateway/tree/2.1.1) (2022-04-26)
 
 
