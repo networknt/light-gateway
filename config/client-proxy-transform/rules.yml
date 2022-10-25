@@ -99,3 +99,53 @@ soap-security-request:
           value: real-user
         - actionValueId: password
           value: real-pass
+
+petstore-request-header-replace:
+  ruleId: petstore-request-header-replace
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request to replace one header with the other header.
+  conditions:
+    - conditionId: path-pets
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/pets
+  actions:
+    - actionId: header-transform
+      actionClassName: com.networknt.rule.HeaderReplaceRequestTransformAction
+      actionValues:
+        - actionValueId: sourceHeader
+          value: Flink-Token
+        - actionValueId: targetHeader
+          value: Authorization
+        - actionValueId: removeSourceHeader
+          value: true
+petstore-response-header-replace:
+  ruleId: petstore-response-header-replace
+  host: lightapi.net
+  ruleType: response-transform
+  visibility: public
+  description: Transform the response to replace one header with the other header.
+  conditions:
+    - conditionId: path-pets
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/pets
+  actions:
+    - actionId: header-transform
+      actionClassName: com.networknt.rule.HeaderReplaceResponseTransformAction
+      actionValues:
+        - actionValueId: sourceHeader
+          value: X-Test-1
+        - actionValueId: targetHeader
+          value: My-Header
+
