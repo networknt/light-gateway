@@ -148,6 +148,15 @@ externalService.enableHttp2: true
 externalService.pathHostMappings:
   - /devext/CANX/AntcMultiService https://wwwdev.cannex.com
   - /direct/services/request/init https://www.chasepaymentechhostedpay-var.com
+  - /api/compliance/state/level/v1/levels:filterLeve https://networknt.blackrock.com
 
 # client.yml
 client.verifyHostname: false
+
+# header.yml
+header.enabled: true
+header.request.update:
+  VND.com.blackrock.Request-ID: test-request-id
+  VND.com.blackrock.API-Key: test-api-key
+  x-traceability-id: test-traceability
+  x-correlation-id: test-correlation
