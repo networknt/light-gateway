@@ -132,3 +132,10 @@ handler.chains.default:
   - router
   - proxy
 
+# response-transformer.yml
+response-transformer.appliedPathPrefixes:
+  - /aizws/MrasLabProxy/1.0
+
+# request-transformer.yml
+request-transformer.appliedPathPrefixes:
+  - /aizws/MrasLabProxy/1.0
