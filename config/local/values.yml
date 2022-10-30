@@ -128,7 +128,7 @@ handler.chains.default:
   - audit
   - sanitizer
   - validator
-  - prefix
+  #- prefix
   - router
   - proxy
 

@@ -237,5 +237,19 @@ response:
     "severity": "ERROR"
 }
 ```
+#### Compile to native executable with Graalvm native-image
+
+Graalvm and its native-image are required to compile uber jar file native executable, please following the [link](https://www.graalvm.org/java/quickstart) to install latest version of Graalvm
+
+```
+  mvn clean install
+  
+  native-image -jar target/light-gateway.jar -o target/application
+```
+you can execute the generated executable with following command:
+
+```
+  target/application -Dight-4j-config-dir=config/local
+```
 
 
