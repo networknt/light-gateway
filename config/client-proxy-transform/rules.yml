@@ -94,11 +94,6 @@ soap-security-request:
   actions:
     - actionId: soap-request-transform
       actionClassName: com.networknt.soap.SoapSecurityTransformAction
-      actionValues:
-        - actionValueId: username
-          value: real-user
-        - actionValueId: password
-          value: real-pass
 
 petstore-request-header-replace:
   ruleId: petstore-request-header-replace
