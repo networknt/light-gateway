@@ -17,7 +17,7 @@ rule-loader.endpointRules: {"/v1/pets@get":{"request-transform":[{"ruleId":"pets
 response-transformer.appliedPathPrefixes: ["/v1/notifications","/v1/flowers"]
 
 # request-transformer.yml
-request-transformer.appliedPathPrefixes: ["/v1/pets","/pets","/v1/flowers","/devext/CANX/AntcMultiService"]
+request-transformer.appliedPathPrefixes: ["/pets","/v1/flowers","/devext/CANX/AntcMultiService"]
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
@@ -54,11 +54,11 @@ service.singletons:
   - com.networknt.utility.Decryptor:
       - com.networknt.decrypt.AESDecryptor
   - com.networknt.handler.ResponseInterceptor:
-      - com.networknt.body.ResponseBodyInterceptor
       - com.networknt.restrans.ResponseTransformerInterceptor
+      - com.networknt.body.ResponseBodyInterceptor
   - com.networknt.handler.RequestInterceptor:
-      - com.networknt.body.RequestBodyInterceptor
       - com.networknt.reqtrans.RequestTransformerInterceptor
+      - com.networknt.body.RequestBodyInterceptor
 
 # handler.yml
 handler.basePath: /
@@ -122,9 +122,9 @@ handler.chains.default:
   - correlation
   # - cors
   # - stateless
+  - header
   - requestInterceptor
   - responseInterceptor
-  - header
   - audit
   - external
   #- path
@@ -141,6 +141,7 @@ audit.auditOnError: false
 
 # body.yml
 body.cacheRequestBody: true
+body.cacheResponseBody: true
 
 # external-service.yml
 externalService.enabled: true
@@ -149,6 +150,7 @@ externalService.pathHostMappings:
   - /devext/CANX/AntcMultiService https://wwwdev.cannex.com
   - /direct/services/request/init https://www.chasepaymentechhostedpay-var.com
   - /api/compliance/state/level/v1/levels:filterLeve https://networknt.blackrock.com
+  - /v1/pets https://localhost:9443
 
 # client.yml
 client.verifyHostname: false
@@ -160,3 +162,6 @@ header.request.update:
   VND.com.blackrock.API-Key: test-api-key
   x-traceability-id: test-traceability
   x-correlation-id: test-correlation
+
+# cannex.yml
+cannex.username: SLUATWS
