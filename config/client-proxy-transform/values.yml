@@ -113,6 +113,7 @@ handler.handlers:
   - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
   - com.networknt.proxy.ExternalServiceHandler@external
+  - com.networknt.apikey.ApiKeyHandler@apikey
 
 handler.chains.default:
   - exception
@@ -122,6 +123,8 @@ handler.chains.default:
   - correlation
   # - cors
   # - stateless
+  - apikey
+  - security
   - header
   - requestInterceptor
   - responseInterceptor
@@ -129,7 +132,6 @@ handler.chains.default:
   - external
   #- path
   #- specification
-  #- security
   #- body
   #- sanitizer
   #- validator
