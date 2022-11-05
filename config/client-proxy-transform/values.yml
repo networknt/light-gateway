@@ -114,6 +114,7 @@ handler.handlers:
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
   - com.networknt.proxy.ExternalServiceHandler@external
   - com.networknt.apikey.ApiKeyHandler@apikey
+  - com.networknt.router.OAuthServerHandler@oauth
 
 handler.chains.default:
   - exception
@@ -167,3 +168,6 @@ header.request.update:
 
 # cannex.yml
 cannex.username: SLUATWS
+
+# oauthServer.yml
+oauthServer.client_credentials: ["client_id1:client_secret1","client_id2:client_secret2","5f6906ef-d2f7-4f65-8c04-25e054b352fa:102bd89c-d946-4713-a045-80d9c425d82f"]
