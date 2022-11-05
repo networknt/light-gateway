@@ -135,6 +135,13 @@ paths:
       # enable security once we have this endpoint in the spec with a proper scope.
       - admin
       - chaospost
+
+  - path: '/oauth/token'
+    method: 'post'
+    exec:
+      - body
+      - oauth
+
   - path: '/spec.yaml'
     method: 'get'
     exec:
