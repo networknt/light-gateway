@@ -83,6 +83,7 @@ handler.handlers:
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
 
 handler.chains.default:
   - exception
