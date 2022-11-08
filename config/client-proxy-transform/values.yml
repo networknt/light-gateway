@@ -115,6 +115,7 @@ handler.handlers:
   - com.networknt.proxy.ExternalServiceHandler@external
   - com.networknt.apikey.ApiKeyHandler@apikey
   - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
 
 handler.chains.default:
   - exception
