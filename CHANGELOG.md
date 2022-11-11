@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.1.3](https://github.com/networknt/light-gateway/tree/2.1.3) (2022-11-10)
+
+
+**Merged pull requests:**
+
+
+- fixes \#96 add shutdown endpoint to handler.yml and values.yml [\#97](https://github.com/networknt/light-gateway/pull/97) ([stevehu](https://github.com/stevehu))
+- fixes \#94 add OAuthServer to the handler.yml and values.yml [\#95](https://github.com/networknt/light-gateway/pull/95) ([stevehu](https://github.com/stevehu))
+- fixes \#92 add apikey handler to the client-proxy-transform config [\#93](https://github.com/networknt/light-gateway/pull/93) ([stevehu](https://github.com/stevehu))
+- add script to compile to native executable [\#90](https://github.com/networknt/light-gateway/pull/90) ([neillin](https://github.com/neillin))
+- fixes \#88 update local config to replace the ProxyBodyHandler with In… [\#89](https://github.com/networknt/light-gateway/pull/89) ([stevehu](https://github.com/stevehu))
 ## [2.1.2](https://github.com/networknt/light-gateway/tree/2.1.2) (2022-10-23)
 
 
