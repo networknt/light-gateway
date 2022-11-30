@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.1.4](https://github.com/networknt/light-gateway/tree/2.1.4) (2022-11-30)
+
+
+**Merged pull requests:**
+
+
+- fixes \#98 add product folder for light-balance configuation [\#99](https://github.com/networknt/light-gateway/pull/99) ([stevehu](https://github.com/stevehu))
 ## [2.1.3](https://github.com/networknt/light-gateway/tree/2.1.3) (2022-11-10)
 
 
