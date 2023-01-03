@@ -1,6 +1,5 @@
 # server.yml
-server.httpPort: 9080
-server.enableHttp: true
+server.httpsPort: 8443
 server.enableHttps: true
 server.enableHttp2: true
 server.serviceId: com.networknt.client-gateway-1.0.0
@@ -8,6 +7,7 @@ server.environment: dev
 
 # router.yml
 router.maxRequestTime: 30000
+router.http2Enabled: false
 
 # rule-loader.yml
 rule-Loader.ruleSource: config-folder
@@ -26,6 +26,7 @@ pathPrefixService.mapping:
   /pets: com.networknt.petstore-1.0.0
   /v1/notifications: com.networknt.petstore-1.0.0
   /v1/flowers: com.networknt.petstore-1.0.0
+  /v1/documents: com.networknt.petstore-1.0.0
 
 # service.yml
 service.singletons:
@@ -125,7 +126,9 @@ handler.chains.default:
   - correlation
   # - cors
   # - stateless
+  - limit
   - apikey
+  - specification
   - security
   - header
   - requestInterceptor
@@ -133,7 +136,6 @@ handler.chains.default:
   - audit
   - external
   #- path
-  #- specification
   #- body
   #- sanitizer
   #- validator
@@ -154,8 +156,7 @@ externalService.pathHostMappings:
   - /devext/CANX/AntcMultiService https://wwwdev.cannex.com
   - /direct/services/request/init https://www.chasepaymentechhostedpay-var.com
   - /api/compliance/state/level/v1/levels:filterLeve https://networknt.blackrock.com
-  - /v1/pets https://localhost:9443
-
+  # - /v1/pets https://localhost:9443
 # client.yml
 client.verifyHostname: false
 
@@ -172,3 +173,15 @@ cannex.username: SLUATWS
 
 # oauthServer.yml
 oauthServer.client_credentials: ["client_id1:client_secret1","client_id2:client_secret2","5f6906ef-d2f7-4f65-8c04-25e054b352fa:102bd89c-d946-4713-a045-80d9c425d82f"]
+
+# limit.yml
+limit.enabled: true
+limit.rateLimit: 1000/m
+
+# openapi-security.yml
+openapi-security.skipPathPrefixes: ["/v1/documents"]
+openapi-security.keyResolver: X509Certificate
+openapi-security.skipVerifyScopeWithoutSpec: true
+
+# openapi-handler.yml
+openapi-handler.ignoreInvalidPath: true
