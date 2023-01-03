@@ -92,6 +92,8 @@
         <version.undertow>2.3.0.Final</version.undertow>
         <version.json-schema-validator>1.0.65</version.json-schema-validator>
         <version.logstash>7.0.1</version.logstash>
+        <version.commons-codec>1.15</version.commons-codec>
+        <version.commons-text>1.10.0</version.commons-text>
         <versions.maven-version>2.4</versions.maven-version>
         <version.javadoc-packagelist-plugin>1.0.0</version.javadoc-packagelist-plugin>
         <version.maven-javadoc>3.1.0</version.maven-javadoc>
@@ -365,6 +367,16 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>${version.jackson}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${version.commons-codec}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${version.commons-text}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
