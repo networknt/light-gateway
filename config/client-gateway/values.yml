@@ -8,10 +8,12 @@ server.environment: dev
 
 # router.yml
 router.maxRequestTime: 30000
+router.http2Enabled: false
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
   /gateway/Migration/1.0.0: Migration
+  /v1/documents: com.networknt.petstore-1.0.0
 
 # service.yml
 service.singletons:
@@ -28,6 +30,7 @@ service.singletons:
             # com.networknt.controller-1.0.0: https://controller-node1:8438,https://controller-node2:8437,https://controller-node3:8436
             # com.networknt.scheduler-1.0.0: https://scheduler-node1:8401,https://scheduler-node2:8402,https://scheduler-node3:8403
             Migration: https://lightgateway-dev.networknt.com:8443
+            com.networknt.petstore-1.0.0: https://localhost:8443
   - com.networknt.registry.Registry:
       - com.networknt.registry.support.DirectRegistry
   - com.networknt.balance.LoadBalance:
@@ -87,6 +90,8 @@ handler.handlers:
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
 
 handler.chains.default:
   - exception
@@ -94,7 +99,7 @@ handler.chains.default:
   - limit
   - traceability
   - correlation
-  - cors
+  # - cors
   # - stateless
   - header
   #- path
@@ -104,5 +109,5 @@ handler.chains.default:
   #- audit
   #- sanitizer
   #- validator
-  #- prefix
+  - prefix
   - router
