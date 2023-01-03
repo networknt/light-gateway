@@ -90,7 +90,7 @@
         </triggeringPolicy>
     </appender>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="stdout"/>
         <appender-ref ref="stdout-file"/>
     </root>
@@ -102,5 +102,6 @@
     <logger name="com.networknt" level="trace" additivity="false">
         <appender-ref ref="stdout"/>
     </logger>
+
 
 </configuration>
