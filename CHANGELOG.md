@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.1.5](https://github.com/networknt/light-gateway/tree/2.1.5) (2023-01-04)
+
+
+**Merged pull requests:**
+
+
+- fixes \#104 change the router http2Enabled to false to reproduce the e… [\#105](https://github.com/networknt/light-gateway/pull/105) ([stevehu](https://github.com/stevehu))
+- fixes \#102 update the client-gateway configuration to route the pesto… [\#103](https://github.com/networknt/light-gateway/pull/103) ([stevehu](https://github.com/stevehu))
+- fixes \#100 add commons-codec and commons-text to pom.xml [\#101](https://github.com/networknt/light-gateway/pull/101) ([stevehu](https://github.com/stevehu))
 ## [2.1.4](https://github.com/networknt/light-gateway/tree/2.1.4) (2022-11-30)
 
 
