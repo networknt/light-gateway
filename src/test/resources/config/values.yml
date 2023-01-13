@@ -7,3 +7,6 @@ handler.basePath: /v1
 header.enabled: true
 header.request.update:
   env_tag: dev
+
+response-injection.appliedBodyInjectionPathPrefixes: /post
+request-injection.appliedBodyInjectionPathPrefixes: /post
