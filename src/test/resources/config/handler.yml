@@ -103,6 +103,10 @@ paths:
     method: 'patch'
     exec:
       - default
+  - path: '/*'
+    method: 'options'
+    exec:
+      - default
 
   - path: '/adm/health/com.networknt.backend-1.0.0'
     method: 'get'
