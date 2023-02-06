@@ -8,6 +8,8 @@
 
 - fixes \#108 add OPTIONS method to the handler.yml to handle the cors p… [\#109](https://github.com/networknt/light-gateway/pull/109) ([stevehu](https://github.com/stevehu))
 - fixes \#106 udpate test case config to add post endpoint to interceptor [\#107](https://github.com/networknt/light-gateway/pull/107) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.5](https://github.com/networknt/light-gateway/tree/2.1.5) (2023-01-04)
 
 
