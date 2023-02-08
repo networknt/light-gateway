@@ -1,7 +1,7 @@
 server.serviceId: com.networknt.petstore-1.0.0
 server.environment: dev-proxy
 proxy.containerPort: '9080'
-handler.basePath: /v1
+# handler.basePath: /v1
 
 # header.yml
 header.enabled: true

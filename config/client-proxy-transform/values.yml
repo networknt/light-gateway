@@ -7,7 +7,7 @@ server.environment: dev
 
 # router.yml
 router.maxRequestTime: 30000
-router.http2Enabled: false
+router.http2Enabled: true
 
 # rule-loader.yml
 rule-Loader.ruleSource: config-folder
@@ -33,19 +33,7 @@ service.singletons:
   - com.networknt.server.StartupHookProvider:
       - com.networknt.rule.RuleLoaderStartupHook
   - com.networknt.registry.URL:
-      - com.networknt.registry.URLImpl:
-          parameters:
-            # com.networknt.portal.hybrid.query-1.0.0: https://hybrid-query1:8440,https://hybrid-query2:8441,https://hybrid-query3:8442
-            # com.networknt.portal.hybrid.command-1.0.0: https://hybrid-command:8439
-            # com.networknt.oauth-key-1.0.0: https://oauth-key:6886
-            # com.networknt.oauth-token-1.0.0: https://oauth-token:6882
-            # com.networknt.oauth-code-1.0.0: https://oauth-code:6881
-            # com.networknt.reference-1.0.0: https://reference:2498
-            # com.networknt.config-server-1.0.0: https://localhost:8435
-            # com.networknt.controller-1.0.0: https://controller-node1:8438,https://controller-node2:8437,https://controller-node3:8436
-            # com.networknt.scheduler-1.0.0: https://scheduler-node1:8401,https://scheduler-node2:8402,https://scheduler-node3:8403
-            # Migration: https://lightgateway-dev.networknt.com:8443
-            com.networknt.petstore-1.0.0: https://localhost:9443
+      - com.networknt.registry.URLImpl
   - com.networknt.registry.Registry:
       - com.networknt.registry.support.DirectRegistry
   - com.networknt.balance.LoadBalance:
@@ -60,6 +48,11 @@ service.singletons:
   - com.networknt.handler.RequestInterceptor:
       - com.networknt.reqtrans.RequestTransformerInterceptor
       - com.networknt.body.RequestBodyInterceptor
+
+# direct-registry.yml
+direct-registry.directUrls:
+  com.networknt.petstore-1.0.0: https://localhost:9443
+  Migration: https://lightgateway-dev.networknt.com:8443
 
 # handler.yml
 handler.basePath: /
@@ -175,11 +168,11 @@ cannex.username: SLUATWS
 oauthServer.client_credentials: ["client_id1:client_secret1","client_id2:client_secret2","5f6906ef-d2f7-4f65-8c04-25e054b352fa:102bd89c-d946-4713-a045-80d9c425d82f"]
 
 # limit.yml
-limit.enabled: true
+limit.enabled: false
 limit.rateLimit: 1000/m
 
 # openapi-security.yml
-openapi-security.skipPathPrefixes: ["/v1/documents"]
+openapi-security.skipPathPrefixes: ["/v1/documents", "/v1/pets"]
 openapi-security.keyResolver: X509Certificate
 openapi-security.skipVerifyScopeWithoutSpec: true
 

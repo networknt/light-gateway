@@ -8,7 +8,7 @@ server.environment: dev
 
 # router.yml
 router.maxRequestTime: 30000
-router.http2Enabled: false
+router.http2Enabled: true
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
