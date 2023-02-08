@@ -73,7 +73,16 @@ public class BaseRouterTest {
                             exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                             exchange.getResponseSender().send("Server1");
                         }
-                    }));
+                        })
+                            .addPrefixPath("/v1/address", new HttpHandler() {
+                                @Override
+                                public void handleRequest(HttpServerExchange exchange) throws Exception {
+                                    // sleep for 1 second, and it is bigger to the one-second global timeout.
+                                    try { Thread.sleep(1000); } catch (InterruptedException e) {};
+                                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+                                    exchange.getResponseSender().send("Server1");
+                                }
+                            }));
             if(enableHttp2) {
                 builder1.setServerOption(UndertowOptions.ENABLE_HTTP2, true);
             }
