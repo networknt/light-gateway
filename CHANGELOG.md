@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.1.7](https://github.com/networknt/light-gateway/tree/2.1.7) (2023-02-14)
+
+
+**Merged pull requests:**
+
+
+- fixes \#112 upgrade aws lambda dependencies [\#113](https://github.com/networknt/light-gateway/pull/113) ([stevehu](https://github.com/stevehu))
+- fixes \#110 add a test case to ensure that path prefix based timeout i… [\#111](https://github.com/networknt/light-gateway/pull/111) ([stevehu](https://github.com/stevehu))
 ## [2.1.6](https://github.com/networknt/light-gateway/tree/2.1.6) (2023-02-06)
 
 
