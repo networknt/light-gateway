@@ -28,6 +28,8 @@ import io.undertow.util.Methods;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
 
@@ -35,12 +37,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Disabled
 public class RouterHttpTest extends BaseRouterTest{
-
+    static Logger logger = LoggerFactory.getLogger(RouterHttpTest.class);
     /**
      * Calling server1 directly to ensure that the endpoint is working.
      * @throws Exception

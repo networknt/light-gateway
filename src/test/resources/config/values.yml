@@ -8,5 +8,16 @@ header.enabled: true
 header.request.update:
   env_tag: dev
 
+# pathPrefixService.yml
+pathPrefixService.mapping:
+  /v1/address: party.address-1.0.0
+  /v2/address: party.address-2.0.0
+
+# direct-registry.yml
+direct-registry.directUrls:
+  party.address-1.0.0|dev: https://localhost:18082
+  party.address-2.0.0: https://localhost:18082
+  com.networknt.test-1.0.0|dev: https://localhost:18082
+
 response-injection.appliedBodyInjectionPathPrefixes: /post
 request-injection.appliedBodyInjectionPathPrefixes: /post
