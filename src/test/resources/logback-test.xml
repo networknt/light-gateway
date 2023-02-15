@@ -28,7 +28,7 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %X{sId} %X{cId} %-5level %logger{36} %M - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %X{sId} %X{cId} %-5level %class{36}:%L %M - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -63,7 +63,7 @@
         <appender-ref ref="stdout"/>
     </root>
 
-    <logger name="com.networknt" level="trace" additivity="false">
+    <logger name="com.networknt" level="debug" additivity="false">
         <appender-ref ref="stdout"/>
     </logger>
 
