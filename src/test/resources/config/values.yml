@@ -1,6 +1,10 @@
 server.serviceId: com.networknt.petstore-1.0.0
 server.environment: dev-proxy
-proxy.containerPort: '9080'
+# proxy.yml
+proxy.http2Enabled: false
+proxy.httpsEnabled: false
+proxy.hosts: http://localhost:18081
+
 # handler.basePath: /v1
 
 # header.yml
