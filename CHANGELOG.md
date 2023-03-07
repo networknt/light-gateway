@@ -9,6 +9,8 @@
 - fixes \#118 update server-proxy-petstore config to add oauth [\#119](https://github.com/networknt/light-gateway/pull/119) ([stevehu](https://github.com/stevehu))
 - fixes \#116 move the test proxy config to values.yml [\#117](https://github.com/networknt/light-gateway/pull/117) ([stevehu](https://github.com/stevehu))
 - fixes \#114 update configuration for test [\#115](https://github.com/networknt/light-gateway/pull/115) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.7](https://github.com/networknt/light-gateway/tree/2.1.7) (2023-02-14)
 
 
