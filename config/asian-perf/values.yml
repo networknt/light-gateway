@@ -1,0 +1,217 @@
+# server.yml
+server.serviceId: com.networknt.router-1.0.0
+server.enableHttp: true
+server.httpPort: 10080
+server.enableHttps: true
+server.httpsPort: 8443
+
+# header.yml
+header.enabled: true
+header.response.update:
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; img-src https://*; child-src 'none';
+  X-Frame-Options: deny
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Cache-Control: no-cache, private, no-store
+  User-Agent: ''
+
+# limit.yml
+limit.enabled: false
+limit.errorCode: 429
+limit.rateLimit: 100/s
+
+#change the handler.yml location of limit if going to use the client limit
+#limit.key: client
+#limit.client:
+#  0oa1am7mf6Ni0gGWs1d7: 2/m
+#  0oa145zeup7GSqLm51d7: 5/m
+
+# body.yml
+body.cacheRequestBody: true
+body.cacheResponseBody: true
+
+# cors.yml
+cors.enabled: true
+
+# sanitizer.yml
+sanitizer.enabled: true
+sanitizer.bodyEnabled: false
+sanitizer.headerEnabled: true
+sanitizer.headerEncoder: html-content
+#sanitizer.headerAttributesToEncode: x-traceability-id
+#sanitizer.headerAttributesToIgnore: test
+
+#Audit.yml
+audit.enabled: true
+audit.mask: true
+audit.statusCode: true
+audit.responseTime: true
+audit.auditOnError: true
+audit.logLevelIsError: true
+
+#okta security start
+# client.yml
+client.verifyHostname: false
+client.tokenKeyServiceId: asia-okta
+client.tokenServerUrl: https://sunlifeasiaapi.oktapreview.com
+client.tokenKeyUri: /oauth2/aus13ed8ugC9EVGoS1d7/v1/keys
+client.tokenProxyHost: ""
+client.tokenProxyPort: null
+client.timeout: 200000
+
+
+#security.yml
+openapi-security.enableVerifyJwt: false
+openapi-security.enableVerifyScope: false
+openapi-security.keyResolver: JsonWebKeySet
+openapi-security.bootstrapFromKeyService: false
+openapi-security.enableExtractScopeToken: false
+openapi-security.skipVerifyScopeWithoutSpec: true
+
+# service.yml
+service.singletons:
+- com.networknt.registry.URL:
+  - com.networknt.registry.URLImpl:
+      protocol: https
+      host: localhost
+      port: 8080
+      path: direct
+- com.networknt.registry.Registry:
+  - com.networknt.registry.support.DirectRegistry
+- com.networknt.balance.LoadBalance:
+  - com.networknt.balance.RoundRobinLoadBalance
+- com.networknt.cluster.Cluster:
+  - com.networknt.cluster.LightCluster
+- com.networknt.utility.Decryptor:
+  - com.networknt.decrypt.AESDecryptor
+- com.networknt.handler.RequestInterceptor:
+  - com.networknt.body.RequestBodyInterceptor
+- com.networknt.handler.ResponseInterceptor:
+  - com.networknt.body.ResponseBodyInterceptor
+
+
+# direct-registry.yml
+direct-registry.directUrls:
+  asia-okta: https://sunlifeasiaapi.oktapreview.com
+  aah-ekyc: https://cl0a2918.sunlifecorp.com:34443
+  token-was: http://sv84581.sunlifecorp.com:9081
+  ro-esignature: https://cl0a2918.sunlifecorp.com:34443
+  leads-service: https://sv84959.sunlifecorp.com:34443
+  funddb-service: http://sv81096.hk.sunlife:15080
+  petstore: https://localhost:944
+
+# pathPrefixService.yml
+pathPrefixService.enabled: true
+pathPrefixService.mapping:
+  #/gateway/dev/de-asia-ekyc-service: aah-ekyc
+  /gateway/SLFTokenService: token-was
+  /gateway/dev/slf-signature: ro-esignature
+  /gateway/dev/leadsservice: leads-service
+  /gateway/dev/FundDBService: funddb-service
+  /gateway/dev/de-asia-ekyc-service: petstore
+  /v1/pets: petstore
+# flow : service.yml -> pathPrefixService.yml -> router.yml
+
+
+# router.yml
+router.maxRequestTime: 200000
+router.connectionsPerThread: 50
+router.serviceIdQueryParameter: true
+#router.methodRewriteRules: null
+router.urlRewriteRules:
+  #aah-ekyc
+  - /gateway/(.*)/de-asia-ekyc-service/v1/tickets/(.*) /$1-de-asia-ekyc-service/v1/tickets/$2
+  - /gateway/(.*)/de-asia-ekyc-service/v1/tickets /$1-de-asia-ekyc-service/v1/tickets
+  #- /gateway/(.*)/de-asia-ekyc-service/v1/healthCheck /$1-de-asia-ekyc-service/v1/healthCheck
+  - /gateway/dev/de-asia-ekyc-service/v1/healthCheck /v1/pets
+  - /gateway/(.*)/de-asia-ekyc-service/v1/webhook /$1-de-asia-ekyc-service/v1/webhook
+
+  #token-was
+  - /gateway/SLFTokenService/(.*) /SLFTokenService/$1
+
+  #ro-esignature
+  - /gateway/(.*)/slf-signature/docusign/(.*) /$1-slf-signature/docusign/$2
+  - /gateway/(.*)/slf-signature/(.*) /$1-slf-signature/$2
+
+  #leads-service
+  - /gateway/(.*)/leadsservice/(.*) /$1-leadsservice/$2
+
+  #funddb-service
+  - /gateway/(.*)/FundDBService/(.*) /FundDBService/$2
+
+# handler.yml
+handler.basePath: /
+handler.handlers:
+  # Light-framework cross-cutting concerns implemented in the microservice
+  - com.networknt.exception.ExceptionHandler@exception
+  - com.networknt.metrics.MetricsHandler@metrics
+  - com.networknt.traceability.TraceabilityHandler@traceability
+  - com.networknt.correlation.CorrelationHandler@correlation
+  # Cors handler to handler post/put pre-flight. It is not used in the sidecar but only in the router.
+  - com.networknt.cors.CorsHttpHandler@cors
+  - com.networknt.openapi.OpenApiHandler@specification
+  - com.networknt.openapi.JwtVerifyHandler@security
+  # - com.networknt.body.ProxyBodyHandler@proxybody
+  - com.networknt.body.BodyHandler@body
+  - com.networknt.audit.AuditHandler@audit
+  # DumpHandler is to dump detail request/response info to log, useful for troubleshooting but not suggested to use in production due to it may lower the performance
+  # - com.networknt.dump.DumpHandler@dump 
+  - com.networknt.sanitizer.SanitizerHandler@sanitizer
+  - com.networknt.openapi.ValidatorHandler@validator
+  # Header middleware to manipulate request and/or response headers before or after downstream server
+  - com.networknt.header.HeaderHandler@header
+  # Rate limit middleware to prevent DDoS attacks externally or throttle requests internally
+  - com.networknt.limit.LimitHandler@limit
+  # Direct requests to named services based on the request path
+  - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
+  - com.networknt.router.middleware.GatewayTokenHandler@token
+  #- com.networknt.router.GatewayRouterHandler@router
+  - com.networknt.router.RouterHandler@router
+  - com.networknt.proxy.LightProxyHandler@proxy
+  - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+  - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+  # Customer business domain specific cross-cutting concerns handlers
+  # - com.example.validator.CustomizedValidator@custvalidator
+  # Framework endpoint handlers
+  - com.networknt.health.HealthGetHandler@health
+  - com.networknt.proxy.ProxyHealthGetHandler@proxyHealth
+  - com.networknt.logging.handler.LoggerGetHandler@getLogger
+  - com.networknt.logging.handler.LoggerPostHandler@postLogger
+  - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
+  # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
+  # Chaos Monkey middleware handlers and API handler
+  - com.networknt.chaos.KillappAssaultHandler@killapp
+  - com.networknt.chaos.LatencyAssaultHandler@latency
+  - com.networknt.chaos.MemoryAssaultHandler@memory
+  - com.networknt.chaos.ExceptionAssaultHandler@exchaos
+  - com.networknt.chaos.ChaosMonkeyGetHandler@chaosget
+  - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
+  - com.networknt.info.ServerInfoGetHandler@info
+  - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
+  - com.networknt.specification.SpecDisplayHandler@spec
+  - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
+  - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
+  # - ca.sunlife.eadp.apm.light4j.metrics.APMMetricsHandler@apmmetrics
+  # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
+  # Business Handlers
+handler.chains.default:
+  - exception
+  #- metrics
+  #- apmmetrics
+  - limit
+  - sanitizer
+  - traceability
+  - correlation
+  - cors
+  - header
+  - responseInterceptor
+  - requestInterceptor
+  - audit
+  - security
+  - prefix
+  - router
