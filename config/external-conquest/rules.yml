@@ -1,0 +1,101 @@
+# local rules
+
+petstore-notifications-transformer:
+  ruleId: petstore-notifications-transformer
+  host: lightapi.net
+  ruleType: response-transform
+  visibility: public
+  description: Transform the response body from a complicated structure to a simple one in the light-gateway or http-sidecar.
+  conditions:
+    - conditionId: path-notifications
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/notifications
+  actions:
+    - actionId: notification-transform
+      actionClassName: com.networknt.notification.NotificationTransformAction
+
+petstore-request-path:
+  ruleId: petstore-request-path
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request path based on the context header as the prefix.
+  conditions:
+    - conditionId: path-pets
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /pets
+  actions:
+    - actionId: path-transform
+      actionClassName: com.networknt.path.HeaderPathTransformAction
+
+petstore-flower-request:
+  ruleId: petstore-flower-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body from json to xml to access backend SOAP service with REST style of API
+  conditions:
+    - conditionId: path-flowers
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/flowers
+  actions:
+    - actionId: flowers-request-transform
+      actionClassName: com.networknt.json2xml.Json2XmlRequestTransformAction
+
+petstore-flower-response:
+  ruleId: petstore-flower-response
+  host: lightapi.net
+  ruleType: response-transform
+  visibility: public
+  description: Transform the response body from xml to json to allow the consumer to access SOAP API as REST style.
+  conditions:
+    - conditionId: path-flowers
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/flowers
+  actions:
+    - actionId: flowers-response-transform
+      actionClassName: com.networknt.json2xml.Xml2JsonResponseTransformAction
+
+soap-security-request:
+  ruleId: soap-security-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body to add the security section into the header for soap API call for external service.
+  conditions:
+    - conditionId: path-soap
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /devext/CANX/AntcMultiService
+  actions:
+    - actionId: soap-request-transform
+      actionClassName: com.networknt.soap.SoapSecurityTransformAction
+      actionValues:
+        - actionValueId: username
+          value: real-user
+        - actionValueId: password
+          value: real-pass
