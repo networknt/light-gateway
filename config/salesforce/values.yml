@@ -1,0 +1,534 @@
+handler.basePath: /
+handler.handlers:
+# Light-framework cross-cutting concerns implemented in the microservice
+  - com.networknt.exception.ExceptionHandler@exception
+  # - ca.sunlife.eadp.apm.light4j.metrics.APMMetricsHandler@apmmetrics
+  - com.networknt.traceability.TraceabilityHandler@traceability
+  - com.networknt.correlation.CorrelationHandler@correlation
+  - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  # Cors handler to handler post/put pre-flight. It is not used in the sidecar but only in the router.
+  - com.networknt.cors.CorsHttpHandler@cors
+  - com.networknt.openapi.OpenApiHandler@specification
+  - com.networknt.openapi.JwtVerifyHandler@jwt
+  - com.networknt.openapi.UnifiedSecurityHandler@security
+  - com.networknt.body.BodyHandler@body
+  - com.networknt.audit.AuditHandler@audit
+  #- com.networknt.sanitizer.SanitizerHandler@sanitizer
+  - com.networknt.openapi.ValidatorHandler@validator
+  # Header middleware to manipulate request and/or response headers before or after downstream server
+  - com.networknt.header.HeaderHandler@header
+  # Rate limit middleware to prevent DDoS attacks externally or throttle requests internally
+  #- com.networknt.limit.LimitHandler@limit
+  # IP whitelist handler to allow only one or several IPs to connect to the gateway.
+  #- com.networknt.whitelist.WhitelistHandler@whitelist
+  # Direct requests to named services based on the request path
+  #- com.networknt.router.middleware.ServiceDictHandler@path
+  #- com.networknt.router.middleware.PathServiceHandler@path
+  # - ca.sunlife.eadp.router.middleware.EadpPathPrefixServiceHandler@prefix
+  - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
+  - com.networknt.router.RouterHandler@router
+  #- com.networknt.resource.VirtualHostHandler@virtual
+  # Customer business domain specific cross-cutting concerns handlers
+  # - com.example.validator.CustomizedValidator@custvalidator
+  # Framework endpoint handlers
+  - com.networknt.health.HealthGetHandler@health
+  - com.networknt.info.ServerInfoGetHandler@info
+  - com.networknt.logging.handler.LoggerGetHandler@getLogger
+  - com.networknt.logging.handler.LoggerPostHandler@postLogger
+  - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
+  # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
+  #- com.networknt.auth.StatelessAuthHandler@stateless
+  - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+  - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+  # Chaos Monkey middleware handlers and API handler
+  - com.networknt.chaos.KillappAssaultHandler@killapp
+  - com.networknt.chaos.LatencyAssaultHandler@latency
+  - com.networknt.chaos.MemoryAssaultHandler@memory
+  - com.networknt.chaos.ExceptionAssaultHandler@exchaos
+  - com.networknt.chaos.ChaosMonkeyGetHandler@chaosget
+  - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
+  - com.networknt.specification.SpecDisplayHandler@spec
+  - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
+  - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.proxy.salesforce.SalesforceHandler@salesforce
+  - com.networknt.proxy.ExternalServiceHandler@external
+  - com.networknt.proxy.mras.MrasHandler@mras
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
+  
+handler.chains.default:
+  # - whitelist
+  - exception
+  # - apmmetrics
+  #- latency
+  - memory
+  #- killapp
+  #- limit
+  #- exchaos
+  - traceability
+  - correlation
+  - requestInterceptor
+  - body
+  - cors
+  # - stateless
+  - security
+  - header
+  - salesforce
+  - mras
+  # - body
+  # - path
+  - external
+  - prefix
+  - router
+  # - specification
+  - audit
+  #- sanitizer
+  #- validator
+  #- proxy
+
+# server.yml
+server.serviceId: eadp-corp-gateway
+server.httpsPort: 8443
+server.httpPort: 2323
+server.enableHttp: false
+server.enableHttps: true
+server.shutdownGracefulPeriod: 120000
+server.maxTransferFileSize: 25000000
+
+# rule-loader.yml
+rule-Loader.ruleSource: config-folder
+rule-loader.endpointRules:
+  /gateway/ICAS_Mortgages_SPO/1.0@get:
+    request-transform:
+      - ruleId: header2path-transformer
+request-transformer.appliedPathPrefixes:
+  - /gateway/ICAS_Mortgages_SPO/1.0
+
+# router.yml
+router.maxRequestTime: 30000
+router.urlRewriteRules:
+  # - /v1/pets(.*)$ /sit-eadpapiops-test-ns/eadp-petstore/v1/pets$1
+  - /v1/market(.*)$ /sit-eadpapiops-test-ns/market-rest/v1/market$1
+  - /gateway/BitbucketApi/1.0/(.*)$ /$1
+  - /gateway/GB-Members-Enrollment/0.1.0(.*)$ /sit-dsgb-gbmbrenrollment-ns/web-api-gbmbrenrollment/v1$1
+  - /gateway/salesforce-events-api/1.0.0(.*)$ /dev$1
+  - /gateway/external-hub-api/1.0.0(.*) /dev$1
+  - /gateway/leads-intake/0.1.0(.*) /sit-dsxfunc-leadsintakeautomation-ns/leads-intake-automation-producer$1
+  - /gateway/ClaimCases/1.0(.*) /prweb/PRRestService/HnDClaims/v1$1
+  - /gateway-aiz/FinancialPlanningAPI/1.0/(.*) /sit-onesun-financialplanning-ns/web-onesun-financialplanning/v1/$1
+  - /gateway-aiz/mysunlife-mobile-api-sec/1.0/sit-mcoe-myslfsec(.*)$ /sit-mcoe-myslfsec$1
+  - /gateway-aiz/HouseholdProfileAPI/1.0.0/(.*) /sit-isl-householdprofilev1-ns/isl-api-householdprofile/$1  
+  - /gateway/mobilePushNotification/1.0/(.*)$ /gateway-corp/mobilePushNotification/1.0/$1
+  - /gateway-aiz/lumino-appointments-public/1.1/(.*)$ /sit-dslumino-appointmentslumino-ns/appointments-public/v1/$1
+  - /gateway-aiz/lumino-appointments-secure/1.0/(.*)$ /sit-dslumino-appointments-ns/appointments-secure/v1/$1
+  - /gateway/MRASContractMapperAPI/1.0.0/(.*)$ /sit-isl-mrascontractmapperv1-ns/isl-api-mras-contract-mapper/$1
+  - /gateway/MRASRequirementMapperAPI/1.0.0/(.*)$ /sit-isl-mrasrequirementmapperv1-ns/isl-api-mras-requirement-mapper/$1
+  - /gateway/MRASDecisionMapperAPI/1.0.0/(.*)$ /sit-isl-mrasdecisionmapperv1-ns/isl-api-mras-decision-mapper/$1
+  - /gateway-aiz/GB_MEMBERS/1.0/(.*)$ /sit-dsgb-gbclaimexpense-ns/gbclaimexpenselist/v1/$1
+#client.yml
+client.verifyHostname: false
+client.multipleAuthServers: true
+# client.tokenProxyHost: proxy-mwg-http.ca.sunlife
+# client.tokenProxyPort: 8443
+client.timeout: 180000
+client.pathPrefixServices:
+  /gateway/BitbucketApi/1.0: BITBUCKET
+  /gateway/SLFD_Morningstar/1.0.0: morningStar
+  /gateway/ClaimCases/1.0: ClaimCases
+  /gateway/GBMbrEnrol/1.0: GB_MBR_ENROL
+  /gateway/EInsuranceApi/1.0: E_INSURANCE
+  /gateway/CRE_Graph_GetToken/1.0: CRE_GRAPH_GETTOKEN
+  /gateway/mobilePushNotification/1.0: MOBILEPUSHNOTIFICATION
+  /gateway/MRASContractMapperAPI/1.0.0: MRASCONTRACTMAPPER
+  /gateway/MRASRequirementMapperAPI/1.0.0: MRASREQUIREMENTMAPPER
+  /gateway/MRASDecisionMapperAPI/1.0.0: MRASDECISIONMAPPER
+  /gateway/SPO_GetToken/1.0: SPO_GET_TOKEN
+  /gateway/BlackRockAPI/1.0: BLACKROCK
+  /gateway/adobe-cloud-manager/1.0.0: ADOBECLOUDMANAGER
+  /v1/pets: com.sunlife.eadp.eadp-petstore-0.0.1-SNAPSHOT
+  /v1/documents: DOCUMENT
+  /conquest: SLFD_CONQUEST
+client.tokenKeyServiceIdAuthServers:
+   com.sunlife.eadp.eadp-petstore-0.0.1-SNAPSHOT:
+     server_url: https://sunlifeapi.oktapreview.com
+     # set to true if the oauth2 provider supports HTTP/2
+     enableHttp2: false
+     # token endpoint for client credentials grant for petstore
+     uri: /oauth2/aus66u5cybTrCsbZs1d6/v1/keys
+   DOCUMENT:
+     server_url: https://sunlifeapi.oktapreview.com
+     # set to true if the oauth2 provider supports HTTP/2
+     enableHttp2: false
+     # token endpoint for client credentials grant for petstore
+     uri: /oauth2/aus9xt6dd1cSYyRPH1d6/v1/keys
+   SLFD_CONQUEST:
+     server_url: https://sunlifeapi.oktapreview.com
+     enableHttp2: false
+     uri: /oauth2/aus9z76v6oXfxho8P1d6/v1/keys
+
+  # GB_MBR_ENROL:
+  #   server_url: https://slfapi-dev.oktapreview.com/    
+  #   uri: /oauth2/aus5peibpgJAZ8ed61d7/v1/keys 
+  #   # set to true if the oauth2 provider supports HTTP/2
+  #   enableHttp2: false 
+  # E_INSURANCE: 
+  #   server_url: https://slfapi-dev.oktapreview.com
+  #   uri: /oauth2/aus57eyfxt0QFKUrz1d7/v1/keys
+  #   enableHttp2: false
+  # CRE_GRAPH_GETTOKEN: 
+  #   server_url: https://slfapi-dev.oktapreview.com
+  #   uri: /oauth2/aus57exdozd1afrCM1d7/v1/keys
+  #   enableHttp2: false
+  # MOBILEPUSHNOTIFICATIONS:
+  #   server_url: https://slfapi-dev.oktapreview.com
+  #   uri: /oauth2/aus4wkg3pkW3wuejP1d7/v1/keys
+  #   enableHttp2: false
+  # MRASCONTRACTMAPPER:
+  #   server_url: https://sunlifeapi.oktapreview.com
+  #   uri: /oauth2/aus9z76v6oXfxho8P1d6/v1/keys
+  #   enableHttp2: false
+  # MRASREQUIREMENTMAPPER:
+  #   server_url: https://sunlifeapi.oktapreview.com
+  #   uri: /oauth2/aus9z76v6oXfxho8P1d6/v1/keys
+  #   enableHttp2: false
+  # MRASDECISIONMAPPER:
+  #   server_url: https://sunlifeapi.oktapreview.com
+  #   uri: /oauth2/aus9z76v6oXfxho8P1d6/v1/keys
+  #   enableHttp2: false
+  # SPO_GET_TOKEN: 
+  #   server_url: https://slfapi-dev.oktapreview.com/
+  #   enableHttp2: false    
+  #   uri: /oauth2/aus5mghgy6i5qV1F11d7/v1/keys 
+  # BLACKROCK: 
+  #   server_url: https://slfapi-dev.oktapreview.com/
+  #   enableHttp2: false     
+  #   uri: /oauth2/aus63wg8uwFKZdQaO1d7/v1/keys
+  # ADOBECLOUDMANAGER:
+  #   server_url: https://slfapi-dev.oktapreview.com/
+  #   enableHttp2: false     
+  #   uri: /oauth2/aus65s2eljkDNRyMA1d7/v1/keys
+
+#openapi-security.yml
+# Enable JWT verification flag.
+openapi-security.enableVerifyJwt: true
+# Extract JWT scope token from the X-Scope-Token header and validate the JWT token
+openapi-security.enableExtractScopeToken: false
+# Enable JWT scope verification. Only valid when enableVerifyJwt is true.
+openapi-security.enableVerifyScope: false
+# Enable JWT scope verification. 
+# Only valid when (enableVerifyJwt is true) AND (enableVerifyScope is true)
+openapi-security.enableVerifyJwtScopeToken: false
+openapi-security.keyResolver: JsonWebKeySet
+openapi-security.bootstrapFromKeyService: true
+openapi-security.skipPathPrefixes:
+  - /gateway-aiz/
+  - /gateway/CRE_Graph/1.0/
+  - /gateway/ICAS_Mortgages_SPO/1.0/
+  - /gateway/ICAS_USFinance_SPO/1.0/
+  - /gateway/ICAS_USFinance_SPO/2.0/
+  - /gateway/SLFD_Conquest/1.0/
+# okta security end
+
+#external-service.yml
+externalService.enabled: true
+externalService.proxyHost: proxy-mwg-http.ca.sunlife
+#externalService.proxyHost: bha01ab1.ca.sunlife
+#externalService.proxyHost: wka00ab2.ca.sunlife
+externalService.proxyPort: 8443
+externalService.enableHttp2: false
+externalService.pathHostMappings: 
+  # BlackRock
+  - /gateway/BlackRockAPI/1.0 https://sunlife.blackrock.com
+  - /v1/org/1462 https://api.hearsaysocial.com
+  #SPO_GetToken
+  - /gateway/SPO_GetToken/1.0 https://accounts.accesscontrol.windows.net
+  - /gateway/ICAS_Mortgages_SPO/1.0 https://sunlifefinancial.sharepoint.com
+  # US_Grp_Excite_Limra
+  - /dev/ldex/eoi/elections/v2 https://13tg6ytt37-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  - /gateway/GBMbrEnrol/1.0 https://stage-adobeexperiencemanager.sunlifecorp.com
+  - /gateway-aiz/USGrp_EOI/1.0 https://skn1c6r443-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  # USGrp_ADPMarketplaceIntegration
+  - /gateway-aiz/USGrp_ADPMarketplaceIntegration/1.0 https://lrpcpc43d5-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  # USGrp_ADP_Plan_Setup_Callback
+  - /gateway-aiz/USGrp_ADP_Plan_Setup_Callback/1.0.1 https://41houzezfi-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  # USGrp_ABSENCE
+  - /gateway-aiz/USGrp_Absence_Leave_Management/1.0 https://6zgc9isz4i-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  # USGrp_SelfBill_Workday_API
+  - /gateway-aiz/USGrp_SelfBill_Workday_API/1.0.0 https://o095vjleej-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  # USGrp_EOI_LIMRA
+  - /gateway-aiz/USGrp_EOI_LIMRA/1.0.4 https://8u8knc0kha-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+  # E_INSURANCE 
+  - /gateway/EInsuranceApi/1.0 https://chasepaymentechhostedpay-var.com
+  # CRE_GRAPH_GETTOKEN
+  - /gateway/CRE_Graph_GetToken/1.0 https://login.microsoftonline.com
+  # CRE_GRAPH
+  - /gateway/CRE_Graph/1.0 https://graph.microsoft.com
+  # BSI_LM
+  - /gateway-aiz/BSI_LMProxy https://tf11lm.bsi.com
+  # BSIproxy
+  - /gateway-aiz/BSIproxy https://tf11.bsi.com
+  # adobe_cloud_manager
+  - /gateway/adobe-cloud-manager/1.0.0 https://cloudmanager.adobe.io
+  # ICAS US FINANCE V 1.0
+  - /gateway/ICAS_USFinance_SPO/1.0 https://sunlifefinancial.sharepoint.com
+  # ICAS US FINANCE V 2.0
+  - /gateway/ICAS_USFinance_SPO/2.0 https://sunlifefinancial.sharepoint.com
+  
+externalService.urlRewriteRules:  
+  - /gateway/GBMbrEnrol/1.0/(.*)$ /$1
+  - /gateway-aiz/USGrp_ADPMarketplaceIntegration/1.0/(.*)$ /$1
+  - /gateway-aiz/USGrp_ADP_Plan_Setup_Callback/1.0.1/(.*)$ /dev/$1
+  - /gateway-aiz/USGrp_EOI/1.0/(.*)$ /dev/$1
+  - /gateway-aiz/USGrp_Absence_Leave_Management/1.0/(.*)$ /dev/$1
+  - /gateway-aiz/USGrp_SelfBill_Workday_API/1.0.0/(.*)$ /dev/$1
+  - /gateway/EInsuranceApi/1.0/(.*)$ /$1
+  - /gateway/CRE_Graph/1.0/(.*)$ /v1.0/$1
+  - /gateway/CRE_Graph_GetToken/1.0/(.*)$ /$1
+  - /gateway-aiz/USGrp_EOI_LIMRA/1.0.4/(.*)$ /dev/$1
+  - /gateway/SPO_GetToken/1.0/(.*)$ /$1
+  - /gateway/ICAS_Mortgages_SPO/1.0/(.*)$ /$1
+  - /gateway/BlackRockAPI/1.0/(.*)$ /$1
+  - /gateway-aiz/BSI_LMProxy/1.0/(.*)$ /$1
+  - /gateway-aiz/BSIproxy/1.0/(.*)$ /$1
+  - /gateway/adobe-cloud-manager/1.0.0/(.*)$ /$1
+  - /gateway/ICAS_USFinance_SPO/1.0(.*)$ /$1
+  - /gateway/ICAS_USFinance_SPO/2.0(.*)$ /$1
+# service.yml
+service.singletons:
+  - com.networknt.registry.URL:
+      - com.networknt.registry.URLImpl:
+          parameters:
+            com.sunlife.eadp.eadp-petstore-0.0.1-SNAPSHOT: https://localhost:9443
+            DOCUMENT: https://localhost:9443
+            MARKETPLACE: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            BITBUCKET: https://stage-bitbucket.sunlifecorp.com
+            GB-Members-Enrollment: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            salesforce-events-api: https://2crmxdl6jh-vpce-08150723daa9f5272.execute-api.us-east-1.amazonaws.com
+            external-hub-api: https://ftv43gj9xb-vpce-05aa6feea4a0a54c8.execute-api.us-east-1.amazonaws.com
+            leads-intake: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            ClaimCases: https://k8s.sit-healthanddental-pegacase.sunlifecorp.com
+            financial_planning: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            MYSUNLIFE_MOBILE_API_SEC: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            HOUSEHOLDPROFILEAPI: https://dev-corp-aws-ca1-k8s.sunlifecorp.com
+            MOBILEPUSHNOTIFICATION: https://SV0A3302.sunlifecorp.com:9443
+            LUMINOAPPOINTMENTPUBLIC: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            LUMINOAPPOINTMENTSECURE: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+            MRASCONTRACTMAPPER: https://dev-corp-aws-ca1-k8s.sunlifecorp.com
+            MRASREQUIREMENTMAPPER: https://dev-corp-aws-ca1-k8s.sunlifecorp.com
+            MRASDECISIONMAPPER: https://dev-corp-aws-ca1-k8s.sunlifecorp.com
+            GB_MEMBERS: https://dev-corp-wk-ca1-k8s.sunlifecorp.com
+  - com.networknt.server.StartupHookProvider:
+      - com.networknt.rule.RuleLoaderStartupHook
+  - com.networknt.registry.Registry:
+      - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+      - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+      - com.networknt.cluster.LightCluster
+  - com.networknt.utility.Decryptor:
+      - com.networknt.decrypt.AESDecryptor
+  - com.networknt.handler.RequestInterceptor:
+      - com.networknt.reqtrans.RequestTransformerInterceptor
+      - com.networknt.body.RequestBodyInterceptor
+  - com.networknt.handler.ResponseInterceptor:
+      - com.networknt.restrans.ResponseTransformerInterceptor
+      - com.networknt.body.ResponseBodyInterceptor
+
+#body.yml
+body.cacheRequestBody: true
+body.cacheResponseBody: true
+
+# response-transformer.yml
+#response-transformer.enabled: true
+#response-transformer.requiredContent: false
+#response-transformer.appliedPathPrefixes:
+  #/*
+# request-transformer.yml
+#request-transformer.enabled: true
+#request-transformer.requiredContent: false
+#request-transformer.appliedPathPrefixes:
+  #/*
+
+# pathPrefixService.yml
+pathPrefixService.enabled: true
+pathPrefixService.mapping:
+  /v1/pets: com.sunlife.eadp.eadp-petstore-0.0.1-SNAPSHOT
+  /v1/documents: DOCUMENT
+  /v1/market: MARKETPLACE
+  /gateway/BitbucketApi/1.0: BITBUCKET
+  /gateway/GB-Members-Enrollment/1.0.0: GB-Members-Enrollment
+  /gateway/salesforce-events-api/1.0.0: salesforce-events-api
+  /gateway/external-hub-api/1.0.0: external-hub-api
+  /gateway/ClaimCases/1.0: ClaimCases
+  /gateway-aiz/FinancialPlanningAPI/1.0: financial_planning
+  /gateway-aiz/mysunlife-mobile-api-sec/1.0: MYSUNLIFE_MOBILE_API_SEC
+  /gateway-aiz/HouseholdProfileAPI/1.0.0: HOUSEHOLDPROFILEAPI
+  /gateway/mobilePushNotification/1.0: MOBILEPUSHNOTIFICATION
+  /gateway-aiz/lumino-appointments-secure/1.0: LUMINOAPPOINTMENTSECURE
+  /gateway-aiz/lumino-appointments-public/1.1: LUMINOAPPOINTMENTPUBLIC
+  /gateway/MRASContractMapperAPI/1.0.0: MRASCONTRACTMAPPER
+  /gateway/MRASRequirementMapperAPI/1.0.0: MRASREQUIREMENTMAPPER
+  /gateway/MRASDecisionMapperAPI/1.0.0: MRASDECISIONMAPPER
+  /gateway-aiz/GB_MEMBERS/1.0: GB_MEMBERS
+
+# proxy.yml
+proxy.host: https://proxy-mwg-http.ca.sunlife:8443
+
+# Configuration for SalesforceHandler
+salesforce.enabled: true
+# Certificate file name. The private key alias is the filename without the extension.
+salesforce.certFilename: apigwdevuatcorpaiz.pfx
+salesforce.certPassword: S1fap!gtwd3vu4t
+# salesforce.proxyHost: proxy-mwg-http.ca.sunlife
+# salesforce.proxyPort: 8443
+salesforce.enableHttp2: true
+salesforce.pathPrefixAuths:
+  # MORNINGSTAR #
+  - pathPrefix: /services/apexrest/SLFD_FundResearchIntakeServices
+    authIssuer: 3MVG9SUK8FGR3O.vJebzXvWgAEXRbOt1NfGFBI3j9V3hy3IID.yvyC8LO0HgDwf51QEiqB94Vic9AFGcZz5zF
+    authSubject: morningstar.integrationuser@sunlife.slfd.sit
+    authAudience: https://test.salesforce.com
+    iv: YeocAvs2a/PEaRqg
+    tokenTtl: 60
+    waitLength: 5000
+    tokenUrl: https://test.salesforce.com/services/oauth2/token
+    serviceHost: https://slfslfd--sit.my.salesforce.com
+  # # CONQUEST #
+  # - pathPrefix: /services/apexrest/SLFD_ConquestApplicationServices
+  #   authIssuer: 3MVG9SUK8FGR3O.vJebzXvWgAEZ9KX_7vmKt6k3g_AdsTWtzBTLIYwkw2HANBfU9jTTJF9h5mL.2tJdYhyaPW
+  #   authSubject: apiuser.conquestintegration@sunlife.slfd.sit
+  #   authAudience: https://test.salesforce.com
+  #   iv: YeocAvs2a/PEaRqg
+  #   tokenTtl: 60
+  #   waitLength: 5000
+  #   tokenUrl: https://test.salesforce.com/services/oauth2/token
+  #   serviceHost: https://slfslfd--sit.my.salesforce.com
+  # CONQUEST W/ PASSWORD #
+  - pathPrefix: /gateway/SLFD_Conquest/1.0
+    grantType: password
+    username: apiuser.conquestintegration@sunlife.slfd.sit
+    password: Password#2rjB6dGvaeTEHs6WApuHiAon0v
+    clientId: 3MVG9SUK8FGR3O.vJebzXvWgAEZ9KX_7vmKt6k3g_AdsTWtzBTLIYwkw2HANBfU9jTTJF9h5mL.2tJdYhyaPW
+    clientSecret: 29998F2911C0722ACD504B91DBF63A49E57761F223ED90A9FEB8022F53E3BB4B
+    responseType: token
+    tokenUrl: https://test.salesforce.com/services/oauth2/token
+    serviceHost: https://slfslfd--sit.my.salesforce.com
+  # SunEapp #
+  - pathPrefix: /services/apexrest/eapp-accounts
+    authIssuer: 3MVG9SUK8FGR3O.vJebzXvWgAEXRbOt1NfGFBI3j9V3hy3IID.yvyC8LO0HgDwf51QEiqB94Vic9AFGcZz5zF
+    authSubject: suneapp.integrationuser@sunlife.slfd.sit
+    authAudience: https://test.salesforce.com
+    iv: YeocAvs2a/PEaRqg
+    tokenTtl: 60
+    waitLength: 5000
+    tokenUrl: https://test.salesforce.com/services/oauth2/token
+    serviceHost: https://slfslfd--sit.my.salesforce.com
+  - pathPrefix: /services/apexrest/eapp-finaccount
+    authIssuer: 3MVG9SUK8FGR3O.vJebzXvWgAEXRbOt1NfGFBI3j9V3hy3IID.yvyC8LO0HgDwf51QEiqB94Vic9AFGcZz5zF
+    authSubject: suneapp.integrationuser@sunlife.slfd.sit
+    authAudience: https://test.salesforce.com
+    iv: YeocAvs2a/PEaRqg
+    tokenTtl: 60
+    waitLength: 5000
+    tokenUrl: https://test.salesforce.com/services/oauth2/token
+    serviceHost: https://slfslfd--sit.my.salesforce.com
+
+salesforce.urlRewriteRules:
+  - /gateway/SLFD_Conquest/1.0/(.*)$ /services/apexrest/$1
+
+# Configuration for MrasHandler
+# Indicate if the handler is enabled or not
+mras.enabled: true
+# keyStoreName
+mras.keyStoreName: mrasuatpubpvt.jks
+# keyStorePass
+mras.keyStorePass: ap!gwmra5c3rt
+# keyPass
+mras.keyPass: ap!gwmra5c3rt
+# trustStoreName
+mras.trustStoreName:
+# trustStorePass
+mras.trustStorePass:
+# Proxy Host if calling within the corp network with a gateway like Mcafee gateway.
+mras.proxyHost: proxy-mwg-http.ca.sunlife
+# Proxy Port if proxy host is used. default value will be 443 which means HTTPS.
+mras.proxyPort: 8443
+# If HTTP2 is used to connect to the MRAS site.
+mras.enableHttp2: false
+# A list of applied request path prefixes and authentication config, other requests will skip this handler.
+mras.urlRewriteRules:
+  - /gateway/mras-allfinanz-api/1.0.0(.*) /allfinanz/api$1
+  - /gateway/mras-datastream-api/1.0.0(.*)$ /datastream/api/v1$1
+mras.pathPrefixAuth: 
+  /allfinanz/api: accessToken
+  /datastream/api/v1: microsoft
+
+
+# MRAS basic authentication configuration for some endpoints
+#basicAuth:
+# username for the authentication
+mras.basicAuth.username: 
+# password for the authentication
+mras.basicAuth.password: 
+# host for the endpoint
+mras.basicAuth.serviceHost: https://api.ais-dev.sunlife.munichre.cloud
+
+# MRAS accessToken issued by the MRAS service
+#accessToken:
+# MRAS get token URL to send the request
+mras.accessToken.tokenUrl: https://api.ais-uat.sunlife.munichre.cloud/allfinanz/auth/oauth/token                           
+# username for the authentication
+#mras.accessToken.username: SunLifeUserCasePerfAndResults
+mras.accessToken.username: SunLifeUserCasePerformance
+# password for the authentication
+#mras.accessToken.password: WhatWillTheFutureBeLikeIn1984*
+mras.accessToken.password: IWishIWasBackIn1980*
+# is cache enabled for the token
+mras.accessToken.cacheEnabled: true
+# memory key
+mras.accessToken.memKey: MRASToken
+# grace period
+mras.accessToken.gracePeriod: 50
+# host for the endpoint
+mras.accessToken.serviceHost: https://api.ais-uat.sunlife.munichre.cloud
+
+# MRAS Microsoft token issued by Microsoft service
+#microsoft:
+mras.microsoft.tokenUrl: https://login.microsoftonline.com/17cd4695-aff3-4df3-8d9f-e42a48074485/oauth2/token
+mras.microsoft.username: eb2ff695-b936-4a82-97d4-562501828008
+mras.microsoft.password: ZJeJOM9KN5KJ~e14Wg5tyk36..vr1.53Ak
+mras.microsoft.resource: 4f49ecf8-18e1-42c9-ad86-8e977d495176
+mras.microsoft.cacheEnabled: true
+mras.microsoft.memKey: MrasDatastreamCachingKey
+mras.microsoft.gracePeriod: 120
+mras.microsoft.serviceHost: https://api.ais-uat.sunlife.munichre.cloud
+
+#anonymous:
+# MRAS target service host for service access with the token get with above property.
+mras.anonymous.serviceHost: https://api.ais-dev.sunlife.munichre.cloud
+
+# header.yml
+header.enabled: true
+header.pathPrefixHeader:
+  /gateway/ICAS_Mortgages_SPO/1.0:
+    request:
+      remove:
+        - dynPathHeader
+
+  /gateway/BlackRockAPI/1.0:
+    request:
+      remove:
+        - Authorization
+      update:
+        Authorization: Basic c3ZjdXNpcHI6eDJIW2lyNlY=
+        VND.com.blackrock.Request-ID: 3e161420-1b0a-11ec-b966-475f9c199ac4
+        VND.com.blackrock.API-Key: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIqIiwiYXBwSWQiOiJ0ZXN0Y2xpZW50bGcxIiwic2VydmljZUdyb3VwcyI6W10sImRldGFpbHMiOiJbXSIsImlkIjoiNzM4OWQ0YzctYjVjMi00ZDlmLWEzYzYtNWYzMDJiODQ2MTllIiwiZXhwIjo3OTgzNzkyMDAwfQ.f6SLQ06uczp-10UTM2R-8wBoB-du4vVGHLSnguZL_88
+
+# unified-security.yml
+unified-security.pathPrefixAuths:
+  - prefix: /v1/pets
+    jwt: true
+  - prefix: /v1/documents
+    jwt: true

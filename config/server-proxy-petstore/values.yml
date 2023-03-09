@@ -1,6 +1,6 @@
 # server.yml
 server.httpsPort: 8443
-server.serviceId: com.networknt.server-proxy-1.0.0
+# server.serviceId: com.networknt.server-proxy-1.0.0
 
 # router.yml
 # router.maxRequestTime: 3000
