@@ -147,7 +147,7 @@ paths:
       - admin
       - chaospost
 
-  - path: '/oauth/token'
+  - path: ${handler.oauthTokenPath:/oauth/token}
     method: 'post'
     exec:
       - body
