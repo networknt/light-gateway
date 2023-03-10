@@ -52,7 +52,6 @@ public class BaseRouterTest {
     static Undertow server1 = null;
     public static TestServer server = TestServer.getInstance();
     public static ServerConfig config = (ServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME, ServerConfig.class);
-    public static Map<String, Object> secret = DecryptUtil.decryptMap(Config.getInstance().getJsonMapConfig(CONFIG_SECRET));
     static SSLContext sslContext = createSSLContext();
 
     public  static final boolean enableHttp = server.getServerConfig().isEnableHttp();
@@ -106,7 +105,7 @@ public class BaseRouterTest {
 
     protected static SSLContext createSSLContext() throws RuntimeException {
         try {
-            KeyManager[] keyManagers = buildKeyManagers(loadKeyStore(), ((String)secret.get(SecretConstants.SERVER_KEY_PASS)).toCharArray());
+            KeyManager[] keyManagers = buildKeyManagers(loadKeyStore(), (config.getKeyPass()).toCharArray());
             TrustManager[] trustManagers;
             if(config.isEnableTwoWayTls()) {
                 trustManagers = buildTrustManagers(loadTrustStore());
@@ -128,7 +127,7 @@ public class BaseRouterTest {
         String name = config.getKeystoreName();
         try (InputStream stream = Config.getInstance().getInputStreamFromFile(name)) {
             KeyStore loadedKeystore = KeyStore.getInstance("JKS");
-            loadedKeystore.load(stream, ((String)secret.get(SecretConstants.SERVER_KEYSTORE_PASS)).toCharArray());
+            loadedKeystore.load(stream, (config.getKeystorePass()).toCharArray());
             return loadedKeystore;
         } catch (Exception e) {
             logger.error("Unable to load keystore " + name, e);
@@ -140,7 +139,7 @@ public class BaseRouterTest {
         String name = config.getTruststoreName();
         try (InputStream stream = Config.getInstance().getInputStreamFromFile(name)) {
             KeyStore loadedKeystore = KeyStore.getInstance("JKS");
-            loadedKeystore.load(stream, ((String)secret.get(SecretConstants.SERVER_TRUSTSTORE_PASS)).toCharArray());
+            loadedKeystore.load(stream, (config.getTruststorePass()).toCharArray());
             return loadedKeystore;
         } catch (Exception e) {
             logger.error("Unable to load truststore " + name, e);
