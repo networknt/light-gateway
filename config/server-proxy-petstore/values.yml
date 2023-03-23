@@ -1,9 +1,6 @@
 # server.yml
 server.httpsPort: 8443
-# server.serviceId: com.networknt.server-proxy-1.0.0
-
-# router.yml
-# router.maxRequestTime: 3000
+server.serviceId: com.networknt.server-proxy-1.0.0
 
 # proxy.yml
 proxy.hosts: https://localhost:9443
@@ -46,13 +43,6 @@ client.tokenProxyHost:
 client.tokenProxyPort:
 client.timeout: 1000
 client.tokenKeyEnableHttp2: true
-#client.tokenCcClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.tokenRtClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.tokenKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.signClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.signKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.derefClientId: f7d42348-c647-4efb-a52d-4c5787421e73
-#client.injectOpenTracing: true
 
 #security.yml
 openapi-security.enableVerifyJwt: false
