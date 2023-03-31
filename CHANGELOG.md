@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.1.9](https://github.com/networknt/light-gateway/tree/2.1.9) (2023-03-30)
+
+
+**Merged pull requests:**
+
+
+- fixes \#127 update test server port to 18443 to avoid conflict with li… [\#128](https://github.com/networknt/light-gateway/pull/128) ([stevehu](https://github.com/stevehu))
+- fixes \#125 update config light-proxy-client for the direct-registry [\#126](https://github.com/networknt/light-gateway/pull/126) ([stevehu](https://github.com/stevehu))
+- fixes \#123 refactor the test resources config files to use only the v… [\#124](https://github.com/networknt/light-gateway/pull/124) ([stevehu](https://github.com/stevehu))
+- Issue120 [\#122](https://github.com/networknt/light-gateway/pull/122) ([stevehu](https://github.com/stevehu))
+- fixes \#120 change the metric handler to InfluxMetricsHandler [\#121](https://github.com/networknt/light-gateway/pull/121) ([stevehu](https://github.com/stevehu))
 ## [2.1.8](https://github.com/networknt/light-gateway/tree/2.1.8) (2023-03-06)
 
 
