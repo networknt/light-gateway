@@ -6,6 +6,9 @@
 **Merged pull requests:**
 
 
+- fixes \#129 remove the dependency for gateway module as it is changed … [\#130](https://github.com/networknt/light-gateway/pull/130) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.17](https://github.com/networknt/light-gateway/tree/2.1.17) (2023-05-05)
 
 
