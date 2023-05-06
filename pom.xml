@@ -204,11 +204,6 @@
         </dependency>
         <dependency>
             <groupId>com.networknt</groupId>
-            <artifactId>gateway</artifactId>
-            <version>${version.light-4j}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.networknt</groupId>
             <artifactId>logger-config</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
