@@ -28,7 +28,7 @@ public class ServiceDictHandlerTest extends BaseServiceHandlerTest {
         if(server == null) {
             logger.info("starting server");
             HttpHandler handler = getTestHandler();
-            GatewayServiceDictHandler serviceDictHandler = new GatewayServiceDictHandler();
+            ServiceDictHandler serviceDictHandler = new ServiceDictHandler();
             serviceDictHandler.setNext(handler);
             handler = serviceDictHandler;
             HeaderHandler headerHandler = new HeaderHandler();
