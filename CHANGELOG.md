@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.1.20](https://github.com/networknt/light-gateway/tree/2.1.20) (2023-06-17)
+
+
+**Merged pull requests:**
+
+
+- fixes \#131 remove AESDecryptor and add config metrics-test config [\#132](https://github.com/networknt/light-gateway/pull/132) ([stevehu](https://github.com/stevehu))
 ## [2.1.19](https://github.com/networknt/light-gateway/tree/2.1.19) (2023-06-05)
 
 
