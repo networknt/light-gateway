@@ -362,11 +362,6 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.networknt.decrypt.AESDecryptor",
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.networknt.exception.ExceptionConfig",
   "allDeclaredFields":true,
   "allDeclaredMethods":true,
