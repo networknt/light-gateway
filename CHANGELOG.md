@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.1.23](https://github.com/networknt/light-gateway/tree/2.1.23) (2023-07-11)
+
+
+**Merged pull requests:**
+
+
+- fixes \#135 add sidecar module to the dependency for LPS outbound calls [\#136](https://github.com/networknt/light-gateway/pull/136) ([stevehu](https://github.com/stevehu))
+- fixes \#133 remove AESDecriptor entry from the service.yml section [\#134](https://github.com/networknt/light-gateway/pull/134) ([stevehu](https://github.com/stevehu))
 ## [2.1.22](https://github.com/networknt/light-gateway/tree/2.1.22) (2023-06-23)
 
 
