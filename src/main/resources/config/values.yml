@@ -55,8 +55,8 @@ handler.handlers:
   - com.networknt.limit.LimitHandler@limit
   # Direct requests to named services based on the request path
   - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
-  - com.networknt.router.middleware.GatewayTokenHandler@token
-  - com.networknt.router.GatewayRouterHandler@router
+  - com.networknt.router.middleware.TokenHandler@token
+  - com.networknt.router.RouterHandler@router
   - com.networknt.proxy.LightProxyHandler@proxy
   - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
   - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
