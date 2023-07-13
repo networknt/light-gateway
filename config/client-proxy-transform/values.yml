@@ -11,13 +11,19 @@ router.http2Enabled: true
 
 # rule-loader.yml
 rule-Loader.ruleSource: config-folder
-rule-loader.endpointRules: {"/v1/pets@get":{"request-transform":[{"ruleId":"petstore-request-header-replace"}],"response-transform":[{"ruleId":"petstore-response-header-replace"}]},"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]},"/v1/flowers@post":{"request-transform":[{"ruleId":"petstore-flower-request"}],"response-transform":[{"ruleId":"petstore-flower-response"}]},"/devext/CANX/AntcMultiService@post":{"request-transform":[{"ruleId":"soap-security-request"}]}}
+rule-loader.endpointRules: {"/v1/pets@get":{"request-transform":[{"ruleId":"petstore-request-header-replace"}],"response-transform":[{"ruleId":"petstore-response-header-replace"}]},"/v1/pets@post":{"request-transform":[{"ruleId":"body-sanitizer-request"}]},"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]},"/v1/flowers@post":{"request-transform":[{"ruleId":"petstore-flower-request"}],"response-transform":[{"ruleId":"petstore-flower-response"}]},"/devext/CANX/AntcMultiService@post":{"request-transform":[{"ruleId":"soap-security-request"}]}}
+# request-injection.yml
+request-injection.appliedBodyInjectionPathPrefixes:
+  - /v1/pets
+  - /pets
+  - /v1/flowers
+  - /devext/CANX/AntcMultiService
 
 # response-transformer.yml
 response-transformer.appliedPathPrefixes: ["/v1/notifications","/v1/flowers"]
 
 # request-transformer.yml
-request-transformer.appliedPathPrefixes: ["/pets","/v1/flowers","/devext/CANX/AntcMultiService"]
+request-transformer.appliedPathPrefixes: ["/v1/pets","/pets","/v1/flowers","/devext/CANX/AntcMultiService"]
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
@@ -44,8 +50,8 @@ service.singletons:
       - com.networknt.restrans.ResponseTransformerInterceptor
       - com.networknt.body.ResponseBodyInterceptor
   - com.networknt.handler.RequestInterceptor:
-      - com.networknt.reqtrans.RequestTransformerInterceptor
       - com.networknt.body.RequestBodyInterceptor
+      - com.networknt.reqtrans.RequestTransformerInterceptor
 
 # direct-registry.yml
 direct-registry.directUrls:
@@ -77,8 +83,7 @@ handler.handlers:
   # Direct requests to named services based on the request path
   # - com.networknt.router.middleware.GatewayServiceDictHandler@path
   - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
-  - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
-  - com.networknt.router.GatewayRouterHandler@router
+  - com.networknt.router.RouterHandler@router
   - com.networknt.proxy.LightProxyHandler@proxy
   - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
   # - com.networknt.resource.VirtualHostHandler@virtual
@@ -128,7 +133,7 @@ handler.chains.default:
   - external
   #- path
   #- body
-  #- sanitizer
+  - sanitizer
   #- validator
   - prefix
   - router
@@ -176,3 +181,8 @@ openapi-security.skipVerifyScopeWithoutSpec: true
 
 # openapi-handler.yml
 openapi-handler.ignoreInvalidPath: true
+
+# sanitizer.yml
+sanitizer.enabled: true
+sanitizer.bodyEnabled: true
+sanitizer.bodyEncoder: javascript-source

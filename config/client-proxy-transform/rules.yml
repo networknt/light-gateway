@@ -144,3 +144,21 @@ petstore-response-header-replace:
         - actionValueId: targetHeader
           value: My-Header
 
+body-sanitizer-request:
+  ruleId: body-sanitizer-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body based on the sanitizer.yml to encode the request body for cross-site scripting.
+  conditions:
+    - conditionId: path-sanitizer
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/pets
+  actions:
+    - actionId: sanitizer-request-transform
+      actionClassName: com.networknt.rule.sanitizer.BodySanitizerTransformAction
