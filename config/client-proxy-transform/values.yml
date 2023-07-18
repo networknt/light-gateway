@@ -63,7 +63,7 @@ handler.basePath: /
 handler.handlers:
   # Light-framework cross-cutting concerns implemented in the microservice
   - com.networknt.exception.ExceptionHandler@exception
-  - com.networknt.metrics.MetricsHandler@metrics
+  # - com.networknt.metrics.MetricsHandler@metrics
   - com.networknt.traceability.TraceabilityHandler@traceability
   - com.networknt.correlation.CorrelationHandler@correlation
   # Cors handler to handler post/put pre-flight. It is not used in the sidecar but only in the router.
@@ -116,6 +116,7 @@ handler.handlers:
 
 handler.chains.default:
   - exception
+  - prefix
   # - metrics
   # - limit
   - traceability
@@ -135,7 +136,6 @@ handler.chains.default:
   #- body
   - sanitizer
   #- validator
-  - prefix
   - router
 
 # audit.yml
