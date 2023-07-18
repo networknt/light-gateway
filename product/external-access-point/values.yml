@@ -1,0 +1,176 @@
+handler.basePath: /
+handler.handlers:
+# Light-framework cross-cutting concerns implemented in the microservice
+  - com.networknt.exception.ExceptionHandler@exception
+  # - com.networknt.metrics.APMMetricsHandler@metrics
+  - com.networknt.traceability.TraceabilityHandler@traceability
+  - com.networknt.correlation.CorrelationHandler@correlation
+  - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.cors.CorsHttpHandler@cors
+  - com.networknt.openapi.OpenApiHandler@specification
+  - com.networknt.openapi.JwtVerifyHandler@security
+  - com.networknt.body.BodyHandler@body
+  - com.networknt.audit.AuditHandler@audit
+  #- com.networknt.sanitizer.SanitizerHandler@sanitizer
+  - com.networknt.openapi.ValidatorHandler@validator
+  - com.networknt.header.HeaderHandler@header
+  #- com.networknt.limit.LimitHandler@limit
+  #- com.networknt.whitelist.WhitelistHandler@whitelist
+  - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
+  - com.networknt.router.RouterHandler@router
+  #- com.networknt.resource.VirtualHostHandler@virtual
+  # Customer business domain specific cross-cutting concerns handlers
+  # - com.example.validator.CustomizedValidator@custvalidator
+  # Framework endpoint handlers
+  - com.networknt.health.HealthGetHandler@health
+  - com.networknt.info.ServerInfoGetHandler@info
+  - com.networknt.logging.handler.LoggerGetHandler@getLogger
+  - com.networknt.logging.handler.LoggerPostHandler@postLogger
+  - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
+  # - com.networknt.metrics.prometheus.PrometheusGetHandler@getprometheus
+  #- com.networknt.auth.StatelessAuthHandler@stateless
+  - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+  - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+  # Chaos Monkey middleware handlers and API handler
+  - com.networknt.chaos.KillappAssaultHandler@killapp
+  - com.networknt.chaos.LatencyAssaultHandler@latency
+  - com.networknt.chaos.MemoryAssaultHandler@memory
+  - com.networknt.chaos.ExceptionAssaultHandler@exchaos
+  - com.networknt.chaos.ChaosMonkeyGetHandler@chaosget
+  - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
+  - com.networknt.specification.SpecDisplayHandler@spec
+  - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
+  - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.proxy.salesforce.SalesforceHandler@salesforce
+  - com.networknt.proxy.ExternalServiceHandler@external
+  - com.networknt.proxy.mras.MrasHandler@mras
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
+  
+handler.chains.default:
+  # - whitelist
+  - exception
+  - prefix
+  # - metrics
+  - memory
+  #- limit
+  - traceability
+  - correlation
+  - requestInterceptor
+  - cors
+  - header
+  - external
+  #- sanitizer
+  #- specification
+  - security
+  #- validator
+  - audit
+  - router
+
+# server.yml
+server.serviceId: external-access-point
+server.httpsPort: 8443
+server.enableHttp: false
+server.enableHttps: true
+server.shutdownGracefulPeriod: 120000
+server.maxTransferFileSize: 25000000
+
+# router.yml
+router.maxRequestTime: 30000
+router.urlRewriteRules:
+  - /v1/cats /fact
+  - /v1/employees /api/v1/employees
+
+
+#client.yml
+client.verifyHostname: false
+client.multipleAuthServers: false
+# client.tokenProxyHost: proxy-mwg-http.networknt.com
+# client.tokenProxyPort: 8443
+client.timeout: 180000
+client.tokenKeyServerUrl:
+client.tokenKeyServiceIdAuthServers: https://networknt.oktapreview.com
+client.tokenKeyUri: /oauth2/aus66u5cybTrCsbZs1d6/v1/keys
+client.tokenKeyEnableHttp2: false
+
+
+#openapi-security.yml
+# Enable JWT verification flag.
+openapi-security.enableVerifyJwt: true
+# Extract JWT scope token from the X-Scope-Token header and validate the JWT token
+openapi-security.enableExtractScopeToken: false
+# Enable JWT scope verification. Only valid when enableVerifyJwt is true.
+openapi-security.enableVerifyScope: false
+# Enable JWT scope verification. 
+# Only valid when (enableVerifyJwt is true) AND (enableVerifyScope is true)
+openapi-security.enableVerifyJwtScopeToken: false
+openapi-security.keyResolver: JsonWebKeySet
+openapi-security.bootstrapFromKeyService: true
+openapi-security.skipPathPrefixes:
+  - /v1/pets
+  - /v1/cats
+  - /v1/employees
+
+# service.yml
+service.singletons:
+  - com.networknt.registry.URL:
+      - com.networknt.registry.URLImpl
+  - com.networknt.registry.Registry:
+      - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+      - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+      - com.networknt.cluster.LightCluster
+  # - com.networknt.server.StartupHookProvider:
+  #     - com.networknt.rule.RuleLoaderStartupHook
+  - com.networknt.handler.RequestInterceptor:
+      - com.networknt.body.RequestBodyInterceptor
+      - com.networknt.reqtrans.RequestTransformerInterceptor
+  - com.networknt.handler.ResponseInterceptor:
+      - com.networknt.body.ResponseBodyInterceptor
+      - com.networknt.restrans.ResponseTransformerInterceptor
+
+# direct-registry.yml
+direct-registry.directUrls:
+  com.networknt.petstore-1.0.0: https://localhost:9443
+  catfact.ninja: https://catfact.ninja
+  dummy.restapiexample: https://dummy.restapiexample.com
+
+# body.yml
+body.cacheRequestBody: true
+body.cacheResponseBody: true
+
+# response-transformer.yml
+#response-transformer.enabled: true
+#response-transformer.requiredContent: false
+#response-transformer.appliedPathPrefixes:
+  #/*
+# request-transformer.yml
+#request-transformer.enabled: true
+#request-transformer.requiredContent: false
+#request-transformer.appliedPathPrefixes:
+  #/*
+
+# pathPrefixService.yml
+pathPrefixService.enabled: true
+pathPrefixService.mapping:
+  /v1/pets: com.networknt.petstore-1.0.0
+  /v1/cats: catfact.ninja
+  /v1/employees: dummy.restapiexample
+
+
+#external-service.yml
+externalService.enabled: false
+externalService.proxyHost: proxy-mwg-http.networknt.com
+externalService.proxyPort: 8443
+externalService.enableHttp2: false
+externalService.pathHostMappings: 
+  # BlackRock
+  - /v1/cats https://catfact.ninja
+  - /v1/employees https://dummy.restapiexample.com
+  
+externalService.urlRewriteRules:  
+  - /v1/cats /fact
+  - /v1/employees /api/v1/employees
