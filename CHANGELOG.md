@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.1.24](https://github.com/networknt/light-gateway/tree/2.1.24) (2023-08-06)
+
+
+**Merged pull requests:**
+
+
+- fixes \#142 update product light-proxy-client configurations to remove… [\#143](https://github.com/networknt/light-gateway/pull/143) ([stevehu](https://github.com/stevehu))
+- Issue140 [\#141](https://github.com/networknt/light-gateway/pull/141) ([stevehu](https://github.com/stevehu))
+- fixes \#138 update client-proxy-transform config for body-santitizer p… [\#139](https://github.com/networknt/light-gateway/pull/139) ([stevehu](https://github.com/stevehu))
 ## [2.1.23](https://github.com/networknt/light-gateway/tree/2.1.23) (2023-07-11)
 
 
