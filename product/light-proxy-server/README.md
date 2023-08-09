@@ -33,3 +33,37 @@ The values.yml file has a backup with the same content as the values-single.yml 
 3. Unified Security
 
 
+### Tutorial
+
+There are three values.yml configurations in the product/light-proxy-server folder based on single, multiple and unified security models. There are three values.yml configurations in the product/light-proxy-server folder based on single, multiple and unified security models. You can copy the corresponding values-xxx.yml to values.yml for your configuration and start the server from the folder based on your requirement. 
+
+The demo relies on two APIs: Petstore and Market. 
+
+Check out light-example-4j from GitHub and start both APIs on the command line.
+
+```
+cd ~/networknt/light-example-4j/rest/market
+mvn clean install -Prelease
+java -jar target/server.jar
+```
+
+On another terminal.
+
+```
+cd ~/networknt/light-example-4j/rest/petstore-maven-single
+mvn clean install -Prelease
+java -jar target/server.jar
+
+```
+
+Once all three servers are up and running, you can send the following command.
+
+```
+curl --location 'https://localhost:8443/abc/products' \
+--header 'Authorization: Bearer eyJraWQiOiJabHFic'
+```
+
+Please replace the token from your OAuth 2.0 provider in the above curl command. 
+
+This request will reach the LPS, and LPS will proxy it to the market API. Once the market API receives the request, it will call the LPS again to access the petstore API. Before the LPS route the request to the petstore API, it will go to the OAuth 2.0 provider to get a client credentials token based on the configuration. 
+
