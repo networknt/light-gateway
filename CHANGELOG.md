@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.1.26](https://github.com/networknt/light-gateway/tree/2.1.26) (2023-08-17)
+
+
+**Merged pull requests:**
+
+
+- fixes \#144 add product light-proxy-server configurations [\#145](https://github.com/networknt/light-gateway/pull/145) ([stevehu](https://github.com/stevehu))
 ## [2.1.25](https://github.com/networknt/light-gateway/tree/2.1.25) (2023-08-08)
 
 
