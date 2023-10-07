@@ -153,6 +153,11 @@ paths:
       - body
       - oauth
 
+  - path: ${handler.oauthTokenPath:/oauth/token}
+    method: 'get'
+    exec:
+      - getOauth
+
   - path: '/spec.yaml'
     method: 'get'
     exec:

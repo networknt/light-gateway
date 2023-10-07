@@ -103,5 +103,8 @@
         <appender-ref ref="stdout"/>
     </logger>
 
+    <logger name="io.undertow.server.handlers.proxy" level="trace" additivity="false">
+        <appender-ref ref="stdout"/>
+    </logger>
 
 </configuration>
