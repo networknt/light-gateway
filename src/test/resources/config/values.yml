@@ -86,6 +86,7 @@ handler.handlers:
   - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
   - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.router.OAuthServerGetHandler@getOauth
   - com.networknt.server.handler.ServerShutdownHandler@shutdown
 
 handler.chains.default:
