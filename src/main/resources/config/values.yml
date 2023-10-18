@@ -81,6 +81,9 @@ handler.handlers:
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.router.OAuthServerGetHandler@getOauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
 
   # Business Handlers
 handler.chains.default:
