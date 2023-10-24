@@ -8,6 +8,8 @@
 
 - fixes \#148 update default values.yml so that server can be started [\#149](https://github.com/networknt/light-gateway/pull/149) ([stevehu](https://github.com/stevehu))
 - fixes \#146 Update the handler.yml and values.yml to add OAuthServerGe… [\#147](https://github.com/networknt/light-gateway/pull/147) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.27](https://github.com/networknt/light-gateway/tree/2.1.27) (2023-10-04)
 
 
