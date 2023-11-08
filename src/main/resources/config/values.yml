@@ -22,7 +22,6 @@ openapi-validator.enable: true
 
 # proxy.yml
 proxy.http2Enabled: true
-proxy.httpsEnabled: true
 proxy.hosts: https://localhost:9443
 
 # router.yml
