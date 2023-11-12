@@ -51,7 +51,7 @@ public class BaseRouterTest {
 
     static Undertow server1 = null;
     public static TestServer server = TestServer.getInstance();
-    public static ServerConfig config = (ServerConfig) Config.getInstance().getJsonObjectConfig(CONFIG_NAME, ServerConfig.class);
+    public static ServerConfig config = ServerConfig.getInstance();
     static SSLContext sslContext = createSSLContext();
 
     public  static final boolean enableHttp = server.getServerConfig().isEnableHttp();
