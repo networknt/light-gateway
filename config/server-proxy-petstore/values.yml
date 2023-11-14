@@ -53,7 +53,7 @@ openapi-security.bootstrapFromKeyService: false
 # okta security end
 
 # service.yml
-service.singletons: [{"com.networknt.registry.URL":["com.networknt.registry.URLImpl"]},{"com.networknt.registry.Registry":["com.networknt.registry.support.DirectRegistry"]},{"com.networknt.balance.LoadBalance":["com.networknt.balance.RoundRobinLoadBalance"]},{"com.networknt.cluster.Cluster":["com.networknt.cluster.LightCluster"]},{"com.networknt.handler.ResponseInterceptor":["com.networknt.body.ResponseBodyInterceptor"]},{"com.networknt.handler.RequestInterceptor":["com.networknt.body.RequestBodyInterceptor"]}]
+service.singletons: [{"com.networknt.registry.URL":["com.networknt.registry.URLImpl"]},{"com.networknt.registry.Registry":["com.networknt.registry.support.DirectRegistry"]},{"com.networknt.balance.LoadBalance":["com.networknt.balance.RoundRobinLoadBalance"]},{"com.networknt.cluster.Cluster":["com.networknt.cluster.LightCluster"]},{"com.networknt.cache.CacheManager":["com.networknt.cache.CaffeineCacheManager"]},{"com.networknt.handler.ResponseInterceptor":["com.networknt.body.ResponseBodyInterceptor"]},{"com.networknt.handler.RequestInterceptor":["com.networknt.body.RequestBodyInterceptor"]}]
 
 # pathPrefixService.yml
 # pathPrefixService.enabled: true
@@ -165,3 +165,12 @@ handler.chains.default:
   - sanitizer
   - validator
   - proxy
+
+# cache.yml
+cache.caches:
+  - cacheName: jwt
+    expiryInMinutes: 15
+    maxSize: 100
+  - cacheName: jwk
+    expiryInMinutes: 129600
+    maxSize: 100

@@ -35,6 +35,8 @@ service.singletons:
       - com.networknt.balance.RoundRobinLoadBalance
   - com.networknt.cluster.Cluster:
       - com.networknt.cluster.LightCluster
+  - com.networknt.cache.CacheManager:
+      - com.networknt.cache.CaffeineCacheManager
   - com.networknt.handler.ResponseInterceptor:
       - com.networknt.body.ResponseBodyInterceptor
       - com.networknt.restrans.ResponseTransformerInterceptor
@@ -140,3 +142,12 @@ response-transformer.appliedPathPrefixes:
 # request-transformer.yml
 request-transformer.appliedPathPrefixes:
   - /aizws/MrasLabProxy/1.0
+
+# cache.yml
+cache.caches:
+  - cacheName: jwt
+    expiryInMinutes: 15
+    maxSize: 100
+  - cacheName: jwk
+    expiryInMinutes: 129600
+    maxSize: 100
