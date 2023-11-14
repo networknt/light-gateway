@@ -124,6 +124,8 @@ service.singletons:
       - com.networknt.balance.RoundRobinLoadBalance
   - com.networknt.cluster.Cluster:
       - com.networknt.cluster.LightCluster
+  - com.networknt.cache.CacheManager:
+      - com.networknt.cache.CaffeineCacheManager
   # - com.networknt.server.StartupHookProvider:
   #     - com.networknt.rule.RuleLoaderStartupHook
   - com.networknt.handler.RequestInterceptor:
@@ -175,3 +177,12 @@ externalService.pathHostMappings:
 externalService.urlRewriteRules:  
   - /v1/cats /fact
   - /v1/employees /api/v1/employees
+
+# cache.yml
+cache.caches:
+  - cacheName: jwt
+    expiryInMinutes: 15
+    maxSize: 100
+  - cacheName: jwk
+    expiryInMinutes: 129600
+    maxSize: 100
