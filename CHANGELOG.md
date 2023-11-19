@@ -11,6 +11,8 @@
 - fixes \#155 remove proxy.httpsEnabled as it does not exist [\#156](https://github.com/networknt/light-gateway/pull/156) ([stevehu](https://github.com/stevehu))
 - fixes \#153 add addDefaultImplementationEntries to maven jar [\#154](https://github.com/networknt/light-gateway/pull/154) ([stevehu](https://github.com/stevehu))
 - fixes \#151 add jdk 17 docker file and update build.sh [\#152](https://github.com/networknt/light-gateway/pull/152) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.28](https://github.com/networknt/light-gateway/tree/2.1.28) (2023-10-24)
 
 
