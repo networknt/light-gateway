@@ -46,18 +46,14 @@ import static io.undertow.Handlers.path;
 @ExtendWith(TestServer.class)
 public class BaseRouterTest {
     public  static final Logger logger = LoggerFactory.getLogger(BaseRouterTest.class);
-    public static final String CONFIG_NAME = "server";
-    public static final String CONFIG_SECRET = "secret";
-
     static Undertow server1 = null;
-    public static TestServer server = TestServer.getInstance();
     public static ServerConfig config = ServerConfig.getInstance();
     static SSLContext sslContext = createSSLContext();
 
-    public  static final boolean enableHttp = server.getServerConfig().isEnableHttp();
-    public static final boolean enableHttp2 = enableHttp? false : server.getServerConfig().isEnableHttp2();
-    public static final int httpPort = server.getServerConfig().getHttpPort();
-    public static final int httpsPort = server.getServerConfig().getHttpsPort();
+    public  static final boolean enableHttp = config.isEnableHttp();
+    public static final boolean enableHttp2 = !enableHttp && config.isEnableHttp2();
+    public static final int httpPort = config.getHttpPort();
+    public static final int httpsPort = config.getHttpsPort();
     public static final String url = enableHttp ? "http://localhost:" + httpPort : "https://localhost:" + httpsPort;
 
     @BeforeAll
