@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.1.30](https://github.com/networknt/light-gateway/tree/2.1.30) (2023-11-20)
+
+
+**Merged pull requests:**
+
+
+- fixes \#161 update the test case to get server config properties with … [\#162](https://github.com/networknt/light-gateway/pull/162) ([stevehu](https://github.com/stevehu))
 ## [2.1.29](https://github.com/networknt/light-gateway/tree/2.1.29) (2023-11-19)
 
 
