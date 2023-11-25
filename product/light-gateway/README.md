@@ -17,6 +17,12 @@ And the following for the evn variable which point the config server to the ligh
 LIGHT_CONFIG_SERVER_URI=https://localhost:8443
 ```
 
+The next environment variable that we need to add to the IDEA is the encrypt master key. 
+
+```
+LIGHT_4J_CONFIG_PASSWORD=DEMOKEY
+```
+
 In my .profile, I have the following line to set the environment variable.
 
 ```
