@@ -114,7 +114,7 @@ will be used for next handler chain.
 ```
   - com.networknt.router.middleware.GatewayServiceDictHandler@path
   - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
-  - com.networknt.router.GatewayRouterHandler@router
+  - com.networknt.router.RouterHandler@router
 
 ```
 
