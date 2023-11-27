@@ -116,7 +116,7 @@ handler.handlers:
   # - com.networknt.router.middleware.GatewayServiceDictHandler@path
   # - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
   # - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
-  # - com.networknt.router.GatewayRouterHandler@router
+  # - com.networknt.router.RouterHandler@router
   - com.networknt.proxy.LightProxyHandler@proxy
   # - com.networknt.resource.VirtualHostHandler@virtual
   # Customer business domain specific cross-cutting concerns handlers

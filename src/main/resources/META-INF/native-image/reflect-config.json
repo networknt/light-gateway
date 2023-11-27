@@ -556,7 +556,7 @@
   "allPublicConstructors":true
 },
 {
-  "name":"com.networknt.router.GatewayRouterHandler",
+  "name":"com.networknt.router.RouterHandler",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
