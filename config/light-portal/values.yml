@@ -1,0 +1,166 @@
+# server.yml
+server.serviceId: com.networknt.gateway-1.0.0
+
+
+# router.yml
+router.maxRequestTime: 5000
+
+#client.yml
+client.verifyHostname: false
+client.loadDefaultTrustStore: false
+#client.tokenCcClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.tokenRtClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.tokenKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.signClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.signKeyClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.derefClientId: f7d42348-c647-4efb-a52d-4c5787421e73
+#client.injectOpenTracing: true
+#client.tokenServiceId: com.networknt.oauth-token-1.0.0
+#client.tokenKeyServiceId: com.networknt.oauth-key-1.0.0
+#client.signServiceId: com.networknt.oauth-token-1.0.0
+#client.signKeyServiceId: com.networknt.oauth-key-1.0.0
+#client.derefServiceId: com.networknt.oauth-token-1.0.0
+
+# service.yml
+service.singletons:
+  - com.networknt.registry.URL:
+    - com.networknt.registry.URLImpl
+  - com.networknt.registry.Registry:
+    - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+    - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+    - com.networknt.cluster.LightCluster
+  - com.networknt.cache.CacheManager:
+    - com.networknt.cache.CaffeineCacheManager
+
+# pathPrefixService.yml
+pathPrefixService.enabled: true
+pathPrefixService.mapping:
+  /oauth2: com.networknt.oauth-kafka-1.0.0
+  /r: com.networknt.reference-1.0.0
+  /portal/command: com.networknt.portal.hybrid.command-1.0.0
+  /portal/query: com.networknt.portal.hybrid.query-1.0.0
+  /config-server: com.networknt.config-server-1.0.0
+  /services: com.networknt.controller-1.0.0
+  /schedulers: com.networknt.scheduler-1.0.0
+
+# direct-registry.yml
+direct-registry.directUrls:
+  # com.networknt.portal.hybrid.query-1.0.0: https://hybrid-query1:8440,https://hybrid-query2:8441,https://hybrid-query3:8442
+  com.networknt.portal.hybrid.query-1.0.0: https://local.lightapi.net:8440,https://local.lightapi.net:8441,https://local.lightapi.net:8442
+  # com.networknt.portal.hybrid.command-1.0.0: https://hybrid-command:8439
+  com.networknt.portal.hybrid.command-1.0.0: https://local.lightapi.net:8439
+  # com.networknt.oauth-kafka-1.0.0: https://oauth-kafka:6881
+  com.networknt.oauth-kafka-1.0.0: https://192.168.4.102:6881
+  # com.networknt.reference-1.0.0: https://reference:2498
+  com.networknt.reference-1.0.0: https://192.168.4.102:2498
+  # com.networknt.config-server-1.0.0: https://config-server:8435
+  com.networknt.config-server-1.0.0: https://192.168.4.102:8435
+  # com.networknt.controller-1.0.0: https://controller-node1:8438,https://controller-node2:8437,https://controller-node3:8436
+  com.networknt.controller-1.0.0: https://192.168.4.102:8438,https://192.168.4.102:8437,https://192.168.4.102:8436
+  # com.networknt.scheduler-1.0.0: https://scheduler-node1:8401,https://scheduler-node2:8402,https://scheduler-node3:8403
+  com.networknt.scheduler-1.0.0: https://192.168.4.102:8401,https://192.168.4.102:8402,https://192.168.4.102:8403
+
+# handler.yml
+handler.handlers:
+  # Light-framework cross-cutting concerns implemented in the microservice
+  - com.networknt.exception.ExceptionHandler@exception
+  # - com.networknt.metrics.MetricsHandler@metrics
+  - com.networknt.traceability.TraceabilityHandler@traceability
+  - com.networknt.correlation.CorrelationHandler@correlation
+  # Cors handler to handler post/put pre-flight. It is not used in the sidecar but only in the router.
+  - com.networknt.cors.CorsHttpHandler@cors
+  - com.networknt.openapi.OpenApiHandler@specification
+  - com.networknt.openapi.JwtVerifyHandler@security
+  - com.networknt.body.BodyHandler@body
+  - com.networknt.audit.AuditHandler@audit
+  - com.networknt.sanitizer.SanitizerHandler@sanitizer
+  - com.networknt.openapi.ValidatorHandler@validator
+  # Header middleware to manipulate request and/or response headers before or after downstream server
+  - com.networknt.header.HeaderHandler@header
+  # Rate limit middleware to prevent DDoS attacks externally or throttle requests internally
+  - com.networknt.limit.LimitHandler@limit
+  # IP whitelist handler to allow only one or several IPs to connect to the gateway.
+  # - com.networknt.whitelist.WhitelistHandler@whitelist
+  # Direct requests to named services based on the request path
+  # - com.networknt.router.middleware.GatewayServiceDictHandler@path
+  - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
+  # - com.networknt.router.middleware.GatewaySAMLTokenHandler@saml
+  - com.networknt.router.RouterHandler@router
+  - com.networknt.proxy.LightProxyHandler@proxy
+  - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
+  - com.networknt.resource.VirtualHostHandler@virtual
+  # Customer business domain specific cross-cutting concerns handlers
+  # - com.example.validator.CustomizedValidator@custvalidator
+  # Framework endpoint handlers
+  # Control Pane middleware handlers and API handler
+  - com.networknt.chaos.KillappAssaultHandler@killapp
+  - com.networknt.chaos.LatencyAssaultHandler@latency
+  - com.networknt.chaos.MemoryAssaultHandler@memory
+  - com.networknt.chaos.ExceptionAssaultHandler@exchaos
+  - com.networknt.chaos.ChaosMonkeyGetHandler@chaosget
+  - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
+  - com.networknt.health.HealthGetHandler@health
+  - com.networknt.info.ServerInfoGetHandler@info
+  - com.networknt.logging.handler.LoggerGetHandler@getLogger
+  - com.networknt.logging.handler.LoggerPostHandler@postLogger
+  - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
+  - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+  - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+  - com.networknt.specification.SpecDisplayHandler@spec
+  - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
+  - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.router.OAuthServerGetHandler@getOauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
+
+handler.chains.default:
+  # - whitelist
+  - exception
+  # - metrics
+  - limit
+  - traceability
+  - correlation
+  - killapp
+  - latency
+  - memory
+  - exchaos
+  - cors
+  # - stateless
+  - header
+  # - body
+  # - specification
+  # - security
+  # - audit
+  # - sanitizer
+  # - validator
+  # - path
+  - prefix
+  - router
+
+# cache.yml
+cache.caches:
+  - cacheName: jwt
+    expiryInMinutes: 15
+    maxSize: 100
+  - cacheName: jwk
+    expiryInMinutes: 129600
+    maxSize: 100
+
+# cors.yml
+cors.enabled: true
+cors.allowedOrigins:
+  - https://devsignin.lightapi.net
+  - https://dev.lightapi.net
+  - https://localhost:3000
+cors.allowedMethods:
+  - GET
+  - POST
+  - PUT
+  - DELETE
+
+#openapi-security.yml
+openapi-security.skipPathPrefixes:
+  /adm
+
