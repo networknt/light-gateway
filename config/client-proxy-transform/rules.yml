@@ -1,80 +1,99 @@
 # local rules
 
-petstore-notifications-transformer:
-  ruleId: petstore-notifications-transformer
-  host: lightapi.net
-  ruleType: response-transform
-  visibility: public
-  description: Transform the response body from a complicated structure to a simple one in the light-gateway or http-sidecar.
-  conditions:
-    - conditionId: path-notifications
-      propertyPath: requestPath
-      operatorCode: EQ
-      joinCode: AND
-      index: 1
-      conditionValues:
-        - conditionValueId: path
-          conditionValue: /v1/notifications
-  actions:
-    - actionId: notification-transform
-      actionClassName: com.networknt.notification.NotificationTransformAction
-
-petstore-request-path:
-  ruleId: petstore-request-path
+conquest-token-request:
+  ruleId: conquest-token-request
   host: lightapi.net
   ruleType: request-transform
   visibility: public
-  description: Transform the request path based on the context header as the prefix.
+  description: Add the conquest token to the request
   conditions:
-    - conditionId: path-pets
+    - conditionId: path-conquest
       propertyPath: requestPath
       operatorCode: EQ
       joinCode: AND
       index: 1
       conditionValues:
         - conditionValueId: path
-          conditionValue: /pets
+          conditionValue: /conquest
   actions:
-    - actionId: path-transform
-      actionClassName: com.networknt.path.HeaderPathTransformAction
+    - actionId: conquest-request-transform
+      actionClassName: com.networknt.rule.conquest.ConquestTokenRequestTransformAction
 
-petstore-flower-request:
-  ruleId: petstore-flower-request
+context-validator-request:
+  ruleId: context-validator-request
   host: lightapi.net
   ruleType: request-transform
   visibility: public
-  description: Transform the request body from json to xml to access backend SOAP service with REST style of API
+  description: Context validator
   conditions:
-    - conditionId: path-flowers
+    - conditionId: path-conquest
       propertyPath: requestPath
       operatorCode: EQ
       joinCode: AND
       index: 1
       conditionValues:
         - conditionValueId: path
-          conditionValue: /v1/flowers
+          conditionValue: /context
   actions:
-    - actionId: flowers-request-transform
-      actionClassName: com.networknt.json2xml.Json2XmlRequestTransformAction
+    - actionId: context-request-transform
+      actionClassName: com.networknt.rule.validator.ContextValidatorRequestTransformAction
 
-petstore-flower-response:
-  ruleId: petstore-flower-response
+epam-token-request:
+  ruleId: epam-token-request
   host: lightapi.net
-  ruleType: response-transform
+  ruleType: request-transform
   visibility: public
-  description: Transform the response body from xml to json to allow the consumer to access SOAP API as REST style.
+  description: Get EPAM token
   conditions:
-    - conditionId: path-flowers
+    - conditionId: path-conquest
       propertyPath: requestPath
       operatorCode: EQ
       joinCode: AND
       index: 1
       conditionValues:
         - conditionValueId: path
-          conditionValue: /v1/flowers
+          conditionValue: /epam
   actions:
-    - actionId: flowers-response-transform
-      actionClassName: com.networknt.json2xml.Xml2JsonResponseTransformAction
+    - actionId: epam-request-transform
+      actionClassName: com.networknt.rule.epam.EpamTokenRequestTransformAction
+
+xml-json-request:
+  ruleId: xml-json-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Get EPAM token
+  conditions:
+    - conditionId: path-conquest
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /xmltojson
+  actions:
+    - actionId: xml-json-request-transform
+      actionClassName: com.networknt.rule.soap.Rest2SoapTransformAction
+
+json-xml-request:
+  ruleId: json-xml-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Get EPAM token
+  conditions:
+    - conditionId: path-conquest
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /xmltojson
+  actions:
+    - actionId: json-xml-request-transform
+      actionClassName: com.networknt.rule.soap.Soap2RestTransformAction
 
 soap-security-request:
   ruleId: soap-security-request
@@ -95,6 +114,44 @@ soap-security-request:
     - actionId: soap-request-transform
       actionClassName: com.networknt.soap.SoapSecurityTransformAction
 
+snow-security-request:
+  ruleId: snow-security-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body to add the security section into the header for soap API call for external service.
+  conditions:
+    - conditionId: path-soap
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /devext/CANX/AntcMultiService
+  actions:
+    - actionId: soap-request-transform
+      actionClassName: com.networknt.rule.snow.SnowTokenRequestTransformAction
+
+tealium-security-request:
+  ruleId: tealium-security-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: Transform the request body to add the security section into the header for soap API call for external service.
+  conditions:
+    - conditionId: path-soap
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /devext/CANX/AntcMultiService
+  actions:
+    - actionId: soap-request-transform
+      actionClassName: com.networknt.rule.tealium.TealiumTokenRequestTransformAction
+
 petstore-request-header-replace:
   ruleId: petstore-request-header-replace
   host: lightapi.net
@@ -112,7 +169,7 @@ petstore-request-header-replace:
           conditionValue: /v1/pets
   actions:
     - actionId: header-transform
-      actionClassName: com.networknt.rule.HeaderReplaceRequestTransformAction
+      actionClassName: com.networknt.rule.header.HeaderReplaceRequestTransformAction
       actionValues:
         - actionValueId: sourceHeader
           value: Flink-Token
@@ -137,7 +194,7 @@ petstore-response-header-replace:
           conditionValue: /v1/pets
   actions:
     - actionId: header-transform
-      actionClassName: com.networknt.rule.HeaderReplaceResponseTransformAction
+      actionClassName: com.networknt.rule.header.HeaderReplaceResponseTransformAction
       actionValues:
         - actionValueId: sourceHeader
           value: X-Test-1
