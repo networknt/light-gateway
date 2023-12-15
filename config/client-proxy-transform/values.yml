@@ -178,7 +178,7 @@ limit.enabled: false
 limit.rateLimit: 1000/m
 
 # openapi-security.yml
-openapi-security.skipPathPrefixes: ["/v1/documents", "/v1/pets"]
+openapi-security.skipPathPrefixes: ["/v1/documents", "/v1/pets", "/adm/server/info"]
 openapi-security.keyResolver: X509Certificate
 openapi-security.skipVerifyScopeWithoutSpec: true
 
