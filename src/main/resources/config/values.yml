@@ -20,7 +20,7 @@ server.serviceId: com.networknt.gateway-1.0.0
 openapi-security.enableVerifyJwt: false
 
 # openapi-validator.yml
-openapi-validator.enable: true
+openapi-validator.enabled: true
 
 # proxy.yml
 proxy.http2Enabled: true

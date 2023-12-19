@@ -16,7 +16,7 @@ pathPrefixService.mapping:
 openapi-security.enableVerifyJwt: false
 
 # openapi-validator.yml
-openapi-validator.enable: true
+openapi-validator.enabled: true
 
 
 # service.yml
