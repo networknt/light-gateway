@@ -1,12 +1,25 @@
 # Change Log
 
-## [2.1.30](https://github.com/networknt/light-gateway/tree/2.1.30) (2023-11-20)
+## [2.1.31](https://github.com/networknt/light-gateway/tree/2.1.31) (2024-01-15)
+
+
+**Merged pull requests:**
+
+
+- fixes \#2061 Fixed a typo in values.yml for openapi-valiator.enabled [\#173](https://github.com/networknt/light-gateway/pull/173) ([stevehu](https://github.com/stevehu))
+- fixes \#170 add stateless-auth as part of the dependencies [\#171](https://github.com/networknt/light-gateway/pull/171) ([stevehu](https://github.com/stevehu))
+- fixes \#167 add Dockerfile.17 and a new config folder light-portal [\#168](https://github.com/networknt/light-gateway/pull/168) ([stevehu](https://github.com/stevehu))
+- fixes \#165 remove the reference to the GatewayRouterHandler to Router… [\#166](https://github.com/networknt/light-gateway/pull/166) ([stevehu](https://github.com/stevehu))
+- fixes \#163 add product light-gateway configuration with config server… [\#164](https://github.com/networknt/light-gateway/pull/164) ([stevehu](https://github.com/stevehu))
+## [2.1.30](https://github.com/networknt/light-gateway/tree/2.1.30) (2023-11-21)
 
 
 **Merged pull requests:**
 
 
 - fixes \#161 update the test case to get server config properties with … [\#162](https://github.com/networknt/light-gateway/pull/162) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.29](https://github.com/networknt/light-gateway/tree/2.1.29) (2023-11-19)
 
 
