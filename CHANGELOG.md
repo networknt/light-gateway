@@ -11,6 +11,8 @@
 - fixes \#167 add Dockerfile.17 and a new config folder light-portal [\#168](https://github.com/networknt/light-gateway/pull/168) ([stevehu](https://github.com/stevehu))
 - fixes \#165 remove the reference to the GatewayRouterHandler to Router… [\#166](https://github.com/networknt/light-gateway/pull/166) ([stevehu](https://github.com/stevehu))
 - fixes \#163 add product light-gateway configuration with config server… [\#164](https://github.com/networknt/light-gateway/pull/164) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.30](https://github.com/networknt/light-gateway/tree/2.1.30) (2023-11-21)
 
 
