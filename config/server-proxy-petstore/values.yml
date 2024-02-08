@@ -1,7 +1,9 @@
 # server.yml
 server.httpsPort: 8443
 server.serviceId: com.networknt.server-proxy-1.0.0
-
+server.maskConfigProperties: false
+server.keystorePass: CRYPT:3370aedc21b90de19186724c382aaa46:b41007bfc43c54bf8ef9495e1ba06021
+# server.keyPass: CRYPT:3370aedc21b90de19186724c382aaa46:b41007bfc43c54bf8ef9495e1ba06021
 # proxy.yml
 proxy.hosts: https://localhost:9443
 
