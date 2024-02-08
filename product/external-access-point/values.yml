@@ -49,7 +49,7 @@ handler.handlers:
   - com.networknt.router.OAuthServerHandler@oauth
   - com.networknt.router.OAuthServerGetHandler@getOauth
   - com.networknt.server.handler.ServerShutdownHandler@shutdown
-  
+
 handler.chains.default:
   # - whitelist
   - exception
@@ -104,7 +104,7 @@ openapi-security.enableVerifyJwt: true
 openapi-security.enableExtractScopeToken: false
 # Enable JWT scope verification. Only valid when enableVerifyJwt is true.
 openapi-security.enableVerifyScope: false
-# Enable JWT scope verification. 
+# Enable JWT scope verification.
 # Only valid when (enableVerifyJwt is true) AND (enableVerifyScope is true)
 openapi-security.enableVerifyJwtScopeToken: false
 openapi-security.keyResolver: JsonWebKeySet
@@ -169,12 +169,12 @@ externalService.enabled: false
 externalService.proxyHost: proxy-mwg-http.networknt.com
 externalService.proxyPort: 8443
 externalService.enableHttp2: false
-externalService.pathHostMappings: 
+externalService.pathHostMappings:
   # BlackRock
   - /v1/cats https://catfact.ninja
   - /v1/employees https://dummy.restapiexample.com
-  
-externalService.urlRewriteRules:  
+
+externalService.urlRewriteRules:
   - /v1/cats /fact
   - /v1/employees /api/v1/employees
 
