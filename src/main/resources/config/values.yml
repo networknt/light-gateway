@@ -47,7 +47,7 @@ handler.handlers:
   - com.networknt.body.BodyHandler@body
   - com.networknt.audit.AuditHandler@audit
   # DumpHandler is to dump detail request/response info to log, useful for troubleshooting but not suggested to use in production due to it may lower the performance
-  # - com.networknt.dump.DumpHandler@dump 
+  # - com.networknt.dump.DumpHandler@dump
   - com.networknt.sanitizer.SanitizerHandler@sanitizer
   - com.networknt.openapi.ValidatorHandler@validator
   # Header middleware to manipulate request and/or response headers before or after downstream server
@@ -118,4 +118,3 @@ cache.caches:
   - cacheName: jwk
     expiryInMinutes: 129600
     maxSize: 100
-

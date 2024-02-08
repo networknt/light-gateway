@@ -163,4 +163,3 @@ cors.allowedMethods:
 #openapi-security.yml
 openapi-security.skipPathPrefixes:
   /adm
-
