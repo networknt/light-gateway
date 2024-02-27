@@ -12,6 +12,8 @@
 - fixes \#178 add pre-commit hook and apply it [\#179](https://github.com/networknt/light-gateway/pull/179) ([stevehu](https://github.com/stevehu))
 - fixes \#176 update server proxy petstore values.yml to test maskConfig… [\#177](https://github.com/networknt/light-gateway/pull/177) ([stevehu](https://github.com/stevehu))
 - fixes \#174 update test cases based on the HandlerUtils package change [\#175](https://github.com/networknt/light-gateway/pull/175) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.31](https://github.com/networknt/light-gateway/tree/2.1.31) (2024-01-16)
 
 
