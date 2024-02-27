@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.1.32](https://github.com/networknt/light-gateway/tree/2.1.32) (2024-02-27)
+
+
+**Merged pull requests:**
+
+
+- fixes \#183 add config server folder for light-gateway and local confi… [\#184](https://github.com/networknt/light-gateway/pull/184) ([stevehu](https://github.com/stevehu))
+- fixes \#181 remove the values.yml from src resource config [\#182](https://github.com/networknt/light-gateway/pull/182) ([stevehu](https://github.com/stevehu))
+- [pre-commit.ci] pre-commit autoupdate [\#180](https://github.com/networknt/light-gateway/pull/180) ([pre-commit-ci](https://github.com/apps/pre-commit-ci))
+- fixes \#178 add pre-commit hook and apply it [\#179](https://github.com/networknt/light-gateway/pull/179) ([stevehu](https://github.com/stevehu))
+- fixes \#176 update server proxy petstore values.yml to test maskConfig… [\#177](https://github.com/networknt/light-gateway/pull/177) ([stevehu](https://github.com/stevehu))
+- fixes \#174 update test cases based on the HandlerUtils package change [\#175](https://github.com/networknt/light-gateway/pull/175) ([stevehu](https://github.com/stevehu))
 ## [2.1.31](https://github.com/networknt/light-gateway/tree/2.1.31) (2024-01-16)
 
 
