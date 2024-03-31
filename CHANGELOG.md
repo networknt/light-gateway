@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.1.33](https://github.com/networknt/light-gateway/tree/2.1.33) (2024-03-31)
+
+
+**Merged pull requests:**
+
+
+- fixes \#189 change logger-config to logger-handler in pom.xml [\#190](https://github.com/networknt/light-gateway/pull/190) ([stevehu](https://github.com/stevehu))
+- fixes \#187 update client-proxy-market values.yml to support petstore … [\#188](https://github.com/networknt/light-gateway/pull/188) ([stevehu](https://github.com/stevehu))
+- fixes \#185 add io.undertow package to the config server-proxy-petstor… [\#186](https://github.com/networknt/light-gateway/pull/186) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.32](https://github.com/networknt/light-gateway/tree/2.1.32) (2024-02-27)
 
 
