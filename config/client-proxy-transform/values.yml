@@ -101,6 +101,7 @@ handler.handlers:
   - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
   - com.networknt.health.HealthGetHandler@health
   - com.networknt.info.ServerInfoGetHandler@info
+  - com.networknt.cache.CacheExplorerHandler@cache
   - com.networknt.logging.handler.LoggerGetHandler@getLogger
   - com.networknt.logging.handler.LoggerPostHandler@postLogger
   - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
