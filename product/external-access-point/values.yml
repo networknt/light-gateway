@@ -43,9 +43,7 @@ handler.handlers:
   - com.networknt.specification.SpecDisplayHandler@spec
   - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
   - com.networknt.specification.FaviconHandler@favicon
-  - com.networknt.proxy.salesforce.SalesforceHandler@salesforce
   - com.networknt.proxy.ExternalServiceHandler@external
-  - com.networknt.proxy.mras.MrasHandler@mras
   - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
   - com.networknt.router.OAuthServerHandler@oauth
   - com.networknt.router.OAuthServerGetHandler@getOauth
