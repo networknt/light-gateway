@@ -110,8 +110,8 @@ handler.chains.default:
   - validator
   - proxy
 
-# openapi-security.yml
-openapi-security.enableVerifyJwt: false
+# security.yml
+security.enableVerifyJwt: false
 
 # router.yml
 router.hostWhitelist:
