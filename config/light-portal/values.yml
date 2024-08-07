@@ -161,6 +161,6 @@ cors.allowedMethods:
   - PUT
   - DELETE
 
-#openapi-security.yml
-openapi-security.skipPathPrefixes:
+# security.yml
+security.skipPathPrefixes:
   /adm

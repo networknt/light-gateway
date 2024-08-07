@@ -46,12 +46,12 @@ client.tokenProxyPort:
 client.timeout: 1000
 client.tokenKeyEnableHttp2: true
 
-#security.yml
-openapi-security.enableVerifyJwt: false
-openapi-security.enableExtractScopeToken: false
-openapi-security.enableVerifyScope: false
-openapi-security.keyResolver: X509Certificate
-openapi-security.bootstrapFromKeyService: false
+# security.yml
+security.enableVerifyJwt: false
+security.enableExtractScopeToken: false
+security.enableVerifyScope: false
+security.keyResolver: X509Certificate
+security.bootstrapFromKeyService: false
 # okta security end
 
 # service.yml

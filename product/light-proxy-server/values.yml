@@ -118,9 +118,9 @@ handler.chains.default:
   #- sanitizer
   - proxy
 
-# openapi-security
-openapi-security.enableVerifyScope: false
-openapi-security.bootstrapFromKeyService: true
+# security.yml
+security.enableVerifyScope: false
+security.bootstrapFromKeyService: true
 
 # token.yml
 token.enabled: true
