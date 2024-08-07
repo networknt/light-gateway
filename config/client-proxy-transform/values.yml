@@ -178,10 +178,10 @@ oauthServer.client_credentials: ["client_id1:client_secret1","client_id2:client_
 limit.enabled: false
 limit.rateLimit: 1000/m
 
-# openapi-security.yml
-openapi-security.skipPathPrefixes: ["/v1/documents", "/v1/pets", "/adm/server/info"]
-openapi-security.keyResolver: X509Certificate
-openapi-security.skipVerifyScopeWithoutSpec: true
+# security.yml
+security.skipPathPrefixes: ["/v1/documents", "/v1/pets", "/adm/server/info"]
+security.keyResolver: X509Certificate
+security.skipVerifyScopeWithoutSpec: true
 
 # openapi-handler.yml
 openapi-handler.ignoreInvalidPath: true

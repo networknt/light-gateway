@@ -96,19 +96,19 @@ client.tokenKeyUri: /oauth2/aus66u5cybTrCsbZs1d6/v1/keys
 client.tokenKeyEnableHttp2: false
 
 
-#openapi-security.yml
+# security.yml
 # Enable JWT verification flag.
-openapi-security.enableVerifyJwt: true
+security.enableVerifyJwt: true
 # Extract JWT scope token from the X-Scope-Token header and validate the JWT token
-openapi-security.enableExtractScopeToken: false
+security.enableExtractScopeToken: false
 # Enable JWT scope verification. Only valid when enableVerifyJwt is true.
-openapi-security.enableVerifyScope: false
+security.enableVerifyScope: false
 # Enable JWT scope verification.
 # Only valid when (enableVerifyJwt is true) AND (enableVerifyScope is true)
-openapi-security.enableVerifyJwtScopeToken: false
-openapi-security.keyResolver: JsonWebKeySet
-openapi-security.bootstrapFromKeyService: true
-openapi-security.skipPathPrefixes:
+security.enableVerifyJwtScopeToken: false
+security.keyResolver: JsonWebKeySet
+security.bootstrapFromKeyService: true
+security.skipPathPrefixes:
   - /v1/pets
   - /v1/cats
   - /v1/employees
