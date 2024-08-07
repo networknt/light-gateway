@@ -123,6 +123,6 @@ cache.caches:
     expiryInMinutes: 129600
     maxSize: 100
 
-# openapi-security.yml
-openapi-security.skipPathPrefixes:
+# security.yml
+security.skipPathPrefixes:
   - /adm/server/info

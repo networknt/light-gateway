@@ -12,8 +12,8 @@ server.serviceId: com.networknt.local-gateway-1.0.0
 pathPrefixService.mapping:
   /v1/pets: com.networknt.petstore-1.0.0
 
-# openapi-security.yml
-openapi-security.enableVerifyJwt: false
+# security.yml
+security.enableVerifyJwt: false
 
 # openapi-validator.yml
 openapi-validator.enabled: true
