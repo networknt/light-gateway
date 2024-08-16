@@ -1,0 +1,19 @@
+# local rules
+response-body-encoding:
+  ruleId: response-body-encoding
+  host: lightapi.net
+  ruleType: response-transform
+  visibility: public
+  description: Convert ISO-8859-1 encoding to UTF-8 for the response body.
+  conditions:
+    - conditionId: path-conquest
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/pets
+  actions:
+    - actionId: iso-xml-response-transform
+      actionClassName: com.networknt.rule.encoder.ResponseBodyUtf8EncodingTransformAction
