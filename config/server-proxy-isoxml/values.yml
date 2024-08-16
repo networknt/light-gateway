@@ -11,28 +11,26 @@ router.http2Enabled: true
 
 # rule-loader.yml
 rule-loader.ruleSource: config-folder
-rule-loader.endpointRules: {"/v1/pets@get":{"request-transform":[{"ruleId":"petstore-request-header-replace"}],"response-transform":[{"ruleId":"petstore-response-header-replace"}]},"/v1/pets@post":{"request-transform":[{"ruleId":"body-sanitizer-request"}]},"/v1/notifications@get":{"response-transform":[{"ruleId":"petstore-notifications-transformer"}]},"/pets@get":{"request-transform":[{"ruleId":"petstore-request-path"}]},"/v1/flowers@post":{"request-transform":[{"ruleId":"petstore-flower-request"}],"response-transform":[{"ruleId":"petstore-flower-response"}]},"/devext/CANX/AntcMultiService@post":{"request-transform":[{"ruleId":"soap-security-request"}]}}
+rule-loader.endpointRules: {"/v1/pets@get":{"response-transform":[{"ruleId":"response-body-encoding"}]}}
+
 # request-injection.yml
 request-injection.appliedBodyInjectionPathPrefixes:
   - /v1/pets
-  - /pets
-  - /v1/flowers
-  - /devext/CANX/AntcMultiService
 
 # response-transformer.yml
-response-transformer.appliedPathPrefixes: ["/v1/notifications","/v1/flowers"]
+response-injection.appliedBodyInjectionPathPrefixes:
+  - /v1/pets
+
+# response-transformer.yml
+response-transformer.defaultBodyEncoding: ISO-8859-1
+response-transformer.appliedPathPrefixes: ["/v1/pets"]
 
 # request-transformer.yml
-request-transformer.appliedPathPrefixes: ["/v1/pets","/pets","/v1/flowers","/devext/CANX/AntcMultiService"]
+request-transformer.appliedPathPrefixes: ["/v1/pets"]
 
 # pathPrefixService.yml
 pathPrefixService.mapping:
-  # /gateway/Migration/1.0.0: Migration
   /v1/pets: com.networknt.petstore-1.0.0
-  /pets: com.networknt.petstore-1.0.0
-  /v1/notifications: com.networknt.petstore-1.0.0
-  /v1/flowers: com.networknt.petstore-1.0.0
-  /v1/documents: com.networknt.petstore-1.0.0
 
 # service.yml
 service.singletons:
@@ -58,7 +56,6 @@ service.singletons:
 # direct-registry.yml
 direct-registry.directUrls:
   com.networknt.petstore-1.0.0: https://localhost:9443
-  Migration: https://lightgateway-dev.networknt.com:8443
 
 # handler.yml
 handler.basePath: /
@@ -148,31 +145,12 @@ audit.auditOnError: false
 # body.yml
 body.cacheRequestBody: true
 body.cacheResponseBody: true
+body.enabled: true
+body.logFullRequestBody: false
+body.logFullResponseBody: false
 
-# external-service.yml
-externalService.enabled: true
-externalService.enableHttp2: true
-externalService.pathHostMappings:
-  - /devext/CANX/AntcMultiService https://wwwdev.cannex.com
-  - /direct/services/request/init https://www.chasepaymentechhostedpay-var.com
-  - /api/compliance/state/level/v1/levels:filterLeve https://networknt.blackrock.com
-  # - /v1/pets https://localhost:9443
 # client.yml
 client.verifyHostname: false
-
-# header.yml
-header.enabled: true
-header.request.update:
-  VND.com.blackrock.Request-ID: test-request-id
-  VND.com.blackrock.API-Key: test-api-key
-  x-traceability-id: test-traceability
-  x-correlation-id: test-correlation
-
-# cannex.yml
-cannex.username: SLUATWS
-
-# oauthServer.yml
-oauthServer.client_credentials: ["client_id1:client_secret1","client_id2:client_secret2","5f6906ef-d2f7-4f65-8c04-25e054b352fa:102bd89c-d946-4713-a045-80d9c425d82f"]
 
 # limit.yml
 limit.enabled: false
@@ -185,11 +163,6 @@ security.skipVerifyScopeWithoutSpec: true
 
 # openapi-handler.yml
 openapi-handler.ignoreInvalidPath: true
-
-# sanitizer.yml
-sanitizer.enabled: true
-sanitizer.bodyEnabled: true
-sanitizer.bodyEncoder: javascript-source
 
 # cache.yml
 cache.caches:
