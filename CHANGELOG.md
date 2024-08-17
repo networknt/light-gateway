@@ -10,6 +10,8 @@
 - fixes \#205 update values.yml to change openapi-security to security [\#206](https://github.com/networknt/light-gateway/pull/206) ([stevehu](https://github.com/stevehu))
 - fixes \#203 update test values.yml to security instead of openapi-secu… [\#204](https://github.com/networknt/light-gateway/pull/204) ([stevehu](https://github.com/stevehu))
 - fixes \#201 remove MrasHandler and SalesforceHandler from the handler.yml [\#202](https://github.com/networknt/light-gateway/pull/202) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.34](https://github.com/networknt/light-gateway/tree/2.1.34) (2024-06-22)
 
 
