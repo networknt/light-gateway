@@ -372,6 +372,11 @@
             <artifactId>stateless-auth</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>token-limit</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
