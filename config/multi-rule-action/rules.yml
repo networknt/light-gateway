@@ -1,0 +1,40 @@
+# local rules
+json-xml-security-header-request:
+  ruleId: json-xml-security-header-request
+  host: lightapi.net
+  ruleType: request-transform
+  visibility: public
+  description: convert json to xml and add security header with two actions
+  conditions:
+    - conditionId: path-petstore
+      propertyPath: requestPath
+      operatorCode: EQ
+      joinCode: AND
+      index: 1
+      conditionValues:
+        - conditionValueId: path
+          conditionValue: /v1/flowers
+  actions:
+    - actionId: json-xml-request-transform
+      actionClassName: com.networknt.rule.soap.Rest2SoapTransformAction
+      actionValues:
+        - actionValueId: direction
+          value: request
+        - actionValueId: XmlTransformer
+          value: Envelope@@@$prefix@@@SOAP-ENV@@@xmlns:SOAP-ENV@@@http://schemas.xmlsoap.org/soap/envelope/,Body@@@$prefix@@@SOAP-ENV,Header@@@$prefix@@@soapenv@@@$xmlHeader@@@true,Flower@@@$prefix@@@ea@@@xmlns:ea@@@http://www.w3.org/2001/XMLSchema
+    - actionId: soap-request-transform
+      actionClassName: com.networknt.soap.SoapSecurityTransformAction
+    - actionId: header-transform-my-header
+      actionClassName: com.networknt.rule.header.HeaderReplaceRequestTransformAction
+      actionValues:
+        - actionValueId: sourceHeader
+          value: X-Test-1
+        - actionValueId: targetHeader
+          value: My-Header
+    - actionId: header-transform-your-header
+      actionClassName: com.networknt.rule.header.HeaderReplaceRequestTransformAction
+      actionValues:
+        - actionValueId: sourceHeader
+          value: My-Header
+        - actionValueId: targetHeader
+          value: Your-Header
