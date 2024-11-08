@@ -79,17 +79,17 @@
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.light-4j>2.1.38-SNAPSHOT</version.light-4j>
-        <version.yaml-rule>1.0.4</version.yaml-rule>
-        <version.jackson>2.17.2</version.jackson>
-        <version.slf4j>2.0.13</version.slf4j>
-        <version.logback>1.5.6</version.logback>
+        <version.yaml-rule>1.0.5</version.yaml-rule>
+        <version.jackson>2.18.1</version.jackson>
+        <version.slf4j>2.0.16</version.slf4j>
+        <version.logback>1.5.12</version.logback>
         <version.jose4j>0.9.6</version.jose4j>
         <version.lambda-core>1.2.3</version.lambda-core>
         <version.lambda-events>3.11.6</version.lambda-events>
         <version.lambda-awssdk>2.26.4</version.lambda-awssdk>
         <version.lambda-iam>1.12.745</version.lambda-iam>
-        <version.junit>5.8.2</version.junit>
-        <version.undertow>2.3.17.Final</version.undertow>
+        <version.junit>5.11.3</version.junit>
+        <version.undertow>2.3.18.Final</version.undertow>
         <version.json-schema-validator>1.5.1</version.json-schema-validator>
         <version.logstash>7.3</version.logstash>
         <version.commons-codec>1.15</version.commons-codec>
