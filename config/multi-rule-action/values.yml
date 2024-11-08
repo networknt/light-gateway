@@ -1,0 +1,199 @@
+# server.yml
+server.httpsPort: 8443
+server.enableHttps: true
+server.enableHttp2: true
+server.serviceId: com.networknt.client-gateway-1.0.0
+server.environment: dev
+
+# router.yml
+router.maxRequestTime: 30000
+router.http2Enabled: true
+
+# rule-loader.yml
+rule-loader.ruleSource: config-folder
+rule-loader.endpointRules: {"/v1/flowers@post":{"request-transform":[{"ruleId":"json-xml-security-header-request"}]}}
+# request-injection.yml
+request-injection.appliedBodyInjectionPathPrefixes:
+  - /v1/flowers
+  # This is the path prefix for the Okta token endpoint. We need to add it to inject the request body.
+  - /oauth2
+
+# request-transformer.yml
+request-transformer.appliedPathPrefixes: ["/v1/flowers"]
+
+# pathPrefixService.yml
+pathPrefixService.mapping:
+  # /gateway/Migration/1.0.0: Migration
+  /v1/pets: com.networknt.petstore-1.0.0
+  /v1/notifications: com.networknt.petstore-1.0.0
+  /v1/flowers: com.networknt.petstore-1.0.0
+  /v1/documents: com.networknt.petstore-1.0.0
+  /oauth2: okta-oauth2
+
+# service.yml
+service.singletons:
+  - com.networknt.server.StartupHookProvider:
+      - com.networknt.rule.RuleLoaderStartupHook
+  - com.networknt.registry.URL:
+      - com.networknt.registry.URLImpl
+  - com.networknt.registry.Registry:
+      - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+      - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+      - com.networknt.cluster.LightCluster
+  - com.networknt.cache.CacheManager:
+      - com.networknt.cache.CaffeineCacheManager
+  - com.networknt.handler.ResponseInterceptor:
+      - com.networknt.restrans.ResponseTransformerInterceptor
+      - com.networknt.body.ResponseBodyInterceptor
+  - com.networknt.handler.RequestInterceptor:
+      - com.networknt.body.RequestBodyInterceptor
+      - com.networknt.reqtrans.RequestTransformerInterceptor
+
+# direct-registry.yml
+direct-registry.directUrls:
+  com.networknt.petstore-1.0.0: https://localhost:9443
+  okta-oauth2: https://networknt.oktapreview.com
+
+# handler.yml
+handler.basePath: /
+handler.handlers:
+  # Light-framework cross-cutting concerns implemented in the microservice
+  - com.networknt.exception.ExceptionHandler@exception
+  # - com.networknt.metrics.MetricsHandler@metrics
+  - com.networknt.traceability.TraceabilityHandler@traceability
+  - com.networknt.correlation.CorrelationHandler@correlation
+  # Cors handler to handler post/put pre-flight. It is not used in the sidecar but only in the router.
+  - com.networknt.cors.CorsHttpHandler@cors
+  - com.networknt.openapi.OpenApiHandler@specification
+  - com.networknt.openapi.JwtVerifyHandler@security
+  - com.networknt.body.BodyHandler@body
+  - com.networknt.audit.AuditHandler@audit
+  - com.networknt.sanitizer.SanitizerHandler@sanitizer
+  - com.networknt.openapi.ValidatorHandler@validator
+  # Header middleware to manipulate request and/or response headers before or after downstream server
+  - com.networknt.header.HeaderHandler@header
+  # Rate limit middleware to prevent DDoS attacks externally or throttle requests internally
+  - com.networknt.limit.LimitHandler@limit
+  # IP whitelist handler to allow only one or several IPs to connect to the gateway.
+  #  - com.networknt.whitelist.WhitelistHandler@whitelist
+  # Direct requests to named services based on the request path
+  # - com.networknt.router.middleware.GatewayServiceDictHandler@path
+  - com.networknt.router.middleware.PathPrefixServiceHandler@prefix
+  - com.networknt.router.RouterHandler@router
+  - com.networknt.proxy.LightProxyHandler@proxy
+  - com.networknt.proxy.ProxyServerInfoHandler@proxyServerInfo
+  # - com.networknt.resource.VirtualHostHandler@virtual
+  # Customer business domain specific cross-cutting concerns handlers
+  # - com.example.validator.CustomizedValidator@custvalidator
+  # Framework endpoint handlers
+  # Control Pane middleware handlers and API handler
+  - com.networknt.chaos.KillappAssaultHandler@killapp
+  - com.networknt.chaos.LatencyAssaultHandler@latency
+  - com.networknt.chaos.MemoryAssaultHandler@memory
+  - com.networknt.chaos.ExceptionAssaultHandler@exchaos
+  - com.networknt.chaos.ChaosMonkeyGetHandler@chaosget
+  - com.networknt.chaos.ChaosMonkeyPostHandler@chaospost
+  - com.networknt.health.HealthGetHandler@health
+  - com.networknt.info.ServerInfoGetHandler@info
+  - com.networknt.cache.CacheExplorerHandler@cache
+  - com.networknt.logging.handler.LoggerGetHandler@getLogger
+  - com.networknt.logging.handler.LoggerPostHandler@postLogger
+  - com.networknt.logging.handler.LoggerGetLogContentsHandler@getLogContents
+  - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+  - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+  - com.networknt.specification.SpecDisplayHandler@spec
+  - com.networknt.specification.SpecSwaggerUIHandler@swaggerui
+  - com.networknt.specification.FaviconHandler@favicon
+  - com.networknt.handler.ResponseInterceptorInjectionHandler@responseInterceptor
+  - com.networknt.handler.RequestInterceptorInjectionHandler@requestInterceptor
+  - com.networknt.proxy.ExternalServiceHandler@external
+  - com.networknt.apikey.ApiKeyHandler@apikey
+  - com.networknt.router.OAuthServerHandler@oauth
+  - com.networknt.router.OAuthServerGetHandler@getOauth
+  - com.networknt.server.handler.ServerShutdownHandler@shutdown
+  - com.networknt.token.limit.TokenLimitHandler@tokenLimit
+
+handler.chains.default:
+  - exception
+  - prefix
+  # - metrics
+  # - limit
+  - traceability
+  - correlation
+  # - cors
+  # - stateless
+  - limit
+  - apikey
+  - specification
+  - security
+  - header
+  - requestInterceptor
+  - responseInterceptor
+  - audit
+  - tokenLimit
+  - external
+  #- path
+  #- body
+  - sanitizer
+  #- validator
+  - router
+
+# audit.yml
+audit.auditOnError: false
+
+# body.yml
+body.cacheRequestBody: true
+body.cacheResponseBody: true
+
+# client.yml
+client.verifyHostname: false
+
+# header.yml
+header.enabled: true
+header.request.update:
+  VND.com.blackrock.Request-ID: test-request-id
+  VND.com.blackrock.API-Key: test-api-key
+  x-traceability-id: test-traceability
+  x-correlation-id: test-correlation
+
+# cannex.yml
+cannex.username: SLUATWS
+cannex.headerTemplate: <soapenv:Header/>
+
+# oauthServer.yml
+oauthServer.client_credentials: ["client_id1:client_secret1","client_id2:client_secret2","5f6906ef-d2f7-4f65-8c04-25e054b352fa:102bd89c-d946-4713-a045-80d9c425d82f"]
+
+# limit.yml
+limit.enabled: false
+limit.rateLimit: 1000/m
+
+# security.yml
+security.skipPathPrefixes: ["/v1/documents", "/v1/pets", "/adm/server/info", "/oauth2"]
+security.keyResolver: X509Certificate
+security.skipVerifyScopeWithoutSpec: true
+
+# openapi-handler.yml
+openapi-handler.ignoreInvalidPath: true
+
+# sanitizer.yml
+sanitizer.enabled: true
+sanitizer.bodyEnabled: true
+sanitizer.bodyEncoder: javascript-source
+
+# cache.yml
+cache.caches:
+  - cacheName: jwt
+    expiryInMinutes: 15
+    maxSize: 100
+  - cacheName: jwk
+    expiryInMinutes: 129600
+    maxSize: 100
+  - cacheName: token-limit
+    expiryInMinutes: 15
+    maxSize: 100
+
+# token-limit.yml
+token-limit.tokenPathTemplates:
+  - /oauth2/(?<instanceId>[^/]+)/v1/token
