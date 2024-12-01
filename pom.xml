@@ -429,9 +429,9 @@
             <version>${version.lambda-events}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-iam</artifactId>
-            <version>${version.lambda-iam}</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>iam</artifactId>
+            <version>${version.lambda-awssdk}</version>
         </dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
