@@ -1,5 +1,15 @@
 # Change Log
 
+## [2.2.0](https://github.com/networknt/light-gateway/tree/2.2.0) (2025-02-11)
+
+
+**Merged pull requests:**
+
+
+- fixes \#217 add external-gateway configuration example [\#218](https://github.com/networknt/light-gateway/pull/218) ([stevehu](https://github.com/stevehu))
+- fixes \#215 switch iam to awssdk artifact verison [\#216](https://github.com/networknt/light-gateway/pull/216) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.1.37](https://github.com/networknt/light-gateway/tree/2.1.37) (2024-09-20)
 
 
