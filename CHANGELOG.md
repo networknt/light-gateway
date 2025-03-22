@@ -7,6 +7,10 @@
 
 
 - fixes \#220 remove iam version from the properties [\#221](https://github.com/networknt/light-gateway/pull/221) ([stevehu](https://github.com/stevehu))
+- fixes \#217 add external-gateway configuration example [\#218](https://github.com/networknt/light-gateway/pull/218) ([stevehu](https://github.com/stevehu))
+- fixes \#215 switch iam to awssdk artifact verison [\#216](https://github.com/networknt/light-gateway/pull/216) ([stevehu](https://github.com/stevehu))
+- fixes \#213 update multi-rule-action rules.yml to change the plugin [\#214](https://github.com/networknt/light-gateway/pull/214) ([stevehu](https://github.com/stevehu))
+- [pre-commit.ci] pre-commit autoupdate [\#209](https://github.com/networknt/light-gateway/pull/209) ([pre-commit-ci](https://github.com/apps/pre-commit-ci))
 
 
 ## [2.2.0](https://github.com/networknt/light-gateway/tree/2.2.0) (2025-02-12)
