@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.2.1](https://github.com/networknt/light-gateway/tree/2.2.1) (2025-03-22)
+
+
+**Merged pull requests:**
+
+
+- fixes \#220 remove iam version from the properties [\#221](https://github.com/networknt/light-gateway/pull/221) ([stevehu](https://github.com/stevehu))
+
+
 ## [2.2.0](https://github.com/networknt/light-gateway/tree/2.2.0) (2025-02-12)
 
 
