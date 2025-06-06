@@ -1,6 +1,6 @@
 # Change Log
 
-## [2.2.2](https://github.com/networknt/light-gateway/tree/2.2.2) (2025-06-05)
+## [2.2.2](https://github.com/networknt/light-gateway/tree/2.2.2) (2025-06-06)
 
 
 **Merged pull requests:**
