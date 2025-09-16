@@ -378,6 +378,11 @@
         </dependency>
         <dependency>
             <groupId>com.networknt</groupId>
+            <artifactId>msal-exchange</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
             <artifactId>token-limit</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
