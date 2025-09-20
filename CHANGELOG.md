@@ -7,6 +7,8 @@
 
 
 - [pre-commit.ci] pre-commit autoupdate [\#225](https://github.com/networknt/light-gateway/pull/225) ([pre-commit-ci](https://github.com/apps/pre-commit-ci))
+
+
 ## [2.3.0](https://github.com/networknt/light-gateway/tree/2.3.0) (2025-06-25)
 
 
