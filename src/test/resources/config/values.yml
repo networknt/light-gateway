@@ -89,26 +89,34 @@ handler.handlers:
   - com.networknt.router.OAuthServerGetHandler@getOauth
   - com.networknt.server.handler.ServerShutdownHandler@shutdown
 
-handler.chains.default:
-  - exception
-  - metrics
-  - limit
-  - traceability
-  - correlation
-  - killapp
-  - latency
-  - memory
-  - exchaos
-  - cors
-  - header
-  - requestInterceptor
-  - responseInterceptor
-  - specification
-  - security
-  - audit
-  - sanitizer
-  - validator
-  - proxy
+handler.chains:
+  default:
+    - exception
+    - metrics
+    - limit
+    - traceability
+    - correlation
+    - killapp
+    - latency
+    - memory
+    - exchaos
+    - cors
+    - header
+    - requestInterceptor
+    - responseInterceptor
+    - specification
+    - security
+    - audit
+    - sanitizer
+    - validator
+    - proxy
+  admin:
+    - exception
+    - correlation
+    - specification
+    - security
+    - body
+    - validator
 
 # security.yml
 security.enableVerifyJwt: false
@@ -135,3 +143,103 @@ cache.caches:
   - cacheName: jwk
     expiryInMinutes: 129600
     maxSize: 100
+
+
+
+handler.paths:
+  - path: '/*'
+    method: 'GET'
+    exec:
+      - default
+  - path: '/*'
+    method: 'POST'
+    exec:
+      - default
+  - path: '/*'
+    method: 'PUT'
+    exec:
+      - default
+  - path: '/*'
+    method: 'DELETE'
+    exec:
+      - default
+  - path: '/*'
+    method: 'PATCH'
+    exec:
+      - default
+  - path: '/*'
+    method: 'OPTIONS'
+    exec:
+      - default
+  - path: '/adm/server/info'
+    method: 'get'
+    exec:
+      - admin
+      - info
+  - path: '/health'
+    method: 'get'
+    exec:
+      - exception
+      - health
+
+  - path: '/adm/logger'
+    method: 'get'
+    exec:
+      - admin
+      - getLogger
+  - path: '/adm/logger'
+    method: 'post'
+    exec:
+      - admin
+      - postLogger
+  - path: '/adm/logger/content'
+    method: 'GET'
+    exec:
+      - admin
+      - getLogContents
+  - path: '/adm/modules'
+    method: 'get'
+    exec:
+      - admin
+      - modules
+  - path: '/adm/modules'
+    method: 'post'
+    exec:
+      - admin
+      - configReload
+  - path: '/adm/shutdown'
+    method: 'delete'
+    exec:
+      - admin
+      - shutdown
+  - path: '/adm/cache/{name}'
+    method: 'get'
+    exec:
+      - admin
+      - cache
+  - path: '/adm/chaosmonkey'
+    method: 'get'
+    exec:
+      - admin
+      - chaosget
+  - path: '/oauth/token'
+    method: 'post'
+    exec:
+      - body
+      - oauth
+  - path: '/oauth/token'
+    method: 'get'
+    exec:
+      - getOauth
+  - path: '/spec.yaml'
+    method: 'get'
+    exec:
+      - spec
+  - path: '/specui.html'
+    method: 'get'
+    exec:
+      - swaggerui
+  - path: '/favicon.ico'
+    method: 'get'
+    exec:
+      - favicon

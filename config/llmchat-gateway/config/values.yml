@@ -4,6 +4,10 @@
 server.httpsPort: 8443
 server.enableHttp: false
 server.enableHttps: true
+#server.httpPort: 9080
+#server.enableHttp: true
+#server.enableHttps: false
+
 server.serviceId: com.networknt.llmchat-gateway-1.0.0
 server.enableRegistry: false
 
@@ -11,10 +15,6 @@ server.enableRegistry: false
 handler.handlers:
   - com.networknt.websocket.router.WebSocketRouterHandler@router
   - com.networknt.resource.PathResourceHandler@resource
-
-handler.chains:
-  default:
-    - router
 
 handler.paths:
   - path: '/'
@@ -24,7 +24,7 @@ handler.paths:
   - path: '/chat'
     method: 'GET'
     exec:
-      - default
+      - router
 
 # websocket-router.yml
 websocket-router.enabled: true
@@ -48,6 +48,5 @@ path-resource.path: /
 path-resource.base: /home/steve/networknt/light-gateway/config/llmchat-gateway/public
 
 # direct-registry.yml
-direct-registry:
-  com.networknt.llmchat-1.0.0:
-    - http://localhost:8080
+direct-registry.directUrls:
+  com.networknt.llmchat-1.0.0: http://localhost:8080

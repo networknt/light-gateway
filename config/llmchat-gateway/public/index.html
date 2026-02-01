@@ -41,7 +41,7 @@
             const model = document.getElementById('model').value;
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const url = `${protocol}//${window.location.host}/chat?userId=${userId}&model=${model}`;
-
+            console.log(url);
             ws = new WebSocket(url);
 
             ws.onopen = () => {
