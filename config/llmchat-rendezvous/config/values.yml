@@ -1,0 +1,57 @@
+# LLM Chat Gateway Configuration
+
+# server.yml
+server.httpPort: 9080
+server.enableHttp: true
+server.enableHttps: false
+
+server.serviceId: com.networknt.llmchat-gateway-1.0.0
+server.enableRegistry: false
+
+# handler.yml
+handler.handlers:
+  - com.networknt.websocket.router.WebSocketRouterHandler@router
+  - com.networknt.resource.PathResourceHandler@resource
+  - com.networknt.proxy.LightProxyHandler@proxy
+
+handler.paths:
+  - path: '/'
+    method: 'GET'
+    exec:
+      - resource
+  - path: '/connect'
+    method: 'POST'
+    exec:
+      - proxy
+  - path: '/chat'
+    method: 'GET'
+    exec:
+      - router
+
+# websocket-router.yml
+websocket-router.enabled: true
+websocket-router.pathPrefixService:
+  /chat: com.networknt.llmchat-1.0.0
+
+# service.yml
+service.singletons:
+  - com.networknt.registry.URL:
+    - com.networknt.registry.URLImpl
+  - com.networknt.registry.Registry:
+    - com.networknt.registry.support.DirectRegistry
+  - com.networknt.balance.LoadBalance:
+    - com.networknt.balance.RoundRobinLoadBalance
+  - com.networknt.cluster.Cluster:
+    - com.networknt.cluster.LightCluster
+
+
+# path-resource.yaml
+path-resource.path: /
+path-resource.base: /home/steve/networknt/light-gateway/config/llmchat-rendezvous/public
+
+# direct-registry.yml
+direct-registry.directUrls:
+  com.networknt.llmchat-1.0.0: http://localhost:8080
+
+# proxy.yml
+proxy.hosts: http://localhost:8080
