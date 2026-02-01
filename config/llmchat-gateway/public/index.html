@@ -14,7 +14,7 @@
 </head>
 <body>
     <h1>Light GenAI Chat</h1>
-    
+
     <div id="controls">
         <label>User ID: <input type="text" id="userId" value="user1"></label>
         <label>Model: <input type="text" id="model" value="qwen3:14b"></label>
@@ -53,8 +53,8 @@
 
             ws.onmessage = (event) => {
                 // Determine if it's a chunk or full message.
-                // Our server sends raw text chunks. 
-                // A simple UI approach: append to last assistant message if generic text, 
+                // Our server sends raw text chunks.
+                // A simple UI approach: append to last assistant message if generic text,
                 // or just log as new line for now.
                 // Improve: Check if previous element is "assistant-typing".
                 log('Assistant', event.data);
