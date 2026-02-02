@@ -93,7 +93,7 @@
                 const connectUrl = `${httpProtocol}//${window.location.host}/connect?channelId=${channelId}`;
 
                 fetch(connectUrl, {
-                    method: 'POST'
+                    method: 'GET'
                 })
                     .then(response => {
                         if (response.ok) {
