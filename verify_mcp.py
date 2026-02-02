@@ -29,9 +29,9 @@ def run_tests():
     t = threading.Thread(target=sse_listener, args=(sse_url,))
     t.daemon = True
     t.start()
-    
+
     time.sleep(1) # Wait for connection
-    
+
     print("\n[Client] Sending 'initialize' request...")
     init_payload = {
         "jsonrpc": "2.0",
@@ -43,12 +43,12 @@ def run_tests():
         },
         "id": 1
     }
-    
-    # We can send to /mcp directly. The handler extracts sessionId from query if needed, 
+
+    # We can send to /mcp directly. The handler extracts sessionId from query if needed,
     # but for now we just use the base path as the handler supports POST /mcp.
     # Note: If you extracted sessionId from SSE 'endpoint' event, you should append it: /mcp?sessionId=...
     # For this test, we assume the server handles stateless POST or we haven't parsed the ID yet.
-    
+
     post_url = f"{BASE_URL}{MCP_PATH}"
     try:
         res = requests.post(post_url, json=init_payload, verify=VERIFY_SSL)
@@ -77,6 +77,6 @@ if __name__ == "__main__":
     # Suppress SSL warnings
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    
+
     run_tests()
     time.sleep(5) # Keep alive to see SSE
