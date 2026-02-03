@@ -32,7 +32,7 @@ handler.paths:
     exec:
       - rendezvous
 
-# websocket-router.yml
+# websocket-rendezvous.yml
 websocket-rendezvous.enabled: true
 websocket-rendezvous.backendPath: /connect
 
