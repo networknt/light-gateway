@@ -90,7 +90,7 @@
         </triggeringPolicy>
     </appender>
 
-    <root level="trace">
+    <root level="info">
         <appender-ref ref="stdout"/>
         <appender-ref ref="stdout-file"/>
     </root>
@@ -100,9 +100,6 @@
     </logger>
 
     <logger name="com.networknt" level="trace" additivity="false">
-        <appender-ref ref="stdout"/>
-    </logger>
-    <logger name="io.undertow" level="trace" additivity="false">
         <appender-ref ref="stdout"/>
     </logger>
 

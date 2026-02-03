@@ -1,0 +1,44 @@
+# LLM Chat Gateway Configuration
+
+# server.yml
+server.httpPort: 9080
+server.enableHttp: true
+server.enableHttps: false
+
+server.serviceId: com.networknt.llmchat-rendezvous-1.0.0
+server.enableRegistry: false
+
+# handler.yml
+handler.handlers:
+  - com.networknt.websocket.rendezvous.WebSocketRendezvousHandler@rendezvous
+  - com.networknt.resource.PathResourceHandler@resource
+  - com.networknt.proxy.LightProxyHandler@proxy
+
+handler.paths:
+  - path: '/'
+    method: 'GET'
+    exec:
+      - resource
+  - path: '/connect'
+    method: 'GET'
+    exec:
+      - proxy
+  - path: '/chat'
+    method: 'GET'
+    exec:
+      - rendezvous
+  - path: '/chat/connect'
+    method: 'GET'
+    exec:
+      - rendezvous
+
+# websocket-router.yml
+websocket-rendezvous.enabled: true
+websocket-rendezvous.backendPath: /connect
+
+# path-resource.yaml
+path-resource.path: /
+path-resource.base: /home/steve/networknt/light-gateway/config/llmchat-rendezvous/public
+
+# proxy.yml
+proxy.hosts: http://localhost:8080
