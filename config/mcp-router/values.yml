@@ -27,12 +27,40 @@ client.timeout: 3000
 
 # handler.yml
 handler.handlers:
+  - com.networknt.cors.CorsHttpHandler@cors
   - com.networknt.mcp.McpHandler@mcp
   - com.networknt.exception.ExceptionHandler@exception
 
-handler.chains.default:
-  - exception
-  - mcp
+handler.paths:
+  - path: '/mcp'
+    method: 'GET'
+    exec:
+      - cors
+      - exception
+      - mcp
+  - path: '/mcp'
+    method: 'POST'
+    exec:
+      - cors
+      - exception
+      - mcp
+
+  - path: '/mcp'
+    method: 'OPTIONS'
+    exec:
+      - cors
+
+# cors.yml
+cors.enabled: true
+cors.allowedOrigins:
+  - http://localhost:8080
+  - http://0.0.0.0:6274
+cors.allowedMethods:
+  - GET
+  - POST
+  - PUT
+  - DELETE
+  - OPTIONS
 
 # service.yml
 service.singletons:
