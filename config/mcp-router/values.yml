@@ -30,6 +30,35 @@ mcp-router.tools:
       required:
         - id
         - name
+  - name: getRandomNumber
+    description: Returns a random number between min and max
+    host: http://localhost:5000
+    path: /mcp
+    method: POST
+    protocol: mcp
+    inputSchema:
+      type: object
+      properties:
+        min:
+          type: integer
+        max:
+          type: integer
+      required:
+        - min
+        - max
+  - name: echo
+    description: Echoes back the input
+    host: http://localhost:5000
+    path: /mcp
+    method: POST
+    protocol: mcp
+    inputSchema:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
 
 # client.yml
 client.verifyHostname: false
