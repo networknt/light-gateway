@@ -20,6 +20,16 @@ mcp-router.tools:
     host: https://localhost:9443
     path: /v1/pets
     method: POST
+    inputSchema:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
 
 # client.yml
 client.verifyHostname: false
