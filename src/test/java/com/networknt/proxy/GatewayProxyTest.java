@@ -18,6 +18,7 @@ package com.networknt.proxy;
 
 import com.networknt.TestServer;
 import com.networknt.client.Http2Client;
+import com.networknt.client.simplepool.SimpleConnectionHolder;
 import com.networknt.config.Config;
 import com.networknt.exception.ClientException;
 import com.networknt.status.Status;
@@ -131,12 +132,19 @@ public class GatewayProxyTest {
     public void testGet() throws Exception {
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(10);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.getInstance().getDefaultXnioSsl(), Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.getInstance().getDefaultXnioSsl(), Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
         final List<AtomicReference<ClientResponse>> references = new CopyOnWriteArrayList<>();
         try {
             connection.getIoThread().execute(new Runnable() {
@@ -157,7 +165,9 @@ public class GatewayProxyTest {
             logger.error("Exception: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         for (final AtomicReference<ClientResponse> reference : references) {
             System.out.println(reference.get().getAttachment(Http2Client.RESPONSE_BODY));
@@ -169,12 +179,19 @@ public class GatewayProxyTest {
     public void testPost() throws Exception {
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         try {
             ClientRequest request = new ClientRequest().setPath("/post").setMethod(Methods.POST);
@@ -187,7 +204,9 @@ public class GatewayProxyTest {
             logger.error("Exception: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         Assertions.assertTrue(reference.get().getAttachment(Http2Client.RESPONSE_BODY).contains("{\"proxy\": \"hello\"}"));
         System.out.println(reference.get().getAttachment(Http2Client.RESPONSE_BODY));
@@ -205,12 +224,19 @@ public class GatewayProxyTest {
         final Http2Client client = Http2Client.getInstance();
         while(true) {
             final CountDownLatch latch = new CountDownLatch(1);
-            final ClientConnection connection;
+            final SimpleConnectionHolder.ConnectionToken token;
+
             try {
-                connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true) : OptionMap.EMPTY).get();
+
+                token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true) : OptionMap.EMPTY);
+
             } catch (Exception e) {
+
                 throw new ClientException(e);
+
             }
+
+            final ClientConnection connection = (ClientConnection) token.getRawConnection();
             final AtomicReference<ClientResponse> reference = new AtomicReference<>();
             try {
                 ClientRequest request = new ClientRequest().setPath("/get").setMethod(Methods.GET);
@@ -221,7 +247,9 @@ public class GatewayProxyTest {
                 logger.error("Exception: ", e);
                 throw new ClientException(e);
             } finally {
-                IoUtils.safeClose(connection);
+
+                client.restore(token);
+
             }
             System.out.println(reference.get().getAttachment(Http2Client.RESPONSE_BODY));
             Assertions.assertTrue(reference.get().getAttachment(Http2Client.RESPONSE_BODY).contains("{\"backend\":\"OK\"}"));
@@ -234,12 +262,19 @@ public class GatewayProxyTest {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
 
         try {
             String post = "post";
@@ -258,7 +293,9 @@ public class GatewayProxyTest {
             logger.error("IOException: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         int statusCode = reference.get().getResponseCode();
         // as content type and body is mismatched, the body will be ignored.
@@ -275,12 +312,19 @@ public class GatewayProxyTest {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
 
         try {
             String post = "{post";
@@ -299,7 +343,9 @@ public class GatewayProxyTest {
             logger.error("IOException: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         int statusCode = reference.get().getResponseCode();
         String responseBody = reference.get().getAttachment(Http2Client.RESPONSE_BODY);
@@ -318,12 +364,19 @@ public class GatewayProxyTest {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
 
         try {
             String post = "[{\"key1\":\"value1\"}, {\"key2\":\"value2\"}]";
@@ -343,7 +396,9 @@ public class GatewayProxyTest {
             logger.error("IOException: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         Assertions.assertEquals("[{\"key1\":\"value1\"}, {\"key2\":\"value2\"}]", reference.get().getAttachment(Http2Client.RESPONSE_BODY));
     }
@@ -353,12 +408,19 @@ public class GatewayProxyTest {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
 
         try {
             String post = "[]";
@@ -378,7 +440,9 @@ public class GatewayProxyTest {
             logger.error("IOException: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         Assertions.assertEquals("[]", reference.get().getAttachment(Http2Client.RESPONSE_BODY));
     }
@@ -388,12 +452,19 @@ public class GatewayProxyTest {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
 
         try {
             String post = "{\"key1\":\"value1\", \"key2\":\"value2\"}";
@@ -413,7 +484,9 @@ public class GatewayProxyTest {
             logger.error("IOException: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         Assertions.assertEquals("{\"key1\":\"value1\", \"key2\":\"value2\"}", reference.get().getAttachment(Http2Client.RESPONSE_BODY));
     }
@@ -423,12 +496,19 @@ public class GatewayProxyTest {
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken token;
+
         try {
-            connection = client.connect(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+
+            token = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY);
+
         } catch (Exception e) {
+
             throw new ClientException(e);
+
         }
+
+        final ClientConnection connection = (ClientConnection) token.getRawConnection();
 
         try {
             String post = "{}";
@@ -448,7 +528,9 @@ public class GatewayProxyTest {
             logger.error("IOException: ", e);
             throw new ClientException(e);
         } finally {
-            IoUtils.safeClose(connection);
+
+            client.restore(token);
+
         }
         Assertions.assertEquals("{}", reference.get().getAttachment(Http2Client.RESPONSE_BODY));
     }
