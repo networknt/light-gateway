@@ -59,7 +59,7 @@ mcp-router.tools:
           type: string
       required:
         - message
-
+        
 # client.yml
 client.verifyHostname: false
 client.timeout: 3000
@@ -69,6 +69,10 @@ handler.handlers:
   - com.networknt.cors.CorsHttpHandler@cors
   - com.networknt.mcp.McpHandler@mcp
   - com.networknt.exception.ExceptionHandler@exception
+  - com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+  - com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+  - com.networknt.body.BodyHandler@body
+  - com.networknt.info.ServerInfoGetHandler@info
 
 handler.paths:
   - path: '/mcp'
@@ -88,6 +92,21 @@ handler.paths:
     method: 'OPTIONS'
     exec:
       - cors
+
+  - path: '/adm/modules'
+    method: 'GET'
+    exec:
+      - modules
+    
+  - path: '/adm/modules'
+    method: 'POST'
+    exec:
+      - configReload
+
+  - path: '/adm/server/info'
+    method: 'GET'
+    exec:
+      - info
 
 # cors.yml
 cors.enabled: true
