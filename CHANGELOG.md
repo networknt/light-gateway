@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.3.3](https://github.com/networknt/light-gateway/tree/2.3.3) (2026-02-19)
+
+
+**Merged pull requests:**
+
+
+- fixes \#230 remove handler.yml from src and refactor the test values.yml [\#231](https://github.com/networknt/light-gateway/pull/231) ([stevehu](https://github.com/stevehu))
 ## [2.3.2](https://github.com/networknt/light-gateway/tree/2.3.2) (2026-02-02)
 
 
