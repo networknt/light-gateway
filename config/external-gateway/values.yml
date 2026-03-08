@@ -25,8 +25,6 @@ pathPrefixService.mapping:
 
 # service.yml
 service.singletons:
-  - com.networknt.server.StartupHookProvider:
-      - com.networknt.rule.RuleLoaderStartupHook
   - com.networknt.registry.URL:
       - com.networknt.registry.URLImpl
   - com.networknt.registry.Registry:
@@ -37,6 +35,8 @@ service.singletons:
       - com.networknt.cluster.LightCluster
   - com.networknt.cache.CacheManager:
       - com.networknt.cache.CaffeineCacheManager
+  - com.networknt.rule.RuleExecutor:
+      - com.networknt.rule.MultiThreadRuleExecutor
   - com.networknt.handler.ResponseInterceptor:
       - com.networknt.restrans.ResponseTransformerInterceptor
       - com.networknt.body.ResponseBodyInterceptor

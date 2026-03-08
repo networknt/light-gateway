@@ -1,0 +1,139 @@
+access-control.skipPathPrefixes:
+- /petstore
+apikey.enabled: false
+client.timeout: 3000
+client.verifyHostname: false
+cors.allowedMethods:
+- GET
+- POST
+- PUT
+- DELETE
+- OPTIONS
+cors.allowedOrigins:
+- http://localhost:8080
+- http://0.0.0.0:6274
+cors.enabled: true
+handler.handlers:
+- com.networknt.cors.CorsHttpHandler@cors
+- com.networknt.mcp.McpHandler@mcp
+- com.networknt.exception.ExceptionHandler@exception
+- com.networknt.config.reload.handler.ModuleRegistryGetHandler@modules
+- com.networknt.config.reload.handler.ConfigReloadHandler@configReload
+- com.networknt.body.BodyHandler@body
+- com.networknt.info.ServerInfoGetHandler@info
+server.enableHttp: true
+server.enableHttps: true
+server.enableRegistry: false
+server.httpPort: 8080
+server.httpsPort: 8443
+server.serviceId: com.networknt.ai-gateway-1.0.0
+service.singletons:
+- com.networknt.registry.URL:
+  - com.networknt.registry.URLImpl
+- com.networknt.registry.Registry:
+  - com.networknt.registry.support.DirectRegistry
+- com.networknt.balance.LoadBalance:
+  - com.networknt.balance.RoundRobinLoadBalance
+- com.networknt.cluster.Cluster:
+  - com.networknt.cluster.LightCluster
+- com.networknt.rule.RuleExecutor:
+  - com.networknt.rule.MultiThreadRuleExecutor
+handler.paths:
+- exec:
+  - cors
+  - exception
+  - mcp
+  path: /mcp
+  method: GET
+- exec:
+  - cors
+  - exception
+  - mcp
+  path: /mcp
+  method: POST
+- exec:
+  - cors
+  path: /mcp
+  method: OPTIONS
+- exec:
+  - modules
+  path: /adm/modules
+  method: GET
+- exec:
+  - configReload
+  path: /adm/modules
+  method: POST
+- exec:
+  - info
+  path: /adm/server/info
+  method: GET
+access-control.endpointPermissions:
+- roles: github-reader
+  endpoint: fetch_networknt_site_docs@call
+- roles: github-reader
+  endpoint: search_networknt_site_docs@call
+- roles: github-reader
+  endpoint: search_networknt_site_code@call
+- roles: config-admin github-reader
+  groups: group_mcp
+  endpoint: fetch_generic_url_content@call
+rule.ruleBodies:
+  allow-role-based-access-control.lightapi.net.dev.lightapi.net:
+    common: Y
+    hostId: 01964b05-552a-7c4b-9184-6857e7f3dc5f
+    ruleId: allow-role-based-access-control.lightapi.net.dev.lightapi.net
+    actions:
+    - actionId: role-based-access-control-action
+      actionDesc: Call action to verify the role claim
+      actionValues:
+      - value: $roles
+        actionValueId: permission-roles
+        valueTypeCode: STRING
+      actionClassName: com.networknt.rule.RoleBasedAccessControlAction
+      conditionResult: false
+    ruleDesc: If the token has role claim, then at least one role in the JWT role
+      claim matches the endpoint permission roles configuration.
+    ruleName: Role-Based Access Control for authorization code token.
+    ruleType: req-acc
+    ruleOwner: 01964b05-5532-7c79-8cde-191dcbd421b8
+    conditions:
+    - index: 1
+      conditionId: role-is-not-null
+      operatorCode: isNotNull
+      propertyPath: auditInfo.subject_claims.ClaimsMap.role
+      conditionDesc: role in the claim map is not null indicate the token has a role
+        claim. Match it with the endpoint permission with the action.
+    ruleVersion: 1.0.0
+rule.rules:
+- apiId: MCP0001
+  hostId: 01964b05-552a-7c4b-9184-6857e7f3dc5f
+  ruleId: allow-role-based-access-control.lightapi.net.dev.lightapi.net
+  endpoint: fetch_networknt_site_docs@call
+  ruleType: req-acc
+  apiVersion: 3.0.0
+  endpointId: 019cb5f6-858f-7955-b9af-1c036ddaae78
+  aggregateVersion: 1
+- apiId: MCP0001
+  hostId: 01964b05-552a-7c4b-9184-6857e7f3dc5f
+  ruleId: allow-role-based-access-control.lightapi.net.dev.lightapi.net
+  endpoint: search_networknt_site_docs@call
+  ruleType: req-acc
+  apiVersion: 3.0.0
+  endpointId: 019cb5f6-858f-7a90-b9b0-816519b9db38
+  aggregateVersion: 1
+- apiId: MCP0001
+  hostId: 01964b05-552a-7c4b-9184-6857e7f3dc5f
+  ruleId: allow-role-based-access-control.lightapi.net.dev.lightapi.net
+  endpoint: search_networknt_site_code@call
+  ruleType: req-acc
+  apiVersion: 3.0.0
+  endpointId: 019cb5f6-858f-7b83-b9b1-da222deb7e8c
+  aggregateVersion: 1
+- apiId: MCP0001
+  hostId: 01964b05-552a-7c4b-9184-6857e7f3dc5f
+  ruleId: allow-role-based-access-control.lightapi.net.dev.lightapi.net
+  endpoint: fetch_generic_url_content@call
+  ruleType: req-acc
+  apiVersion: 3.0.0
+  endpointId: 019cb5f6-858f-7bcc-b9b2-2377fb9d006c
+  aggregateVersion: 1
