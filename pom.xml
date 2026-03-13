@@ -295,6 +295,11 @@
         </dependency>
         <dependency>
             <groupId>com.networknt</groupId>
+            <artifactId>access-control</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
             <artifactId>json-overlay</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
@@ -341,6 +346,11 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>request-transformer</artifactId>
+            <version>${version.light-4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>rule-config</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
         <dependency>
