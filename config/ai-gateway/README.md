@@ -1,27 +1,51 @@
-This folder contains the configuration to start the light-gateway from the local config server. It is used to debug the config server API and also the startup sequence of the light-4j framework.
+# LLM Chat Gateway Configuration
 
-The bootstrap.truststore is just the default client.truststore as the config server uses the corresponding server.truststore. The startup.yml is used to set up the query parameters to access the config server endpoints.
+This configuration folder establishes a central WebSocket Gateway for the LLM Chat application.
 
+In this setup, the Gateway acts as a standard **Forward Proxy/Router** for WebSocket connections.
+1.  Clients connect to the Gateway at `wss://localhost:8443/chat`.
+2.  The Gateway looks up the service associated with `/chat` (`com.networknt.llmchat-1.0.0`).
+3.  The Gateway uses Service Discovery (Direct Registry in this config) to find the downstream service URL (`http://localhost:8080`).
+4.  The Gateway establishes a WebSocket connection to the downstream service and proxies messages between the client and the service.
 
-The following is the option configuration for the server for the run/debug for IntelliJ Idea.
+## Directory Structure
 
-```
--Dlight-4j-config-dir=config/config-server -Dlogback.configurationFile=config/server-proxy-petstore/logback.xml
-```
+- `config/`: Contains the server configuration files.
+  - `values.yml`: Main configuration file.
+    - HTTPS enabled on port 8443.
+    - `WebSocketRouterHandler` configured to route `/chat` to `com.networknt.llmchat-1.0.0`.
+    - `DirectRegistry` configured to point `com.networknt.llmchat-1.0.0` to `http://localhost:8080`.
+- `public/`: Contains static web assets (e.g., chat UI).
 
-Also, set up the following environment variables.
+## Usage
 
-```
-LIGHT_4J_CONFIG_PASSWORD=DEV;LIGHT_CONFIG_SERVER_URI=https://localhost:8435;CONFIG_SERVER_CLIENT_TRUSTSTORE_LOCATION=/home/steve/networknt/light-gateway/config/config-server/bootstrap.truststore
-```
+To start the Light Gateway with this configuration:
 
-The above is for IDE with dynamic properties.
+1.  **Build the projects** (if not already done):
+    ```bash
+    cd ~/networknt/light-gateway
+    mvn clean install -DskipTests
+    ```
 
-There are some fixed properties, and we can define them in the .profile as environment variables.
+2.  **Run the Gateway**:
+    ```bash
+    java -Dlight-4j-config-dir=config/llmchat-gateway/config -jar target/light-gateway.jar
+    ```
 
-```
-export CONFIG_SERVER_CLIENT_TRUSTSTORE_PASSWORD=password
-export CONFIG_SERVER_CLIENT_VERIFY_HOST_NAME=false
-export CONFIG_SERVER_AUTHORIZATION="Bearer eyJ..."
-export LIGHT_ENV=dev
-```
+3.  **Start the Backend Service**:
+    Ensure the `llmchat-server` is running on port 8080.
+    ```bash
+    cd ~/networknt/light-example-4j/websocket/llmchat-server
+    java -jar target/llmchat-server-2.3.2-SNAPSHOT.jar
+    ```
+
+4.  **Access the Chat**:
+    Open your browser to [https://localhost:8443](https://localhost:8443).
+
+## Workflow
+
+1.  **User** opens the page in the browser.
+2.  **Browser** connects to `wss://localhost:8443/chat`.
+3.  **Gateway** accepts the connection and determines the target service is `llmchat-server`.
+4.  **Gateway** connects to `ws://localhost:8080/chat`.
+5.  **Gateway** pipes all traffic between the Browser and `llmchat-server`.

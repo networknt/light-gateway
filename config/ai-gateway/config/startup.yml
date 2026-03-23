@@ -12,8 +12,6 @@ configLoaderClass: com.networknt.server.DefaultConfigLoader
 # "current" value will be used from the config server.
 host: dev.lightapi.net
 serviceId: com.networknt.ai.gateway-1.0.0
-apiId: MCP0001
-apiVersion: 3.0.0
 envTag: DEV
 # Indicate to the config server we prefer YAML format over JSON format. default is JSON.
 acceptHeader: application/yaml
