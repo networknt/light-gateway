@@ -22,6 +22,6 @@ There are some fixed properties, and we can define them in the .profile as envir
 ```
 export CONFIG_SERVER_CLIENT_TRUSTSTORE_PASSWORD=password
 export CONFIG_SERVER_CLIENT_VERIFY_HOST_NAME=false
-export CONFIG_SERVER_AUTHORIZATION="Bearer eyJ..."
+export LIGHT_PORTAL_AUTHORIZATION="Bearer eyJ..."
 export LIGHT_ENV=dev
 ```
