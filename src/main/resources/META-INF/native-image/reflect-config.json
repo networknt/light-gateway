@@ -1267,5 +1267,86 @@
 {
   "name":"sun.security.x509.SubjectKeyIdentifierExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"com.networknt.cache.CacheExplorerHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.proxy.ExternalServiceHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.apikey.ApiKeyHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.router.OAuthServerHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.router.OAuthServerGetHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.cache.CaffeineCacheManager",
+  "allDeclaredConstructors": true,
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.rule.MultiThreadRuleExecutor",
+  "allDeclaredConstructors": true,
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.rule.RuleExecutor",
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.registry.URL",
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.registry.Registry",
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.balance.LoadBalance",
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.cluster.Cluster",
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.cache.CacheManager",
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.mcp.McpHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.websocket.router.WebSocketRouterHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.resource.PathResourceHandler",
+  "allDeclaredConstructors": true
+},
+{
+  "name":"com.networknt.rule.ResponseRowFilterAction",
+  "allDeclaredConstructors": true,
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.rule.ResponseColumnFilterAction",
+  "allDeclaredConstructors": true,
+  "allPublicMethods": true
+},
+{
+  "name":"com.networknt.rule.RoleBasedAccessControlAction",
+  "allDeclaredConstructors": true,
+  "allPublicMethods": true
 }
 ]

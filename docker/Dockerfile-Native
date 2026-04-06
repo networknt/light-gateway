@@ -1,0 +1,45 @@
+# Stage 1: Build the native executable
+FROM ghcr.io/graalvm/native-image-community:21 AS builder
+
+# Install Maven
+RUN microdnf install -y maven
+
+WORKDIR /build
+
+# Copy the pom.xml and source code
+COPY pom.xml .
+COPY src ./src
+
+# Build the application jar
+RUN mvn clean install -DskipTests
+
+# Build the native image
+# --no-fallback: ensures it doesn't fall back to a regular JVM
+# --enable-http --enable-https: ensure networking support
+# Keep logging/Jackson/Undertow on run-time init to avoid image-build initialization failures.
+RUN native-image \
+    --no-fallback \
+    --verbose \
+    --enable-http \
+    --enable-https \
+    --initialize-at-run-time=com.networknt,org.slf4j,ch.qos.logback,com.fasterxml.jackson,io.netty,io.undertow \
+    -H:Name=server \
+    -cp target/light-gateway.jar \
+    com.networknt.server.Server
+
+# Stage 2: Create the runtime image
+FROM alpine:latest
+
+# Install gcompat for glibc compatibility on Alpine
+RUN apk add --no-cache gcompat curl
+
+WORKDIR /app
+
+# Copy the native binary from the builder stage
+COPY --from=builder /build/server /app/server
+
+# Copy the config directory (mount point)
+RUN mkdir /config
+
+# Run the application
+ENTRYPOINT ["/app/server", "-Dlight-4j-config-dir=/config", "-Dlogback.configurationFile=/config/logback.xml"]

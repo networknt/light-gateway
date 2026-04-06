@@ -39,6 +39,7 @@ publish() {
     echo "Building Docker image with version $VERSION"
     docker build -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest -f ./docker/Dockerfile . --no-cache=true
     docker build -t $IMAGE_NAME:$VERSION-slim -f ./docker/Dockerfile-Slim . --no-cache=true
+    docker build -t $IMAGE_NAME:$VERSION-native -t $IMAGE_NAME:latest-native -f ./docker/Dockerfile-Native . --no-cache=true
     echo "Images built with version $VERSION"
 
     if $LOCAL_BUILD; then
