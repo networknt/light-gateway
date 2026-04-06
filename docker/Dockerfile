@@ -27,6 +27,7 @@ RUN $JAVA_HOME/bin/jlink \
 
 # Stage 2: Runtime image
 FROM alpine:latest
+RUN apk add --no-cache curl
 
 ENV JAVA_MINIMAL=/opt/jre
 ENV PATH="$PATH:$JAVA_MINIMAL/bin"
@@ -35,7 +36,7 @@ ENV PATH="$PATH:$JAVA_MINIMAL/bin"
 COPY --from=packager "$JAVA_MINIMAL" "$JAVA_MINIMAL"
 
 # Copy the application jar (Specific to light-gateway)
-COPY /target/light-gateway.jar server.jar
+COPY target/light-gateway.jar server.jar
 
 # Run the application
 CMD ["/bin/sh","-c","exec java -Dlight-4j-config-dir=/config -Dlogback.configurationFile=/config/logback.xml -jar /server.jar"]
