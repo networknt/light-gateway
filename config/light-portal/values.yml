@@ -37,7 +37,7 @@ service.singletons:
 # pathPrefixService.yml
 pathPrefixService.enabled: true
 pathPrefixService.mapping:
-  /oauth2: com.networknt.oauth-kafka-1.0.0
+  /oauth2: com.networknt.light-oauth-1.0.0
   /r: com.networknt.reference-1.0.0
   /portal/command: com.networknt.portal.hybrid.command-1.0.0
   /portal/query: com.networknt.portal.hybrid.query-1.0.0
@@ -51,16 +51,16 @@ direct-registry.directUrls:
   com.networknt.portal.hybrid.query-1.0.0: https://local.lightapi.net:8440,https://local.lightapi.net:8441,https://local.lightapi.net:8442
   # com.networknt.portal.hybrid.command-1.0.0: https://hybrid-command:8439
   com.networknt.portal.hybrid.command-1.0.0: https://local.lightapi.net:8439
-  # com.networknt.oauth-kafka-1.0.0: https://oauth-kafka:6881
-  com.networknt.oauth-kafka-1.0.0: https://192.168.4.102:6881
+  # com.networknt.light-oauth-1.0.0: https://light-oauth:6881
+  com.networknt.light-oauth-1.0.0: https://local.lightapi.net:6881
   # com.networknt.reference-1.0.0: https://reference:2498
-  com.networknt.reference-1.0.0: https://192.168.4.102:2498
+  com.networknt.reference-1.0.0: https://local.lightapi.net:2498
   # com.networknt.config-server-1.0.0: https://config-server:8435
-  com.networknt.config-server-1.0.0: https://192.168.4.102:8435
+  com.networknt.config-server-1.0.0: https://local.lightapi.net:8435
   # com.networknt.controller-1.0.0: https://controller-node1:8438,https://controller-node2:8437,https://controller-node3:8436
-  com.networknt.controller-1.0.0: https://192.168.4.102:8438,https://192.168.4.102:8437,https://192.168.4.102:8436
+  com.networknt.controller-1.0.0: https://local.lightapi.net:8438,https://local.lightapi.net:8437,https://local.lightapi.net:8436
   # com.networknt.scheduler-1.0.0: https://scheduler-node1:8401,https://scheduler-node2:8402,https://scheduler-node3:8403
-  com.networknt.scheduler-1.0.0: https://192.168.4.102:8401,https://192.168.4.102:8402,https://192.168.4.102:8403
+  com.networknt.scheduler-1.0.0: https://local.lightapi.net:8401,https://local.lightapi.net:8402,https://local.lightapi.net:8403
 
 # handler.yml
 handler.handlers:
