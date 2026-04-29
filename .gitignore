@@ -27,3 +27,7 @@ hs_err_pid*
 build.out
 dependency-reduced-pom.xml
 config/ai-gateway/config/values.yml
+.gitnexus
+.claude/
+AGENTS.md
+CLAUDE.md
