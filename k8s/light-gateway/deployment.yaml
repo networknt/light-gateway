@@ -80,10 +80,6 @@ spec:
               mountPath: /config/startup.yml
               subPath: startup.yml
               readOnly: true
-            - name: config
-              mountPath: /config/logback.xml
-              subPath: logback.xml
-              readOnly: true
             - name: bootstrap
               mountPath: /config/bootstrap.truststore
               subPath: bootstrap.truststore
