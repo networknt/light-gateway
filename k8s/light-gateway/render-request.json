@@ -1,0 +1,36 @@
+{
+  "hostId": "01964b05-552a-7c4b-9184-6857e7f3dc5f",
+  "instanceId": "ai-microgateway-dev",
+  "environment": "dev",
+  "clusterId": "local",
+  "namespace": "light-gateway",
+  "action": "render",
+  "values": {
+    "namespace": "light-gateway",
+    "name": "ai-microgateway",
+    "image": {
+      "repository": "networknt/light-gateway",
+      "tag": "2.2.1",
+      "pullPolicy": "IfNotPresent"
+    },
+    "startup": {
+      "host": "dev.lightapi.net",
+      "serviceId": "com.networknt.ai.gateway-1.0.0",
+      "envTag": "dev"
+    },
+    "configServer": {
+      "uri": "https://192.168.5.85:8435",
+      "verifyHostName": false
+    },
+    "lightEnv": "dev",
+    "light4jConfigPassword": "DEV",
+    "configServerTruststorePassword": "password",
+    "lightPortalAuthorization": "Bearer <token>",
+    "bootstrapTruststoreBase64": "<base64-bootstrap-truststore>"
+  },
+  "template": {
+    "repoUrl": "local",
+    "ref": "main",
+    "path": "k8s/light-gateway"
+  }
+}

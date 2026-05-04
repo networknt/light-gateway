@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${name:light-gateway}
+  namespace: ${namespace:light-gateway}
+  labels:
+    app.kubernetes.io/name: ${name:light-gateway}
+    app.kubernetes.io/component: micro-gateway
+    app.kubernetes.io/part-of: lightapi
+spec:
+  replicas: ${replicas:1}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ${name:light-gateway}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${name:light-gateway}
+        app.kubernetes.io/component: micro-gateway
+        app.kubernetes.io/part-of: lightapi
+    spec:
+      containers:
+        - name: ${name:light-gateway}
+          image: ${image.repository:networknt/light-gateway}:${image.tag:latest}
+          imagePullPolicy: ${image.pullPolicy:IfNotPresent}
+          env:
+            - name: LIGHT_4J_CONFIG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ${name:light-gateway}-bootstrap
+                  key: light-4j-config-password
+            - name: LIGHT_CONFIG_SERVER_URI
+              value: ${configServer.uri:https://light-config-server:8435}
+            - name: CONFIG_SERVER_CLIENT_TRUSTSTORE_LOCATION
+              value: /config/bootstrap.truststore
+            - name: CONFIG_SERVER_CLIENT_TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ${name:light-gateway}-bootstrap
+                  key: config-server-client-truststore-password
+            - name: CONFIG_SERVER_CLIENT_VERIFY_HOST_NAME
+              value: "${configServer.verifyHostName:false}"
+            - name: LIGHT_PORTAL_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: ${name:light-gateway}-bootstrap
+                  key: light-portal-authorization
+            - name: LIGHT_ENV
+              value: ${lightEnv:dev}
+            - name: JAVA_TOOL_OPTIONS
+              value: ${javaToolOptions:-XX:MaxRAMPercentage=75.0}
+          ports:
+            - name: https
+              containerPort: ${ports.https:8443}
+              protocol: TCP
+            - name: http
+              containerPort: ${ports.http:8080}
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: ${probes.readinessInitialDelaySeconds:10}
+            periodSeconds: ${probes.readinessPeriodSeconds:10}
+          livenessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: ${probes.livenessInitialDelaySeconds:30}
+            periodSeconds: ${probes.livenessPeriodSeconds:20}
+          resources:
+            requests:
+              cpu: ${resources.requests.cpu:100m}
+              memory: ${resources.requests.memory:256Mi}
+            limits:
+              cpu: ${resources.limits.cpu:1000m}
+              memory: ${resources.limits.memory:768Mi}
+          volumeMounts:
+            - name: config-workdir
+              mountPath: /config
+            - name: config
+              mountPath: /config/startup.yml
+              subPath: startup.yml
+              readOnly: true
+            - name: config
+              mountPath: /config/logback.xml
+              subPath: logback.xml
+              readOnly: true
+            - name: bootstrap
+              mountPath: /config/bootstrap.truststore
+              subPath: bootstrap.truststore
+              readOnly: true
+            - name: public
+              mountPath: /config/public
+              readOnly: true
+      volumes:
+        - name: config-workdir
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: ${name:light-gateway}-config
+        - name: bootstrap
+          secret:
+            secretName: ${name:light-gateway}-bootstrap
+        - name: public
+          configMap:
+            name: ${name:light-gateway}-public

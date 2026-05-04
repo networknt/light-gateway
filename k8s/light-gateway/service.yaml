@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${name:light-gateway}
+  namespace: ${namespace:light-gateway}
+  labels:
+    app.kubernetes.io/name: ${name:light-gateway}
+    app.kubernetes.io/component: micro-gateway
+spec:
+  type: ${service.type:ClusterIP}
+  selector:
+    app.kubernetes.io/name: ${name:light-gateway}
+  ports:
+    - name: https
+      port: ${service.httpsPort:8443}
+      targetPort: https
+      protocol: TCP
+    - name: http
+      port: ${service.httpPort:8080}
+      targetPort: http
+      protocol: TCP
