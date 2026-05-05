@@ -197,7 +197,7 @@ Then check the existing request history:
 curl -sS http://127.0.0.1:8437/deployments \
     -H 'content-type: application/json' \
     -d '{
-      "requestId": "019de1c2-f29d-7d92-8d8a-5a813349d5dc",
+      "requestId": "019df12b-0b4f-7f83-aa8a-473f8f6b90d3",
       "hostId": "01964b05-552a-7c4b-9184-6857e7f3dc5f",
       "instanceId": "ai-microgateway",
       "environment": "dev",
@@ -263,4 +263,10 @@ To clean up and redeploy.
 ```
 kubectl -n light-gateway delete deploy,svc,cm,secret \
 -l app.kubernetes.io/managed-by=light-deployer
+```
+
+Access pod shell. 
+
+```
+kubectl exec -it ai-microgateway-d7b864586-f9kgr -n light-gateway -- /bin/sh
 ```
