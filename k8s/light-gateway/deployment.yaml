@@ -47,6 +47,8 @@ spec:
                   key: light-portal-authorization
             - name: LIGHT_ENV
               value: ${lightEnv:dev}
+            - name: STATUS_HOST_IP
+              value: ${name:light-gateway}.${namespace:light-gateway}
             - name: JAVA_TOOL_OPTIONS
               value: ${javaToolOptions:-XX:MaxRAMPercentage=75.0}
           ports:

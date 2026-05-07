@@ -21,6 +21,10 @@ Common overrides:
 - `startup.envTag`
 - `configServer.uri`
 
+The deployment sets `STATUS_HOST_IP` to `${name}.${namespace}` so light-4j
+registers the Kubernetes Service DNS name, for example
+`ai-microgateway.light-gateway`, instead of the pod IP.
+
 Static web assets:
 
 - The AI gateway `PathResourceHandler` serves files from `path-resource.base`.
@@ -270,3 +274,6 @@ Access pod shell.
 ```
 kubectl exec -it ai-microgateway-d7b864586-f9kgr -n light-gateway -- /bin/sh
 ```
+
+
+The host is ai-microgateway.light-gateway
