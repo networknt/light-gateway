@@ -28,6 +28,7 @@ handler.paths:
 
 # websocket-router.yml
 websocket-router.enabled: true
+websocket-router.idleTimeoutMs: 3600000
 websocket-router.pathPrefixService:
   /chat: com.networknt.llmchat-1.0.0
 
