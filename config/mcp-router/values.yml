@@ -15,11 +15,21 @@ mcp-router.tools:
     host: https://localhost:9443
     path: /v1/pets
     method: GET
+    toolMetadata:
+      read_only: true
+      destructive: false
+      sensitivityTier: internal
+      requiresApproval: false
   - name: createPet
     description: Create a pet
     host: https://localhost:9443
     path: /v1/pets
     method: POST
+    toolMetadata:
+      read_only: false
+      destructive: false
+      sensitivityTier: internal
+      requiresApproval: false
     inputSchema:
       type: object
       properties:
@@ -36,6 +46,11 @@ mcp-router.tools:
     path: /mcp
     method: POST
     protocol: mcp
+    toolMetadata:
+      read_only: false
+      destructive: false
+      sensitivityTier: internal
+      requiresApproval: false
     inputSchema:
       type: object
       properties:
@@ -52,6 +67,11 @@ mcp-router.tools:
     path: /mcp
     method: POST
     protocol: mcp
+    toolMetadata:
+      read_only: false
+      destructive: false
+      sensitivityTier: internal
+      requiresApproval: false
     inputSchema:
       type: object
       properties:
