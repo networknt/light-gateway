@@ -1,5 +1,28 @@
 # Change Log
 
+## [2.4.0](https://github.com/networknt/light-gateway/tree/2.4.0) (2026-10-07)
+
+**Commits:**
+
+- upgrade to version 2.4.0 before release in master branch ([412c16c](https://github.com/networknt/light-gateway/commit/412c16c62e47bebf46b3e3b91d56a11e45d816f5)) (by Steve Hu)
+- upgrade maven-javadoc to 3.12.0 from 3.4.1 ([c7eaf92](https://github.com/networknt/light-gateway/commit/c7eaf929f6c9610d497adb3a1a407180317a2914)) (by Steve Hu)
+- upgrade maven-version to 2.22.0 from 2.4 ([f3fc2dd](https://github.com/networknt/light-gateway/commit/f3fc2dd0fb2b6cefb6e5e8d3d3e130494bcd428b)) (by Steve Hu)
+- upgrade mockito to 5.24.0 ([29ed795](https://github.com/networknt/light-gateway/commit/29ed79540390363df90d052e1105815bbe0681bf)) (by Steve Hu)
+- upgrade slf4j to 2.0.20 from 2.0.19 ([fa19d4a](https://github.com/networknt/light-gateway/commit/fa19d4ab5c0f691a307cf9bdc1235c6c91018a67)) (by Steve Hu)
+- upgrade jose4j to 0.9.7 from 0.9.6 ([8fcd1b4](https://github.com/networknt/light-gateway/commit/8fcd1b46631e50f5459d17b59351f64a906f30e2)) (by Steve Hu)
+- upgrade jackson to 2.22.3 from 2.22.1 ([1a2cec1](https://github.com/networknt/light-gateway/commit/1a2cec1f9448563cc1713de5745d89bc1dbe49f1)) (by Steve Hu)
+- upgrade to version 2.3.8-SNAPSHOT after release in master branch ([77a7e68](https://github.com/networknt/light-gateway/commit/77a7e688fbbb0b1ff58d2ce2cd1179ba4c67d665)) (by Steve Hu)
+- upgrade slf4j to 2.0.19 from 2.0.17 ([d743aec](https://github.com/networknt/light-gateway/commit/d743aece0722e76b5a37bbe646b00dd297061ff2)) (by Steve Hu)
+- fixes #252 Add Java msal-auth handler with Rust light-gateway parity ([b0d5c83](https://github.com/networknt/light-gateway/commit/b0d5c83882f7a22d148cb7007f9f4fd0cd51ffe9)) (by Steve Hu)
+- upgrade logback to 1.6.3 from 1.5.37 ([9eb2e23](https://github.com/networknt/light-gateway/commit/9eb2e236e0eb3ce945d1abc48dee22f2b4ed75e2)) (by Steve Hu)
+- Remove obsolete javadoc-packagelist-maven-plugin workaround ([6e83c76](https://github.com/networknt/light-gateway/commit/6e83c76a03ffb94c9a6bdade9d9d61cbfd3bc492)) (by Steve Hu)
+- upgrade central-publishing-maven to 0.11.0 from 0.7.0 ([b02cab3](https://github.com/networknt/light-gateway/commit/b02cab32f687b764a858cc2fc9e9c62d27a10b38)) (by Steve Hu)
+- upgrade maven-jar to 3.5.1 from 3.1.2 ([72bfd00](https://github.com/networknt/light-gateway/commit/72bfd009157e7e791c19e481ed884607d4218dde)) (by Steve Hu)
+- fixes #251 rollback the rule changes to 2.0.1 for backward compatibility ([dd04e0a](https://github.com/networknt/light-gateway/commit/dd04e0adbed304746db8c4a263080f85ff9350ec)) (by Steve Hu)
+- update json-schema-validator version to 2.0.7 ([fcb12c1](https://github.com/networknt/light-gateway/commit/fcb12c10c8acb42baec49cc96cc76afb1427937e)) (by Steve Hu)
+- update json-schema-validator version to 2.0.5 ([871b8b1](https://github.com/networknt/light-gateway/commit/871b8b1b64cbb37bc4d346b680ebc562f507f870)) (by Steve Hu)
+- upgrade to version 2.3.8-SNAPSHOT after release in master branch ([23fcc26](https://github.com/networknt/light-gateway/commit/23fcc261de511c8dcdd076bd70714289e5627876)) (by Steve Hu)
+
 ## [2.3.7](https://github.com/networknt/light-gateway/tree/2.3.7) (2026-08-12)
 
 
