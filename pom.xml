@@ -96,7 +96,7 @@
         <version.undertow>2.4.4.Final</version.undertow>
         <version.json-schema-validator>2.0.8</version.json-schema-validator>
         <version.logstash>7.3</version.logstash>
-        <version.commons-codec>1.18.0</version.commons-codec>
+        <version.commons-codec>1.22.1</version.commons-codec>
         <version.commons-text>1.15.0</version.commons-text>
         <versions.maven-version>2.22.0</versions.maven-version>
         <version.maven-javadoc>3.12.0</version.maven-javadoc>
