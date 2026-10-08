@@ -90,7 +90,7 @@
         <version.jose4j>0.9.7</version.jose4j>
         <version.lambda-core>1.4.0</version.lambda-core>
         <version.lambda-events>3.16.1</version.lambda-events>
-        <version.lambda-awssdk>2.51.3</version.lambda-awssdk>
+        <version.lambda-awssdk>2.55.12</version.lambda-awssdk>
         <version.junit>5.11.4</version.junit>
         <version.mockito>5.24.0</version.mockito>
         <version.undertow>2.4.1.Final</version.undertow>
