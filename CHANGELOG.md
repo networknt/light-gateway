@@ -1,5 +1,25 @@
 # Change Log
 
+## [2.4.1](https://github.com/networknt/light-gateway/tree/2.4.1) (2026-10-11)
+
+**Commits:**
+
+- upgrade to version 2.4.1 before release in master branch ([1025e7c](https://github.com/networknt/light-gateway/commit/1025e7cfec0ad428807a16d615b508ec47cb89ff)) (by Steve Hu)
+- upgrade lambda-awssdk to 2.55.13 from 2.55.12 ([3ce3ef1](https://github.com/networknt/light-gateway/commit/3ce3ef100f92d0bbdff894d7af1807ee44a060c6)) (by Steve Hu)
+- downgrade logstash to 8.1 from 9.0 ([758ffa4](https://github.com/networknt/light-gateway/commit/758ffa4ba2e41cfbebe79694e9e3570115cfc115)) (by Steve Hu)
+- upgrade maven-shade to 3.6.2 from 3.2.1 ([8951093](https://github.com/networknt/light-gateway/commit/8951093ceba5a4e57a681996af3931fd57622673)) (by Steve Hu)
+- upgrade exec-maven to 3.6.4 from 1.6.0 ([4ae7f1f](https://github.com/networknt/light-gateway/commit/4ae7f1fb4079d511d364f488dbb437c2612e5163)) (by Steve Hu)
+- upgrade maven-gpg to 3.2.8 from 3.2.7 ([0bf4b10](https://github.com/networknt/light-gateway/commit/0bf4b105bb6569e38c21d98f02344ca5420f18e5)) (by Steve Hu)
+- upgrade maven-source to 3.4.0 ([bb9794f](https://github.com/networknt/light-gateway/commit/bb9794f797e899410348f5797289b18e05bc6df3)) (by Steve Hu)
+- upgrade logstash to 9.0 from 7.3 ([73399f1](https://github.com/networknt/light-gateway/commit/73399f1f7bf81f916b83c65b23d8874957723add)) (by Steve Hu)
+- build: upgrade JUnit to 6.1.3 ([6818189](https://github.com/networknt/light-gateway/commit/68181894ede1891530d906b4bc1a005a793d15c9)) (by Steve Hu)
+- upgrade commons-codec from 1.18.0 to 1.22.1 ([8a611e6](https://github.com/networknt/light-gateway/commit/8a611e6c881b1a3204884346f3564438beda0da6)) (by Steve Hu)
+- upgrade udertow to 2.4.4.Final from 2.4.1.Final ([d5d458b](https://github.com/networknt/light-gateway/commit/d5d458bcce01b064d1784f4cc56f997559de48db)) (by Steve Hu)
+- upgrade logback to 1.6.5 from 1.6.3 ([b08accd](https://github.com/networknt/light-gateway/commit/b08accda4ba37f03275bd83833346ac0f5951059)) (by Steve Hu)
+- upgrade json-schema-validator to 2.0.8 from 2.0.7 ([a6ced44](https://github.com/networknt/light-gateway/commit/a6ced44b96f44b84c4d83b88dcadc7837da2d434)) (by Steve Hu)
+- upgrade lambda to 2.55.12 from 2.51.3 ([174089c](https://github.com/networknt/light-gateway/commit/174089c7279d55e6f14703b60067873834efbc87)) (by Steve Hu)
+- upgrade to version 2.4.1-SNAPSHOT after release in master branch ([6c1dba5](https://github.com/networknt/light-gateway/commit/6c1dba5d92a22f7a83a366f1488400996f0edc27)) (by Steve Hu)
+
 ## [2.4.0](https://github.com/networknt/light-gateway/tree/2.4.0) (2026-10-07)
 
 **Commits:**
