@@ -226,3 +226,9 @@ you can execute the generated executable with following command:
 ```
   target/application -Dight-4j-config-dir=config/local
 ```
+
+## Jackson 3 source line
+
+This line requires the Jackson 3 framework and yaml-rule-plugin sources, Jackson 3.2.3, json-schema-validator 3.0.8 and yaml-rule 4.0.0-SNAPSHOT. Build the migrated prerequisites first; old snapshot binaries can expose incompatible Config mapper descriptors. Annotations retain com.fasterxml.jackson.annotation; the framework preserves measured Jackson 2 mapper defaults. Classic SnakeYAML cleanup is deferred.
+
+Final distribution qualification requires the later Phase 7 chaos-monkey latency-assault migration and a fresh dependency/build check. Local tests and mapper parity do not imply deployed integration or remote CI qualification.
