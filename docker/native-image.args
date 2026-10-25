@@ -1,0 +1,4 @@
+--no-fallback
+-H:+AddAllCharsets
+--enable-url-protocols=http,https
+--initialize-at-run-time=com.networknt,org.slf4j,ch.qos.logback,tools.jackson,io.netty,io.undertow

@@ -243,4 +243,12 @@ Logstash Encoder is now 9.0 (Jackson 3). Jackson 2 databind/core/jsr310 still en
 
 Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; full gateway native runtime qualification remains a separate draft gate.
 
-An offline GraalVM 25 compile was attempted with the Dockerfile's native-image flags after packaging the updated application. It fails before analysis in WildFly's existing native substitution: `Substitution target for org.wildfly.common.Substitutions$Target_GraalDirectives is not loaded`. Consequently the gateway native runtime remains unqualified and this PR stays a draft; the Jackson metadata JVM test does not waive that failure. Resolving the WildFly/GraalVM compatibility dependency is a separate prerequisite to native readiness.
+The gateway pins WildFly Common 2.0.1 to remove an obsolete GraalVM substitution. An offline GraalVM 25 build now reaches analysis and produces an executable. The executable passes a bounded health-only loopback smoke test with a JSON response. `scripts/build-native.sh` and Dockerfile-Native share native-image flags and consume the source-qualified application jar. CI repeats the build and smoke test. This qualifies startup and the health path only; full gateway routes and the Alpine runtime container remain unqualified. The chaos-monkey distribution gate still keeps this PR a draft.
+
+### Exact-source CI qualification
+
+Consumer CI requires the latest full-core workflow for the exact resolved light-4j SHA to have completed successfully. Pending, failed or missing core qualification blocks the build. The core workflow continues to run its full reactor tests; consumers install that qualified source and run their own full tests and other prerequisite suites. `core-qualification.json` records the accepted run.
+
+The full dependency ledger is audited across all groups. Every NetworkNT release and snapshot must be source-installed, apart from the explicitly SHA-256-pinned Jackson 3 validator release. Known Jackson 2 yaml-rule and chaos-monkey releases are rejected even with a local-install marker. Jackson 2 dependencies in other groups are reported; ready migrations reject them except shared annotations.
+
+Gateway CI also builds light-websocket-4j and the companion light-spa-4j migration from recorded source SHAs before packaging. SPA keeps private Microsoft SDK Jackson 2 boundaries; these are reported by the audit.

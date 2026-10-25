@@ -1333,5 +1333,17 @@
   "name":"com.networknt.rule.RoleBasedAccessControlAction",
   "allDeclaredConstructors": true,
   "allPublicMethods": true
+},
+{
+  "name": "com.networknt.decrypt.AutoAESSaltDecryptor",
+  "allPublicConstructors": true
+},
+{
+  "name": "ch.qos.logback.classic.util.DefaultJoranConfigurator",
+  "allPublicConstructors": true
+},
+{
+  "name": "ch.qos.logback.classic.BasicConfigurator",
+  "allPublicConstructors": true
 }
 ]
