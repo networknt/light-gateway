@@ -232,3 +232,13 @@ you can execute the generated executable with following command:
 This line requires the Jackson 3 framework and yaml-rule-plugin sources, Jackson 3.2.3, json-schema-validator 3.0.8 and yaml-rule 4.0.0-SNAPSHOT. Build the migrated prerequisites first; old snapshot binaries can expose incompatible Config mapper descriptors. Annotations retain com.fasterxml.jackson.annotation; the framework preserves measured Jackson 2 mapper defaults. Classic SnakeYAML cleanup is deferred.
 
 Final distribution qualification requires the later Phase 7 chaos-monkey latency-assault migration and a fresh dependency/build check. Local tests and mapper parity do not imply deployed integration or remote CI qualification.
+
+### Reproducible Jackson 3 source build
+
+`.github/workflows/jackson3-source-build.yml` builds the prerequisite source stack in a fresh isolated Maven repository and runs its full test suites. It resolves every prerequisite to a full commit SHA once and uploads `source-refs.json`, `source-commits.txt` and Surefire reports. The shared mapper policy prerequisite is light-4j #2821; merge that before its consumers.
+
+The optional `source_refs` workflow-dispatch input replays recorded full SHAs. GitHub enables dispatch only after the workflow exists on the default branch; before merge, reproduce from the recorded source checkouts locally. A green local suite is separate from a successful remote source-build run.
+
+Logstash Encoder is now 9.0 (Jackson 3). Jackson 2 databind/core/jsr310 still enter through latency-assault until the chaos-monkey migration is qualified; this PR remains a draft. `ChaosMonkeyBinaryGuardTest` audits the handler actually present on the application classpath and rejects its old Config mapper ABI. Its independently frozen Maven Central 2.4.1 class is a negative control. A freshly rebuilt source dependency passing this test does not qualify an older published jar. Do not deploy the Jackson 2 chaos-monkey binaries with Jackson 3 Config.
+
+Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; full gateway native runtime qualification remains a separate draft gate.

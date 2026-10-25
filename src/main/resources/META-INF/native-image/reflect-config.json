@@ -18,16 +18,16 @@
   "name":"[J"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
+  "name":"[Ltools.jackson.databind.deser.Deserializers;"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;"
+  "name":"[Ltools.jackson.databind.deser.KeyDeserializers;"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;"
+  "name":"[Ltools.jackson.databind.deser.ValueInstantiators;"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.ser.Serializers;"
+  "name":"[Ltools.jackson.databind.ser.Serializers;"
 },
 {
   "name":"[Lcom.networknt.handler.RequestInterceptor;"
@@ -189,14 +189,8 @@
   "name":"ch.qos.logback.core.util.FileSize",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
-{
-  "name":"com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.databind.ext.Java7SupportImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
+
+
 {
   "name":"com.github.benmanes.caffeine.cache.BLCHeader$DrainStatusRef",
   "fields":[{"name":"drainStatus"}]
@@ -567,18 +561,9 @@
   "name":"com.networknt.sanitizer.SanitizerHandler",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
-{
-  "name":"com.networknt.schema.PropertiesValidator",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.fasterxml.jackson.databind.JsonNode","com.networknt.schema.JsonSchema","com.networknt.schema.ValidationContext"] }]
-},
-{
-  "name":"com.networknt.schema.RequiredValidator",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.fasterxml.jackson.databind.JsonNode","com.networknt.schema.JsonSchema","com.networknt.schema.ValidationContext"] }]
-},
-{
-  "name":"com.networknt.schema.TypeValidator",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.fasterxml.jackson.databind.JsonNode","com.networknt.schema.JsonSchema","com.networknt.schema.ValidationContext"] }]
-},
+
+
+
 {
   "name":"com.networknt.server.ServerConfig",
   "allDeclaredFields":true,

@@ -1,5 +1,5 @@
 # Stage 1: Build the native executable
-FROM ghcr.io/graalvm/native-image-community:21 AS builder
+FROM ghcr.io/graalvm/native-image-community:25 AS builder
 
 # Install Maven
 RUN microdnf install -y maven
@@ -14,15 +14,16 @@ COPY src ./src
 RUN mvn clean install -DskipTests
 
 # Build the native image
-# --no-fallback: ensures it doesn't fall back to a regular JVM
+# --no-fallback: ensures it does not fall back to a regular JVM
+# AddAllCharsets supplies SnakeYAML Engine UTF-32 input detection
 # --enable-http --enable-https: ensure networking support
 # Keep logging/Jackson/Undertow on run-time init to avoid image-build initialization failures.
 RUN native-image \
-    --no-fallback \
+    --no-fallback -H:+AddAllCharsets \
     --verbose \
     --enable-http \
     --enable-https \
-    --initialize-at-run-time=com.networknt,org.slf4j,ch.qos.logback,com.fasterxml.jackson,io.netty,io.undertow \
+    --initialize-at-run-time=com.networknt,org.slf4j,ch.qos.logback,tools.jackson,io.netty,io.undertow \
     -H:Name=server \
     -cp target/light-gateway.jar \
     com.networknt.server.Server
