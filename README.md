@@ -251,4 +251,4 @@ Consumer CI requires the latest full-core workflow for the exact resolved light-
 
 The full dependency ledger is audited across all groups. Every NetworkNT release and snapshot must be source-installed, apart from the explicitly SHA-256-pinned Jackson 3 validator release. Known Jackson 2 yaml-rule and chaos-monkey releases are rejected even with a local-install marker. Jackson 2 dependencies in other groups are reported; ready migrations reject them except shared annotations.
 
-Gateway CI also builds light-websocket-4j and the companion light-spa-4j migration from recorded source SHAs before packaging. SPA keeps private Microsoft SDK Jackson 2 boundaries; these are reported by the audit.
+Gateway CI also builds light-websocket-4j and the companion light-spa-4j migration from recorded source SHAs before packaging. SPA is compiled against the migrated framework; the audit reports any remaining SDK Jackson boundaries.
