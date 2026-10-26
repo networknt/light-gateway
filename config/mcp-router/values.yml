@@ -79,7 +79,7 @@ mcp-router.tools:
           type: string
       required:
         - message
-
+        
 # client.yml
 client.verifyHostname: false
 client.timeout: 3000
@@ -117,7 +117,7 @@ handler.paths:
     method: 'GET'
     exec:
       - modules
-
+    
   - path: '/adm/modules'
     method: 'POST'
     exec:

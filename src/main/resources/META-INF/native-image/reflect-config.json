@@ -1345,5 +1345,117 @@
 {
   "name": "ch.qos.logback.classic.BasicConfigurator",
   "allPublicConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.PSMS",
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.SS",
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.SSMS",
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OauthTokenCacheConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthSignKeyConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.TlsConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenKeyConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthSignConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.AuthServerConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.ClientConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthDerefConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.RequestConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true,
+  "fields": [
+    {
+      "name": "connectTimeout",
+      "allowWrite": true
+    }
+  ]
+},
+{
+  "name": "com.networknt.client.OAuthTokenClientCredentialConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenRefreshTokenConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenAuthorizationCodeConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenExchangeConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.CacheLoader",
+  "allPublicMethods": true
 }
 ]

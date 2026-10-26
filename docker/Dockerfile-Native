@@ -1,4 +1,5 @@
-# First qualify target/light-gateway.jar with the source-build workflow.
+# Prebuilt-input Dockerfile. From a clean checkout use scripts/build-native-container.sh;
+# see README "Native container build" for the source-only prerequisite cache contract.
 FROM ghcr.io/graalvm/native-image-community:25 AS builder
 WORKDIR /build
 COPY target/light-gateway.jar target/light-gateway.jar

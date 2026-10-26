@@ -41,7 +41,7 @@
             const userId = document.getElementById('userId').value;
             const model = document.getElementById('model').value;
             const sessionId = sessionStorage.getItem('sessionId');
-
+            
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             let url = `${protocol}//${window.location.host}/chat?userId=${userId}&model=${model}`;
             if (sessionId) {
@@ -75,7 +75,7 @@
                 if (!currentAssistantMsgDiv) {
                     currentAssistantMsgDiv = createMessageDiv('Assistant');
                 }
-
+                
                 // Append chunk to the div
                 const textNode = document.createTextNode(data);
                 currentAssistantMsgDiv.appendChild(textNode);

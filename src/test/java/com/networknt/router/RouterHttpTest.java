@@ -46,7 +46,7 @@ public class RouterHttpTest extends BaseRouterTest {
 
     /**
      * Calling server1 directly to ensure that the endpoint is working.
-     *
+     * 
      * @throws Exception
      */
     @Test
