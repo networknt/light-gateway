@@ -14,4 +14,3 @@ data:
     envTag: ${startup.envTag:dev}
     acceptHeader: application/yaml
     timeout: ${startup.timeout:3000}
-  
