@@ -281,3 +281,14 @@ bash scripts/build-native-container.sh /absolute/isolated/m2 /absolute/light-4j/
 ```
 
 The wrapper runs the full gateway tests, installs the shaded jar, audits its complete resolved dependency ledger, and builds the image. It requires Maven third-party dependencies to be preseeded because Maven runs offline. It does not release or deploy the image. A direct `docker build -f docker/Dockerfile-Native .` is appropriate only after those jar and audit steps have completed. The runtime container remains a separate qualification lane from the host-native smoke test.
+
+
+### Updating Jackson 3 sibling source pins after merge
+
+The source manifest deliberately pins reviewed commits, including sibling PR sources. It does not follow branch heads. Later CI-only or documentation commits in a sibling do not require repeatedly chasing its head.
+
+Before merging this dependent PR, merge networknt/light-aws-lambda#168, then networknt/light-spa-4j#187. Resolve each actual merge commit through GitHub (`gh pr view <number> --repo networknt/<repo> --json mergeCommit`); do not substitute the old PR head or a moving branch. For codegen, merge and requalify the Lambda native dependency after AWS first.
+
+Fetch each sibling repository’s master and verify the selected commit is its ancestor with `git merge-base --is-ancestor <merge-sha> origin/master`. Replace the corresponding values in `ci/jackson3-source-refs.json` with those full 40-character merge SHAs in a reviewed dependent change. Keep the remaining closure pins and the qualified core/policy SHAs unchanged. Run fresh source-build CI on that dependent commit and review its resolved-source artifact before merging. A squash or merge commit must be qualified even when its runtime tree matches the earlier pin.
+
+For later sibling updates after this PR merges, use the same manifest-update PR and fresh dependent CI procedure. Never silently advance pins or infer qualification from the sibling’s own green build.
