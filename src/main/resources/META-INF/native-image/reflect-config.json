@@ -1389,12 +1389,6 @@
   "allDeclaredConstructors": true
 },
 {
-  "name": "com.networknt.client.OAuthSignConfig",
-  "allDeclaredFields": true,
-  "allPublicMethods": true,
-  "allDeclaredConstructors": true
-},
-{
   "name": "com.networknt.client.AuthServerConfig",
   "allDeclaredFields": true,
   "allPublicMethods": true,

@@ -102,7 +102,7 @@ paths:
   - com.networknt.cache.CacheManager:
       - com.networknt.cache.CaffeineCacheManager
 """,
-        # This fixture uses HTTP only; do not load JVM truststore files in a native process.
+        # HTTP-only fixture: default truststore loading and native TLS are not qualified here.
         "values.yml": "client.loadDefaultTrustStore: false\n",
         "logback.xml": """<configuration>
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">

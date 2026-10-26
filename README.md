@@ -235,11 +235,13 @@ Final distribution qualification requires the later Phase 7 chaos-monkey latency
 
 ### Reproducible Jackson 3 source build
 
-`.github/workflows/jackson3-source-build.yml` builds the prerequisite source stack in an isolated Maven repository, reuses independently qualified full-core test evidence, and runs the prerequisite and full consumer suites. It pins reviewed policy `f0d2100f972eec765b2b276e7ace38922394f0a6` and candidate `97b2359b92ed3e1d05cac04f2da8760aa954e49d`; yaml-rule/http-client are selected from that verified evidence. Other prerequisites resolve once to full SHAs. The workflow uploads `source-refs.json`, `source-commits.txt`, `core-qualification.json` and Surefire reports. Core registration and workflow-token acceptance are merged in light-4j #2825 and #2826.
+`.github/workflows/jackson3-source-build.yml` builds the prerequisite source stack in an isolated Maven repository, reuses independently qualified full-core test evidence, and runs the prerequisite and full consumer suites. It pins reviewed policy `f0d2100f972eec765b2b276e7ace38922394f0a6` and candidate `97b2359b92ed3e1d05cac04f2da8760aa954e49d`; yaml-rule/http-client are selected from that verified evidence. The complete prerequisite closure is pinned in `ci/jackson3-source-refs.json`, initialized from the successful source-build manifest, with reviewed updates expressed as full SHAs; no default-branch or migration-branch lookup is used. Explicit `source_refs` replay overrides are merged into that map and remain subject to core qualification. The workflow uploads `source-refs.json`, `source-commits.txt`, `core-qualification.json` and Surefire reports. Core registration and workflow-token acceptance are merged in light-4j #2825 and #2826.
 
 The optional `source_refs` workflow-dispatch input replays recorded full SHAs. GitHub enables dispatch only after the workflow exists on the default branch; before merge, reproduce from the recorded source checkouts locally. A green local suite is separate from a successful remote source-build run.
 
 Logstash Encoder is now 9.0 (Jackson 3). Jackson 2 databind/core/jsr310 still enter through latency-assault until the chaos-monkey migration is qualified; this PR remains a draft. `ChaosMonkeyBinaryGuardTest` inspects class-file member references in every chaos-monkey class on the application classpath, including latency-assault, and rejects Jackson 2 Config/mapper ABI references. It records the Jackson 2 databind origin separately. The `jackson3-distribution` Maven profile rejects any remaining Jackson 2 databind; this strict gate currently fails as expected and prevents distribution qualification. Its independently frozen Maven Central 2.4.1 class is a negative control. A freshly rebuilt source dependency passing this test does not qualify an older published jar. Do not deploy the Jackson 2 chaos-monkey binaries with Jackson 3 Config.
+
+The source workflow now runs that profile after its normal suite and publishes an independent `distribution-readiness` check. That check stays red while Jackson 2 databind remains, even when the normal `test` check is green. Its command, exit code and isolated Surefire reports are retained in `jackson3-distribution-readiness`; a failed or missing result cannot pass readiness.
 
 Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; full gateway native runtime qualification remains a separate draft gate.
 
@@ -254,6 +256,23 @@ The full dependency ledger is audited across all groups. Every NetworkNT release
 Gateway CI also builds light-websocket-4j and the companion light-spa-4j migration from recorded source SHAs before packaging. SPA is compiled against the migrated framework; the audit reports any remaining SDK Jackson boundaries.
 
 ### Native container build
+
+The current CI native smoke is **HTTP-only** and sets
+`client.loadDefaultTrustStore: false` in `values.yml`. Reproducing that fixture
+requires the same override. It does not qualify default JVM truststore loading,
+an HTTPS listener, certificate validation, or HTTPS upstream forwarding in a native
+process. Production gateway configurations use HTTPS and need a separate native
+TLS qualification; disabling the default truststore is not a validated production
+TLS configuration. This remains an open draft boundary.
+
+`client-config` owns the native metadata for `OAuthSignConfig`, including its
+private primitive setter; the gateway no longer duplicates that entry. Other
+client model entries remain in the gateway where the module does not yet supply
+metadata. Their broader module ownership is separate from this duplicate removal.
+
+`docker/Dockerfile-Native.dockerignore` limits this Dockerfile's context to the
+shaded jar, native-image arguments and Dockerfile. Other Docker builds keep their
+existing contexts; the exclusion is specific to the native Dockerfile.
 
 `docker/Dockerfile-Native` consumes a prebuilt, source-qualified `target/light-gateway.jar`; a direct Docker build from an unbuilt checkout is not supported. It deliberately does not fetch unpublished framework snapshots inside Docker. From a clean gateway checkout, first install the migrated prerequisites into an isolated Maven repository using the recorded source-build workflow, then run:
 

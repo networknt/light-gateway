@@ -1,0 +1,8 @@
+**
+!target/
+target/**
+!target/light-gateway.jar
+!docker/
+docker/**
+!docker/native-image.args
+!docker/Dockerfile-Native
