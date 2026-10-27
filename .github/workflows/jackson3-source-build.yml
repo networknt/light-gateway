@@ -161,8 +161,7 @@ jobs:
           stock, augmented = reports['alpine-stock-store'], reports['alpine']
           assert stock['artifact']['image_id'] == augmented['artifact']['image_id']
           assert stock['artifact']['sha256'] == augmented['artifact']['sha256']
-          assert stock['loaded_default_truststore_sha256'] == stock['default_truststore_sha256']
-          assert stock['loaded_default_truststore_sha256'] != augmented['loaded_default_truststore_sha256']
+          assert stock['selected_default_truststore_file_sha256'] != augmented['selected_default_truststore_file_sha256']
           assert reports['native']['artifact']['sha256'] == reports['alpine']['artifact']['sha256'], 'Extracted artifact identity mismatch'
           PY
       - name: Run strict Jackson 3 distribution profile

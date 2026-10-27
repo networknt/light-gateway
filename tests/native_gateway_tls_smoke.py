@@ -260,7 +260,7 @@ def main():
         result_path.write_text(json.dumps({
             "schema": 1, "mode": mode, "passed": True, "artifact": artifact,
             "default_truststore_sha256": hashlib.sha256(base_store).hexdigest(),
-            "loaded_default_truststore_sha256": hashlib.sha256(base_store if args.stock_store else
+            "selected_default_truststore_file_sha256": hashlib.sha256(base_store if args.stock_store else
                                                                   (config / "default.truststore").read_bytes()).hexdigest(),
             "store_mode": "bundled-unmodified" if args.stock_store else "fixture-augmented",
             "measurements": outcomes,

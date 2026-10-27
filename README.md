@@ -332,8 +332,11 @@ bundle. CA rotation requires an image rebuild or a replacement JKS mounted at
 `/app/cacerts` followed by a process restart; live reload is not qualified.
 
 The image smoke runs both the unmodified bundled JKS and a fixture-augmented JKS.
-The stock run exercises store loading and rejects the absent fixture default CA;
-it does not establish a positive public-CA connection. The augmented run proves
+The stock run selects the bundled file through the entrypoint and rejects the
+absent fixture default CA. This negative result cannot distinguish successful
+loading from an empty or failed default-store load. The recorded SHA-256 measures
+the selected file, not the gateway process's loaded anchors. Positive trust from
+the bundled anchors and successful stock-store loading remain unqualified. The augmented run proves
 separate custom and default fixture CAs can both authorize upstreams. Custom-only
 and default-only configuration modes remain unqualified.
 
