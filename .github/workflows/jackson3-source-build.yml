@@ -152,12 +152,18 @@ jobs:
           python3 tests/native_gateway_tls_smoke.py --jar target/light-gateway.jar
           python3 tests/native_gateway_tls_smoke.py --binary target/native/server
           python3 tests/native_gateway_tls_smoke.py --image "$image"
+          python3 tests/native_gateway_tls_smoke.py --image "$image" --stock-store
           python3 - <<'PY'
           import json
           from pathlib import Path
-          reports = {mode: json.loads(Path(f'target/native-tls/{mode}.json').read_text()) for mode in ('jvm', 'native', 'alpine')}
+          reports = {mode: json.loads(Path(f'target/native-tls/{mode}.json').read_text()) for mode in ('jvm', 'native', 'alpine', 'alpine-stock-store')}
           assert all(report['passed'] for report in reports.values())
-          assert reports['native']['artifact']['sha256'] == reports['alpine']['artifact']['sha256'], 'Different native executables tested'
+          stock, augmented = reports['alpine-stock-store'], reports['alpine']
+          assert stock['artifact']['image_id'] == augmented['artifact']['image_id']
+          assert stock['artifact']['sha256'] == augmented['artifact']['sha256']
+          assert stock['loaded_default_truststore_sha256'] == stock['default_truststore_sha256']
+          assert stock['loaded_default_truststore_sha256'] != augmented['loaded_default_truststore_sha256']
+          assert reports['native']['artifact']['sha256'] == reports['alpine']['artifact']['sha256'], 'Extracted artifact identity mismatch'
           PY
       - name: Run strict Jackson 3 distribution profile
         shell: bash

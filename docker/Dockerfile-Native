@@ -1,6 +1,6 @@
 # Prebuilt-input Dockerfile. From a clean checkout use scripts/build-native-container.sh;
 # see README "Native container build" for the source-only prerequisite cache contract.
-FROM ghcr.io/graalvm/native-image-community:25 AS builder
+FROM ghcr.io/graalvm/native-image-community:25@sha256:0d936f32bb8acb5bc60c41b33e05f064d7a6aaf36b726538296c54949bd4a3c0 AS builder
 WORKDIR /build
 COPY target/light-gateway.jar target/light-gateway.jar
 COPY docker/native-image.args native-image.args

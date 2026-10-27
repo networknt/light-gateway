@@ -245,7 +245,7 @@ The source workflow now runs that profile after its normal suite and publishes a
 
 Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; the source workflow separately exercises native runtime behavior.
 
-The gateway pins WildFly Common 2.0.1 to remove an obsolete GraalVM substitution. The native smoke test exercises real handler configuration, validation, forwarding and invalid input, in addition to health. The fixture passes on the JVM and in a GraalVM 25.0.2 native executable built with the production client-config artifact from light-4j #2822. That companion fixes primitive-boolean MethodHandle adaptation while deserializing OAuthSignConfig.enableHttp2; the gateway source-build workflow pins the merged candidate and requires exact-source core qualification. `scripts/build-native.sh` and Dockerfile-Native share native-image flags and consume the source-qualified application jar. The source workflow builds the production Alpine image once, extracts its executable, and checks identical native bytes both on the runner and in the container. Each new head must pass remote native CI; the strict chaos-monkey distribution result is recorded independently for each consumer head.
+The gateway pins WildFly Common 2.0.1 to remove an obsolete GraalVM substitution. The native smoke test exercises real handler configuration, validation, forwarding and invalid input, in addition to health. The fixture passes on the JVM and in a GraalVM 25.0.2 native executable built with the production client-config artifact from light-4j #2822. That companion fixes primitive-boolean MethodHandle adaptation while deserializing OAuthSignConfig.enableHttp2; the gateway source-build workflow pins the merged candidate and requires exact-source core qualification. `scripts/build-native.sh` and Dockerfile-Native share native-image flags and consume the source-qualified application jar. The source workflow builds the production Alpine image once, extracts its executable, and exercises that same executable on the runner and in the container; the digest comparison guards extraction identity, not independent-build reproducibility. Each new head must pass remote native CI; the strict chaos-monkey distribution result is recorded independently for each consumer head.
 
 ### Exact-source CI qualification
 
@@ -277,7 +277,7 @@ custom/default fixture truststores use JKS. All services bind to loopback, with 
 AWS endpoints or external HTTPS services involved.
 
 The Alpine runtime is pinned to 3.24.0 by digest and tested as a non-root process
-on Linux x86-64. This covers the selected GraalVM 25, TLS 1.2 and HTTP/1.1 paths;
+with explicit `--user` on Linux x86-64. This covers the selected GraalVM 25, TLS 1.2 and HTTP/1.1 paths;
 it does not establish mTLS, TLS 1.3, HTTP/2, other CPU architectures or deployed
 production qualification. Logs and result JSON are retained in
 `target/native-tls/`, including artifact identity and truststore digest.
@@ -286,6 +286,7 @@ production qualification. Logs and result JSON are retained in
 python3 tests/native_gateway_tls_smoke.py --jar target/light-gateway.jar
 python3 tests/native_gateway_tls_smoke.py --binary target/native/server
 python3 tests/native_gateway_tls_smoke.py --image gateway-native:local
+python3 tests/native_gateway_tls_smoke.py --image gateway-native:local --stock-store
 ```
 
 The fixture needs Python 3, OpenSSL, JDK `keytool` and Docker for image mode.
@@ -321,3 +322,20 @@ Before merging this dependent PR, merge networknt/light-aws-lambda#168, then net
 Fetch each sibling repository’s master and verify the selected commit is its ancestor with `git merge-base --is-ancestor <merge-sha> origin/master`. Replace the corresponding values in `ci/jackson3-source-refs.json` with those full 40-character merge SHAs in a reviewed dependent change. Keep the remaining closure pins and the qualified core/policy SHAs unchanged. Run fresh source-build CI on that dependent commit and review its resolved-source artifact before merging. A squash or merge commit must be qualified even when its runtime tree matches the earlier pin.
 
 For later sibling updates after this PR merges, use the same manifest-update PR and fresh dependent CI procedure. Never silently advance pins or infer qualification from the sibling’s own green build.
+
+#### Native packaging qualification boundaries
+
+The builder is pinned to the digest used by the qualified CI run. CI builds the
+production image once; it does not independently qualify `scripts/build-native.sh`.
+The Java JKS anchors copied from that builder are separate from Alpine's OS CA
+bundle. CA rotation requires an image rebuild or a replacement JKS mounted at
+`/app/cacerts` followed by a process restart; live reload is not qualified.
+
+The image smoke runs both the unmodified bundled JKS and a fixture-augmented JKS.
+The stock run exercises store loading and rejects the absent fixture default CA;
+it does not establish a positive public-CA connection. The augmented run proves
+separate custom and default fixture CAs can both authorize upstreams. Custom-only
+and default-only configuration modes remain unqualified.
+
+Non-root qualification uses explicit `--user` and records the container UID. The
+image has no fixed `USER` and does not promise non-root execution by default.

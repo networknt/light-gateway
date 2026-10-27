@@ -123,9 +123,12 @@ pathPrefixes:
 
 def command(args, config, container_name):
     if args.image:
-        return ["docker", "run", "--rm", "--pull=never", "--name", container_name,
+        invocation = ["docker", "run", "--rm", "--pull=never", "--name", container_name,
                 "--network=host", "--user", f"{os.getuid()}:{os.getgid()}",
-                "-v", f"{config}:/config:ro", "-v", f"{config / 'default.truststore'}:/app/cacerts:ro", args.image]
+                "-v", f"{config}:/config:ro"]
+        if not args.stock_store:
+            invocation += ["-v", f"{config / 'default.truststore'}:/app/cacerts:ro"]
+        return [*invocation, args.image]
     options = [f"-Dlight-4j-config-dir={config}", f"-Dlogback.configurationFile={config / 'logback.xml'}",
                f"-Djavax.net.ssl.trustStore={config / 'default.truststore'}",
                "-Djavax.net.ssl.trustStoreType=JKS", "-Djavax.net.ssl.trustStorePassword=changeit"]
@@ -139,11 +142,13 @@ def rejected(opener, url):
         request(opener, url)
     except urllib.error.URLError as error:
         assert isinstance(error.reason, ssl.SSLCertVerificationError), error
+        return {"verify_code": error.reason.verify_code, "verify_message": error.reason.verify_message}
     else:
         raise AssertionError("Invalid listener certificate was accepted")
 
 
-def exercise(port, config, calls):
+def exercise(port, config, calls, stock_store=False):
+    outcomes = {}
     context = ssl.create_default_context(cafile=str(config / "custom-ca.pem"))
     context.verify_flags |= ssl.VERIFY_X509_STRICT
     context.minimum_version = context.maximum_version = ssl.TLSVersion.TLSv1_2
@@ -161,22 +166,34 @@ def exercise(port, config, calls):
     with socket.create_connection(("127.0.0.1", port), timeout=5) as connection:
         with context.wrap_socket(connection, server_hostname="localhost") as secured:
             assert secured.version() == "TLSv1.2", secured.version()
-    rejected(opener, f"https://127.0.0.1:{port}/health")
+            outcomes["listener_tls"] = {"version": secured.version(), "cipher": secured.cipher()}
+    outcomes["listener_hostname_rejection"] = rejected(opener, f"https://127.0.0.1:{port}/health")
     wrong_ca = ssl.create_default_context(cafile=str(config / "untrusted-ca.pem"))
-    rejected(urllib.request.build_opener(urllib.request.ProxyHandler({}),
+    outcomes["listener_ca_rejection"] = rejected(urllib.request.build_opener(urllib.request.ProxyHandler({}),
                                        urllib.request.HTTPSHandler(context=wrong_ca)), base + "/health")
     value = {"name": "tls", "amount": 7}
     for name in ("custom", "default"):
         response = request(opener, base + f"/native/{name}", value)
-        assert response == (200, "application/json", {"forwarded": value}), (name, response)
-    assert [len(calls[name]) for name in ("custom", "default", "untrusted")] == [1, 1, 0], calls
+        outcomes[f"{name}_forwarding"] = response
+        if name == "default" and stock_store:
+            assert response[0] == 400 and response[2]["code"] == "ERR10011", response
+        else:
+            assert response == (200, "application/json", {"forwarded": value}), (name, response)
+    assert [len(calls[name]) for name in ("custom", "default", "untrusted")] == [1, 0 if stock_store else 1, 0], calls
     for name in ("untrusted", "hostname"):
         status, media, body = request(opener, base + f"/native/{name}", value)
+        outcomes[f"{name}_rejection"] = {"status": status, "media": media, "code": body["code"]}
         # Existing ExceptionHandler maps failed TLS handshakes to this structured response.
         assert (status, media, body["code"]) == (400, "application/json", "ERR10011"), (name, status, body)
-    assert [len(calls[name]) for name in ("custom", "default", "untrusted")] == [1, 1, 0], "Rejected TLS reached an upstream"
-    assert request(opener, base + "/native/custom", value) == (200, "application/json", {"forwarded": value})
+    assert [len(calls[name]) for name in ("custom", "default", "untrusted")] == [1, 0 if stock_store else 1, 0], "Rejected TLS reached an upstream"
+    outcomes["warm_recovery"] = request(opener, base + "/native/custom", value)
+    assert outcomes["warm_recovery"] == (200, "application/json", {"forwarded": value})
     assert len(calls["custom"]) == 2, calls
+    outcomes["upstream_calls"] = {name: len(value) for name, value in calls.items()}
+    assert set(outcomes) == {"listener_tls", "listener_hostname_rejection", "listener_ca_rejection",
+                             "custom_forwarding", "default_forwarding", "untrusted_rejection",
+                             "hostname_rejection", "warm_recovery", "upstream_calls"}
+    return outcomes
 
 
 def main():
@@ -185,8 +202,15 @@ def main():
     target.add_argument("--binary", type=Path)
     target.add_argument("--jar", type=Path)
     target.add_argument("--image")
+    parser.add_argument("--stock-store", action="store_true", help="Exercise the unmodified image truststore")
     args = parser.parse_args()
+    if args.stock_store and not args.image:
+        parser.error("--stock-store requires --image")
+    if args.image and os.getuid() == 0:
+        parser.error("Image qualification requires a non-root caller for explicit --user")
     mode = "alpine" if args.image else "native" if args.binary else "jvm"
+    if args.stock_store:
+        mode += "-stock-store"
     evidence = Path(__file__).resolve().parents[1] / "target" / "native-tls"
     evidence.mkdir(parents=True, exist_ok=True)
     result_path = evidence / f"{mode}.json"
@@ -214,7 +238,10 @@ def main():
         with (evidence / f"{mode}.log").open("w+") as log:
             process = subprocess.Popen(command(args, config, container_name), cwd=config, stdout=log, stderr=subprocess.STDOUT)
             try:
-                exercise(port, config, calls)
+                outcomes = exercise(port, config, calls, args.stock_store)
+                if args.image:
+                    artifact["runtime_uid"] = int(tool(["docker", "exec", container_name, "id", "-u"]))
+                    assert artifact["runtime_uid"] != 0
             except Exception as error:
                 log.flush()
                 log.seek(0)
@@ -232,14 +259,13 @@ def main():
                         raise RuntimeError(f"Unable to remove fixture container {container_name}: {cleanup.stderr!r}")
         result_path.write_text(json.dumps({
             "schema": 1, "mode": mode, "passed": True, "artifact": artifact,
-            "tls": "TLSv1.2", "hostname_verification": True,
             "default_truststore_sha256": hashlib.sha256(base_store).hexdigest(),
-            "fixture_default_ca_added": True, "custom_store_forwarding": True,
-            "default_store_forwarding": True, "untrusted_ca_rejected": True,
-            "upstream_hostname_rejected": True, "listener_ca_and_hostname_rejected": True,
-            "warm_recovery": True, "upstream_calls": {name: len(value) for name, value in calls.items()},
+            "loaded_default_truststore_sha256": hashlib.sha256(base_store if args.stock_store else
+                                                                  (config / "default.truststore").read_bytes()).hexdigest(),
+            "store_mode": "bundled-unmodified" if args.stock_store else "fixture-augmented",
+            "measurements": outcomes,
         }, indent=2) + "\n")
-    print(f"Gateway TLS smoke passed ({mode}): HTTPS listener, custom/default trust, certificate/hostname rejection and warm recovery")
+    print(f"Gateway TLS smoke passed ({mode}): measured HTTPS, forwarding, rejection and recovery cases")
 
 
 if __name__ == "__main__":
