@@ -15,5 +15,5 @@ cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 mvn -o "-Dmaven.repo.local=$repository" clean install
 mvn -o -B -Dstyle.color=never "-Dmaven.repo.local=$repository" dependency:tree > target/native-container-dependencies.txt
 python3 "$core/scripts/jackson3_artifact_audit.py" --repository "$repository" \
-    --tree target/native-container-dependencies.txt --report target/native-container-artifact-audit.json
+    --tree target/native-container-dependencies.txt --report target/native-container-artifact-audit.json --require-jackson3-only
 docker build -f docker/Dockerfile-Native -t "$tag" .
