@@ -1,6 +1,7 @@
 target/
 bower_components/
 node_modules/
+__pycache__/
 dist/
 log/
 .idea/

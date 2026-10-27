@@ -136,13 +136,29 @@ jobs:
           set -euo pipefail
           mvn -B -Dstyle.color=never -f consumer/pom.xml "-Dmaven.repo.local=$SOURCE_MAVEN_REPO" dependency:tree 2>&1 | tee resolved-dependencies.txt
           python3 sources/light-4j/scripts/jackson3_artifact_audit.py --repository "$SOURCE_MAVEN_REPO" --tree resolved-dependencies.txt --require-jackson3-only --report artifact-audit.json
-      - name: Build and invoke gateway native executable
+      - name: Build native runtime image and qualify TLS
         working-directory: consumer
-        env:
-          GRAALVM_PULL: missing
         run: |
-          bash scripts/build-native.sh
+          image="gateway-native-tls:${{ github.run_id }}"
+          docker build --build-arg 'NATIVE_IMAGE_BUILD_OPTIONS=-J-Xmx4g --parallelism=2' \
+            -f docker/Dockerfile-Native -t "$image" .
+          container=$(docker create --network=none "$image")
+          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+          mkdir -p target/native
+          docker cp "$container:/app/." target/native/
+          docker rm "$container"
+          trap - EXIT
           python3 tests/native_gateway_smoke.py --binary target/native/server
+          python3 tests/native_gateway_tls_smoke.py --jar target/light-gateway.jar
+          python3 tests/native_gateway_tls_smoke.py --binary target/native/server
+          python3 tests/native_gateway_tls_smoke.py --image "$image"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          reports = {mode: json.loads(Path(f'target/native-tls/{mode}.json').read_text()) for mode in ('jvm', 'native', 'alpine')}
+          assert all(report['passed'] for report in reports.values())
+          assert reports['native']['artifact']['sha256'] == reports['alpine']['artifact']['sha256'], 'Different native executables tested'
+          PY
       - name: Run strict Jackson 3 distribution profile
         shell: bash
         run: |
@@ -175,6 +191,7 @@ jobs:
             **/target/surefire-reports/**
             **/target/*smoke*.log
             consumer/target/native/**
+            consumer/target/native-tls/**
   distribution-readiness:
     needs: test
     if: ${{ always() && !cancelled() }}

@@ -239,13 +239,13 @@ Final distribution qualification requires the pinned, merged chaos-monkey cleanu
 
 The optional `source_refs` workflow-dispatch input replays recorded full SHAs. GitHub enables dispatch only after the workflow exists on the default branch; before merge, reproduce from the recorded source checkouts locally. A green local suite is separate from a successful remote source-build run.
 
-Logstash Encoder is now 9.0 (Jackson 3). The source manifest pins the merged light-chaos-monkey #49 cleanup at 237a7b3d60b969343a088b25dd61e12f4d881d7d, which removes the unused Jackson 2 runtime declarations. Fresh source-build and strict distribution results on this consumer head determine distribution qualification; this PR remains a draft pending review. `ChaosMonkeyBinaryGuardTest` inspects class-file member references in every chaos-monkey class on the application classpath, including latency-assault, and rejects Jackson 2 Config/mapper ABI references. It records the Jackson 2 databind origin separately. The `jackson3-distribution` Maven profile rejects any remaining Jackson 2 databind; this strict gate must pass on the current consumer head before distribution qualification. Its independently frozen Maven Central 2.4.1 class is a negative control. A freshly rebuilt source dependency passing this test does not qualify an older published jar. Do not deploy the Jackson 2 chaos-monkey binaries with Jackson 3 Config.
+Logstash Encoder is now 9.0 (Jackson 3). The source manifest pins the merged light-chaos-monkey #49 cleanup at 237a7b3d60b969343a088b25dd61e12f4d881d7d, which removes the unused Jackson 2 runtime declarations. Fresh source-build and strict distribution results on this consumer head determine distribution qualification. `ChaosMonkeyBinaryGuardTest` inspects class-file member references in every chaos-monkey class on the application classpath, including latency-assault, and rejects Jackson 2 Config/mapper ABI references. It records the Jackson 2 databind origin separately. The `jackson3-distribution` Maven profile rejects any remaining Jackson 2 databind; this strict gate must pass on the current consumer head before distribution qualification. Its independently frozen Maven Central 2.4.1 class is a negative control. A freshly rebuilt source dependency passing this test does not qualify an older published jar. Do not deploy the Jackson 2 chaos-monkey binaries with Jackson 3 Config.
 
 The source workflow now runs that profile after its normal suite and publishes an independent `distribution-readiness` check. That check stays red while Jackson 2 databind remains, even when the normal `test` check is green. Its command, exit code and isolated Surefire reports are retained in `jackson3-distribution-readiness`; a failed or missing result cannot pass readiness.
 
-Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; full gateway native runtime qualification remains a separate draft gate.
+Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; the source workflow separately exercises native runtime behavior.
 
-The gateway pins WildFly Common 2.0.1 to remove an obsolete GraalVM substitution. The native smoke test now exercises real handler configuration, validation, forwarding and invalid input, in addition to health. The fixture passes on the JVM and in a GraalVM 25.0.2 native executable built with the production client-config artifact from light-4j #2822. That companion fixes primitive-boolean MethodHandle adaptation while deserializing OAuthSignConfig.enableHttp2; the gateway source-build workflow pins the merged candidate and requires exact-source core qualification. `scripts/build-native.sh` and Dockerfile-Native share native-image flags and consume the source-qualified application jar. Each new head must pass remote native CI. The Alpine runtime container remains unqualified; the strict chaos-monkey distribution result is recorded independently for each consumer head.
+The gateway pins WildFly Common 2.0.1 to remove an obsolete GraalVM substitution. The native smoke test exercises real handler configuration, validation, forwarding and invalid input, in addition to health. The fixture passes on the JVM and in a GraalVM 25.0.2 native executable built with the production client-config artifact from light-4j #2822. That companion fixes primitive-boolean MethodHandle adaptation while deserializing OAuthSignConfig.enableHttp2; the gateway source-build workflow pins the merged candidate and requires exact-source core qualification. `scripts/build-native.sh` and Dockerfile-Native share native-image flags and consume the source-qualified application jar. The source workflow builds the production Alpine image once, extracts its executable, and checks identical native bytes both on the runner and in the container. Each new head must pass remote native CI; the strict chaos-monkey distribution result is recorded independently for each consumer head.
 
 ### Exact-source CI qualification
 
@@ -257,13 +257,42 @@ Gateway CI also builds light-websocket-4j and the companion light-spa-4j migrati
 
 ### Native container build
 
-The current CI native smoke is **HTTP-only** and sets
-`client.loadDefaultTrustStore: false` in `values.yml`. Reproducing that fixture
-requires the same override. It does not qualify default JVM truststore loading,
-an HTTPS listener, certificate validation, or HTTPS upstream forwarding in a native
-process. Production gateway configurations use HTTPS and need a separate native
-TLS qualification; disabling the default truststore is not a validated production
-TLS configuration. This remains an open draft boundary.
+The HTTP-only fixture in `tests/native_gateway_smoke.py` retains its
+`client.loadDefaultTrustStore: false` override. TLS is qualified separately by
+`tests/native_gateway_tls_smoke.py` with hostname verification and default trust
+loading enabled. It checks a TLS 1.2 HTTPS listener, HTTPS upstream forwarding
+through separate custom/default trust roots, rejection of untrusted CAs and wrong
+hostnames on both sides, zero upstream executions for rejected requests, and warm
+recovery. Handshake failures currently use the existing `400 ERR10011` response;
+this qualification does not change that error mapping.
+
+The standalone native executable needs a readable default truststore selected
+with `-Djavax.net.ssl.trustStore=/path/to/cacerts` and the matching
+`-Djavax.net.ssl.trustStoreType=JKS`; no runtime JRE directory is assumed.
+The Dockerfile copies the builder JDK's CA store into `/app/cacerts` and selects
+that path in its entrypoint. The TLS fixture adds a private test CA to a temporary
+copy of the real store and mounts it at that same path, without changing the image
+or the host trust configuration. Listener keys are temporary PKCS12 stores; the
+custom/default fixture truststores use JKS. All services bind to loopback, with no
+AWS endpoints or external HTTPS services involved.
+
+The Alpine runtime is pinned to 3.24.0 by digest and tested as a non-root process
+on Linux x86-64. This covers the selected GraalVM 25, TLS 1.2 and HTTP/1.1 paths;
+it does not establish mTLS, TLS 1.3, HTTP/2, other CPU architectures or deployed
+production qualification. Logs and result JSON are retained in
+`target/native-tls/`, including artifact identity and truststore digest.
+
+```sh
+python3 tests/native_gateway_tls_smoke.py --jar target/light-gateway.jar
+python3 tests/native_gateway_tls_smoke.py --binary target/native/server
+python3 tests/native_gateway_tls_smoke.py --image gateway-native:local
+```
+
+The fixture needs Python 3, OpenSSL, JDK `keytool` and Docker for image mode.
+Its image mode uses host networking on Linux only for its temporary loopback
+listeners, and removes its own container after each run. CI compares native and
+container executable digests. Set the optional Docker build argument
+`NATIVE_IMAGE_BUILD_OPTIONS` to bound compiler memory/parallelism when needed.
 
 `client-config` owns the native metadata for `OAuthSignConfig`, including its
 private primitive setter; the gateway no longer duplicates that entry. Other

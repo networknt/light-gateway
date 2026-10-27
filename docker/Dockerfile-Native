@@ -4,13 +4,15 @@ FROM ghcr.io/graalvm/native-image-community:25 AS builder
 WORKDIR /build
 COPY target/light-gateway.jar target/light-gateway.jar
 COPY docker/native-image.args native-image.args
-RUN mkdir native && native-image @native-image.args -o native/server \
-    -cp target/light-gateway.jar com.networknt.server.Server
+ARG NATIVE_IMAGE_BUILD_OPTIONS=""
+RUN mkdir native && native-image ${NATIVE_IMAGE_BUILD_OPTIONS} @native-image.args -o native/server \
+    -cp target/light-gateway.jar com.networknt.server.Server \
+    && cp "$JAVA_HOME/lib/security/cacerts" native/cacerts
 
-FROM alpine:latest
+FROM alpine:3.24.0@sha256:fa1b3b8cd12d2b2ded5ef366f99b5a7556884646af680404989d626535a3ac14
 RUN apk add --no-cache gcompat curl zlib
 WORKDIR /app
 # Include the executable and any native-image companion libraries (e.g. management support).
 COPY --from=builder /build/native/ /app/
 RUN mkdir /config
-ENTRYPOINT ["/app/server", "-Dlight-4j-config-dir=/config", "-Dlogback.configurationFile=/config/logback.xml"]
+ENTRYPOINT ["/app/server", "-Dlight-4j-config-dir=/config", "-Dlogback.configurationFile=/config/logback.xml", "-Djavax.net.ssl.trustStore=/app/cacerts", "-Djavax.net.ssl.trustStoreType=JKS"]
