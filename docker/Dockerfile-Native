@@ -1,45 +1,16 @@
-# Stage 1: Build the native executable
-FROM ghcr.io/graalvm/native-image-community:21 AS builder
-
-# Install Maven
-RUN microdnf install -y maven
-
+# Prebuilt-input Dockerfile. From a clean checkout use scripts/build-native-container.sh;
+# see README "Native container build" for the source-only prerequisite cache contract.
+FROM ghcr.io/graalvm/native-image-community:25 AS builder
 WORKDIR /build
+COPY target/light-gateway.jar target/light-gateway.jar
+COPY docker/native-image.args native-image.args
+RUN mkdir native && native-image @native-image.args -o native/server \
+    -cp target/light-gateway.jar com.networknt.server.Server
 
-# Copy the pom.xml and source code
-COPY pom.xml .
-COPY src ./src
-
-# Build the application jar
-RUN mvn clean install -DskipTests
-
-# Build the native image
-# --no-fallback: ensures it doesn't fall back to a regular JVM
-# --enable-http --enable-https: ensure networking support
-# Keep logging/Jackson/Undertow on run-time init to avoid image-build initialization failures.
-RUN native-image \
-    --no-fallback \
-    --verbose \
-    --enable-http \
-    --enable-https \
-    --initialize-at-run-time=com.networknt,org.slf4j,ch.qos.logback,com.fasterxml.jackson,io.netty,io.undertow \
-    -H:Name=server \
-    -cp target/light-gateway.jar \
-    com.networknt.server.Server
-
-# Stage 2: Create the runtime image
 FROM alpine:latest
-
-# Install gcompat for glibc compatibility on Alpine
-RUN apk add --no-cache gcompat curl
-
+RUN apk add --no-cache gcompat curl zlib
 WORKDIR /app
-
-# Copy the native binary from the builder stage
-COPY --from=builder /build/server /app/server
-
-# Copy the config directory (mount point)
+# Include the executable and any native-image companion libraries (e.g. management support).
+COPY --from=builder /build/native/ /app/
 RUN mkdir /config
-
-# Run the application
 ENTRYPOINT ["/app/server", "-Dlight-4j-config-dir=/config", "-Dlogback.configurationFile=/config/logback.xml"]

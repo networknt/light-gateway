@@ -226,3 +226,69 @@ you can execute the generated executable with following command:
 ```
   target/application -Dight-4j-config-dir=config/local
 ```
+
+## Jackson 3 source line
+
+This line requires the Jackson 3 framework and yaml-rule-plugin sources, Jackson 3.2.3, json-schema-validator 3.0.8 and yaml-rule 4.0.0-SNAPSHOT. Build the migrated prerequisites first; old snapshot binaries can expose incompatible Config mapper descriptors. Annotations retain com.fasterxml.jackson.annotation; the framework preserves measured Jackson 2 mapper defaults. Classic SnakeYAML cleanup is deferred.
+
+Final distribution qualification requires the pinned, merged chaos-monkey cleanup and a fresh dependency/build check. Local tests and mapper parity do not imply deployed integration or remote CI qualification.
+
+### Reproducible Jackson 3 source build
+
+`.github/workflows/jackson3-source-build.yml` builds the prerequisite source stack in an isolated Maven repository, reuses independently qualified full-core test evidence, and runs the prerequisite and full consumer suites. It pins reviewed policy `f0d2100f972eec765b2b276e7ace38922394f0a6` and candidate `97b2359b92ed3e1d05cac04f2da8760aa954e49d`; yaml-rule/http-client are selected from that verified evidence. The complete prerequisite closure is pinned in `ci/jackson3-source-refs.json`, initialized from the successful source-build manifest, with reviewed updates expressed as full SHAs; no default-branch or migration-branch lookup is used. Explicit `source_refs` replay overrides are merged into that map and remain subject to core qualification. The workflow uploads `source-refs.json`, `source-commits.txt`, `core-qualification.json` and Surefire reports. Core registration and workflow-token acceptance are merged in light-4j #2825 and #2826.
+
+The optional `source_refs` workflow-dispatch input replays recorded full SHAs. GitHub enables dispatch only after the workflow exists on the default branch; before merge, reproduce from the recorded source checkouts locally. A green local suite is separate from a successful remote source-build run.
+
+Logstash Encoder is now 9.0 (Jackson 3). The source manifest pins the merged light-chaos-monkey #49 cleanup at 237a7b3d60b969343a088b25dd61e12f4d881d7d, which removes the unused Jackson 2 runtime declarations. Fresh source-build and strict distribution results on this consumer head determine distribution qualification; this PR remains a draft pending review. `ChaosMonkeyBinaryGuardTest` inspects class-file member references in every chaos-monkey class on the application classpath, including latency-assault, and rejects Jackson 2 Config/mapper ABI references. It records the Jackson 2 databind origin separately. The `jackson3-distribution` Maven profile rejects any remaining Jackson 2 databind; this strict gate must pass on the current consumer head before distribution qualification. Its independently frozen Maven Central 2.4.1 class is a negative control. A freshly rebuilt source dependency passing this test does not qualify an older published jar. Do not deploy the Jackson 2 chaos-monkey binaries with Jackson 3 Config.
+
+The source workflow now runs that profile after its normal suite and publishes an independent `distribution-readiness` check. That check stays red while Jackson 2 databind remains, even when the normal `test` check is green. Its command, exit code and isolated Surefire reports are retained in `jackson3-distribution-readiness`; a failed or missing result cannot pass readiness.
+
+Native metadata uses Jackson 3 type names and removes obsolete Java7 helpers and stale validator constructors. The validator dependency supplies its own versioned native metadata. `GatewayNativeMetadataTest` checks these changed registrations on the JVM; full gateway native runtime qualification remains a separate draft gate.
+
+The gateway pins WildFly Common 2.0.1 to remove an obsolete GraalVM substitution. The native smoke test now exercises real handler configuration, validation, forwarding and invalid input, in addition to health. The fixture passes on the JVM and in a GraalVM 25.0.2 native executable built with the production client-config artifact from light-4j #2822. That companion fixes primitive-boolean MethodHandle adaptation while deserializing OAuthSignConfig.enableHttp2; the gateway source-build workflow pins the merged candidate and requires exact-source core qualification. `scripts/build-native.sh` and Dockerfile-Native share native-image flags and consume the source-qualified application jar. Each new head must pass remote native CI. The Alpine runtime container remains unqualified; the strict chaos-monkey distribution result is recorded independently for each consumer head.
+
+### Exact-source CI qualification
+
+Consumer CI requires retained successful full-reactor evidence for the actual checked-out light-4j SHA and the same yaml-rule/http-client source commits. Core PR CI explicitly checks out the PR head, not its merge ref. Replay dispatches cannot qualify consumers. The attempt-specific evidence artifact records the actual checkout, prerequisite SHAs and test totals. A later pending, failed or cancelled run does not invalidate earlier valid evidence. All API pages and retained attempts are considered; missing or expired evidence blocks reuse. `core-qualification.json` records the accepted run and artifact.
+
+The full dependency ledger is audited across all groups. Every NetworkNT release and snapshot must be source-installed, apart from the explicitly SHA-256-pinned Jackson 3 validator release. Known Jackson 2 yaml-rule and chaos-monkey releases are rejected even with a local-install marker. Jackson 2 dependencies in other groups are reported; ready migrations reject them except shared annotations.
+
+Gateway CI also builds light-websocket-4j and the companion light-spa-4j migration from recorded source SHAs before packaging. SPA is compiled against the migrated framework; the audit reports any remaining SDK Jackson boundaries.
+
+### Native container build
+
+The current CI native smoke is **HTTP-only** and sets
+`client.loadDefaultTrustStore: false` in `values.yml`. Reproducing that fixture
+requires the same override. It does not qualify default JVM truststore loading,
+an HTTPS listener, certificate validation, or HTTPS upstream forwarding in a native
+process. Production gateway configurations use HTTPS and need a separate native
+TLS qualification; disabling the default truststore is not a validated production
+TLS configuration. This remains an open draft boundary.
+
+`client-config` owns the native metadata for `OAuthSignConfig`, including its
+private primitive setter; the gateway no longer duplicates that entry. Other
+client model entries remain in the gateway where the module does not yet supply
+metadata. Their broader module ownership is separate from this duplicate removal.
+
+`docker/Dockerfile-Native.dockerignore` limits this Dockerfile's context to the
+shaded jar, native-image arguments and Dockerfile. Other Docker builds keep their
+existing contexts; the exclusion is specific to the native Dockerfile.
+
+`docker/Dockerfile-Native` consumes a prebuilt, source-qualified `target/light-gateway.jar`; a direct Docker build from an unbuilt checkout is not supported. It deliberately does not fetch unpublished framework snapshots inside Docker. From a clean gateway checkout, first install the migrated prerequisites into an isolated Maven repository using the recorded source-build workflow, then run:
+
+```sh
+bash scripts/build-native-container.sh /absolute/isolated/m2 /absolute/light-4j/source gateway-native:local
+```
+
+The wrapper runs the full gateway tests, installs the shaded jar, audits its complete resolved dependency ledger, and builds the image. It requires Maven third-party dependencies to be preseeded because Maven runs offline. It does not release or deploy the image. A direct `docker build -f docker/Dockerfile-Native .` is appropriate only after those jar and audit steps have completed. The runtime container remains a separate qualification lane from the host-native smoke test.
+
+
+### Updating Jackson 3 sibling source pins after merge
+
+The source manifest deliberately pins reviewed commits, including sibling PR sources. It does not follow branch heads. Later CI-only or documentation commits in a sibling do not require repeatedly chasing its head.
+
+Before merging this dependent PR, merge networknt/light-aws-lambda#168, then networknt/light-spa-4j#187. Resolve each actual merge commit through GitHub (`gh pr view <number> --repo networknt/<repo> --json mergeCommit`); do not substitute the old PR head or a moving branch. For codegen, merge and requalify the Lambda native dependency after AWS first.
+
+Fetch each sibling repository’s master and verify the selected commit is its ancestor with `git merge-base --is-ancestor <merge-sha> origin/master`. Replace the corresponding values in `ci/jackson3-source-refs.json` with those full 40-character merge SHAs in a reviewed dependent change. Keep the remaining closure pins and the qualified core/policy SHAs unchanged. Run fresh source-build CI on that dependent commit and review its resolved-source artifact before merging. A squash or merge commit must be qualified even when its runtime tree matches the earlier pin.
+
+For later sibling updates after this PR merges, use the same manifest-update PR and fresh dependent CI procedure. Never silently advance pins or infer qualification from the sibling’s own green build.

@@ -18,16 +18,16 @@
   "name":"[J"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
+  "name":"[Ltools.jackson.databind.deser.Deserializers;"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;"
+  "name":"[Ltools.jackson.databind.deser.KeyDeserializers;"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;"
+  "name":"[Ltools.jackson.databind.deser.ValueInstantiators;"
 },
 {
-  "name":"[Lcom.fasterxml.jackson.databind.ser.Serializers;"
+  "name":"[Ltools.jackson.databind.ser.Serializers;"
 },
 {
   "name":"[Lcom.networknt.handler.RequestInterceptor;"
@@ -189,14 +189,8 @@
   "name":"ch.qos.logback.core.util.FileSize",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
-{
-  "name":"com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.fasterxml.jackson.databind.ext.Java7SupportImpl",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
+
+
 {
   "name":"com.github.benmanes.caffeine.cache.BLCHeader$DrainStatusRef",
   "fields":[{"name":"drainStatus"}]
@@ -567,18 +561,9 @@
   "name":"com.networknt.sanitizer.SanitizerHandler",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
-{
-  "name":"com.networknt.schema.PropertiesValidator",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.fasterxml.jackson.databind.JsonNode","com.networknt.schema.JsonSchema","com.networknt.schema.ValidationContext"] }]
-},
-{
-  "name":"com.networknt.schema.RequiredValidator",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.fasterxml.jackson.databind.JsonNode","com.networknt.schema.JsonSchema","com.networknt.schema.ValidationContext"] }]
-},
-{
-  "name":"com.networknt.schema.TypeValidator",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","com.fasterxml.jackson.databind.JsonNode","com.networknt.schema.JsonSchema","com.networknt.schema.ValidationContext"] }]
-},
+
+
+
 {
   "name":"com.networknt.server.ServerConfig",
   "allDeclaredFields":true,
@@ -1347,6 +1332,124 @@
 {
   "name":"com.networknt.rule.RoleBasedAccessControlAction",
   "allDeclaredConstructors": true,
+  "allPublicMethods": true
+},
+{
+  "name": "com.networknt.decrypt.AutoAESSaltDecryptor",
+  "allPublicConstructors": true
+},
+{
+  "name": "ch.qos.logback.classic.util.DefaultJoranConfigurator",
+  "allPublicConstructors": true
+},
+{
+  "name": "ch.qos.logback.classic.BasicConfigurator",
+  "allPublicConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.PSMS",
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.SS",
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.SSMS",
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OauthTokenCacheConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthSignKeyConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.TlsConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenKeyConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.AuthServerConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.ClientConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthDerefConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.RequestConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true,
+  "fields": [
+    {
+      "name": "connectTimeout",
+      "allowWrite": true
+    }
+  ]
+},
+{
+  "name": "com.networknt.client.OAuthTokenClientCredentialConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenRefreshTokenConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenAuthorizationCodeConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.networknt.client.OAuthTokenExchangeConfig",
+  "allDeclaredFields": true,
+  "allPublicMethods": true,
+  "allDeclaredConstructors": true
+},
+{
+  "name": "com.github.benmanes.caffeine.cache.CacheLoader",
   "allPublicMethods": true
 }
 ]
