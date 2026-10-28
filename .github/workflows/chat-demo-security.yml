@@ -1,0 +1,55 @@
+name: Chat demo security
+
+on:
+  pull_request:
+    branches: [master, 2.x]
+    paths:
+      - 'config/llmchat-gateway/public/**'
+      - 'config/llmchat-rendezvous/public/**'
+      - 'tests/test_chat_demo_security.py'
+      - '.github/workflows/chat-demo-security.yml'
+  push:
+    branches: [master, 2.x]
+    paths:
+      - 'config/llmchat-gateway/public/**'
+      - 'config/llmchat-rendezvous/public/**'
+      - 'tests/test_chat_demo_security.py'
+      - '.github/workflows/chat-demo-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install Chrome for Testing headless shell
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, pathlib, shutil, urllib.request, zipfile
+          metadata_url = 'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json'
+          with urllib.request.urlopen(metadata_url, timeout=30) as response:
+              stable = json.load(response)['channels']['Stable']
+          download = next(item['url'] for item in stable['downloads']['chrome-headless-shell']
+                          if item['platform'] == 'linux64')
+          target = pathlib.Path(os.environ['RUNNER_TEMP']) / 'chat-demo-browser'
+          target.mkdir()
+          archive = target / 'browser.zip'
+          with urllib.request.urlopen(download, timeout=60) as response, archive.open('wb') as output:
+              shutil.copyfileobj(response, output)
+          with zipfile.ZipFile(archive) as browser_zip:
+              browser_zip.extractall(target)
+          browser = target / 'chrome-headless-shell-linux64' / 'chrome-headless-shell'
+          browser.chmod(0o755)
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write(f'BROWSER_BIN={browser}\n')
+          print('Chrome for Testing headless shell: ' + stable['version'])
+          PYTHON
+      - name: Verify literal rendering in both demo pages
+        run: python3 -m unittest discover -s tests -p test_chat_demo_security.py
