@@ -41,6 +41,13 @@ data:
 
         <script>
             let ws;
+            // Reconnect only within this page and the same selected conversation context.
+            // This is not an authentication boundary; the backend must authorize the owner.
+            let currentSession = null;
+            // Best-effort cleanup of older demo values; blocked storage is tolerated.
+            for (const name of ['sessionStorage', 'localStorage']) {
+                try { window[name].removeItem('sessionId'); } catch { /* No storage is required. */ }
+            }
             let currentAssistantMsgDiv = null;
             const chatLog = document.getElementById('chat-log');
             const messageInput = document.getElementById('messageInput');
@@ -50,47 +57,67 @@ data:
             function connect() {
                 const userId = document.getElementById('userId').value;
                 const model = document.getElementById('model').value;
-                const sessionId = sessionStorage.getItem('sessionId');
+                if (currentSession && (currentSession.userId !== userId || currentSession.model !== model)) {
+                    currentSession = null;
+                }
+                const sessionId = currentSession?.id;
 
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                let url = protocol + '//' + window.location.host + '/chat?userId='
-                    + encodeURIComponent(userId) + '&model=' + encodeURIComponent(model);
-                if (sessionId) {
-                    url += '&sessionId=' + encodeURIComponent(sessionId);
-                }
+                const query = new URLSearchParams({ userId, model });
+                if (sessionId) query.set('sessionId', sessionId);
+                const url = `${protocol}//${window.location.host}/chat?${query}`;
 
-                ws = new WebSocket(url);
+                const socket = new WebSocket(url);
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                currentAssistantMsgDiv = null;
+                const previous = ws;
+                ws = socket;
+                if (previous) previous.close();
 
-                ws.onopen = () => {
+                socket.onopen = () => {
+                    if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                     log('System', 'Connected to chat server.');
                     messageInput.disabled = false;
                     sendBtn.disabled = false;
                     disconnectBtn.disabled = false;
                 };
 
-                ws.onmessage = (event) => {
+                socket.onmessage = (event) => {
+                    if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                     const data = event.data;
                     try {
+                        // Check if it's a JSON message (like session info)
                         const json = JSON.parse(data);
                         if (json.type === 'session') {
-                            sessionStorage.setItem('sessionId', json.sessionId);
-                            log('System', 'Session initialized: ' + json.sessionId);
+                            if (typeof json.sessionId === 'string' && json.sessionId.length > 0) {
+                                currentSession = { id: json.sessionId, userId, model };
+                                log('System', 'Session initialized.');
+                            } else {
+                                currentSession = null;
+                                log('System', 'Invalid session response.');
+                            }
                             return;
                         }
                     } catch (e) {
-                        // Not JSON, treat as text chunk.
+                        // Not JSON, treat as text chunk
                     }
 
+                    // If we don't have a current assistant message div, create one
                     if (!currentAssistantMsgDiv) {
                         currentAssistantMsgDiv = createMessageDiv('Assistant');
                     }
 
+                    // Append chunk to the div
                     const textNode = document.createTextNode(data);
                     currentAssistantMsgDiv.appendChild(textNode);
                     chatLog.scrollTop = chatLog.scrollHeight;
                 };
 
-                ws.onclose = () => {
+                socket.onclose = () => {
+                    if (ws !== socket) return;
+                    ws = null;
                     log('System', 'Disconnected.');
                     messageInput.disabled = true;
                     sendBtn.disabled = true;
@@ -98,22 +125,25 @@ data:
                     currentAssistantMsgDiv = null;
                 };
 
-                ws.onerror = (error) => {
+                socket.onerror = () => {
+                    if (ws !== socket) return;
                     log('System', 'Error encountered. Check console.');
-                    console.error(error);
                 };
             }
 
             function disconnect() {
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
                 if (ws) ws.close();
             }
 
             function sendMessage() {
                 const text = messageInput.value;
-                if (text && ws) {
+                if (text && ws?.readyState === WebSocket.OPEN && !sendBtn.disabled) {
                     log('User', text);
                     ws.send(text);
                     messageInput.value = '';
+                    // Reset assistant div for next turn
                     currentAssistantMsgDiv = null;
                 }
             }
@@ -121,7 +151,10 @@ data:
             function createMessageDiv(role) {
                 const div = document.createElement('div');
                 div.className = 'message ' + role.toLowerCase();
-                div.innerHTML = '<strong>' + role + ':</strong> ';
+                const label = document.createElement('strong');
+                label.textContent = `${role}:`;
+                div.appendChild(label);
+                div.appendChild(document.createTextNode(' '));
                 chatLog.appendChild(div);
                 return div;
             }

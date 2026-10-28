@@ -51,3 +51,10 @@ To start the Light Gateway with this configuration:
 6.  **Backend** receives the request and initiates a WebSocket connection to the Gateway at `ws://localhost:9080/connect?channelId=...`.
 7.  **Gateway** matches the Backend's connection with the waiting Client connection using the `channelId`.
 8.  **Gateway** bridges the two connections, allowing bidirectional communication.
+
+## Rendezvous channel security
+
+See the [A13/A14 security guide](../../docs/security/chat-demo-session-channel.md)
+for the page-memory session lifecycle, cryptographic channel generation, browser
+regressions and backend authorization/expiry requirements. These demo changes do
+not establish production session ownership or peer admission controls.

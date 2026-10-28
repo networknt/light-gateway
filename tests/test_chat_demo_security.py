@@ -1,4 +1,4 @@
-"""Browser regressions for the static chat demos (issues #258 and #259).
+"""Browser regressions for static chat rendering, session lifetime and channel IDs.
 
 Run: BROWSER_BIN=/path/to/chrome python3 -B -m unittest discover -s tests -p test_chat_demo_security.py
 The browser sandbox stays enabled by default. BROWSER_NO_SANDBOX=1 is an explicit
@@ -21,6 +21,7 @@ DEMOS = {
     'llmchat-gateway': {'streaming': False, 'rendezvous': False},
     'llmchat-rendezvous': {'streaming': False, 'rendezvous': True},
     'ai-gateway': {'streaming': True, 'rendezvous': False},
+    'k8s-ai-gateway': {'streaming': True, 'rendezvous': False},
 }
 PAYLOADS = [
     '<img src="missing" onerror="window.__xss = 1">',
@@ -39,21 +40,64 @@ COMMON_CHECKS = {
 CALLBACK_CHECKS = {
     'rendezvous callback response', 'rendezvous callback HTTP error',
     'rendezvous callback rejected fetch',
+    'native secure channel is shared with callback but not logged',
+    'getRandomValues creates UUID v4 channel without native UUID',
+    'missing or failing crypto prevents socket and callback',
+    'replaced rendezvous sockets and late callbacks cannot affect the current connection',
 }
 MOCKS = r"""
 window.__xss = 0;
 window.__sockets = [];
 window.__fetchMode = 'success';
 window.__callbackText = '';
-window.WebSocket = class {
-    constructor(url) { this.url = url; this.sent = []; window.__sockets.push(this); }
-    send(text) { this.sent.push(text); }
-    close() { this.onclose?.(); }
+window.__fetches = [];
+window.__storageWrites = [];
+window.__consoleLogs = [];
+console.log = (...args) => window.__consoleLogs.push(args.join(' '));
+window.__legacyLocalStorage = localStorage;
+window.__legacyStorage = sessionStorage;
+window.__legacyStorage.setItem('sessionId', 'legacy-session-canary');
+window.__legacyLocalStorage.setItem('sessionId', 'legacy-local-canary');
+window.__pendingFetches = [];
+window.__fetchOptions = [];
+const originalSetItem = Storage.prototype.setItem;
+Storage.prototype.setItem = function(key, value) {
+    window.__storageWrites.push({ key, value });
+    return originalSetItem.call(this, key, value);
 };
-window.fetch = () => window.__fetchMode === 'reject'
-    ? Promise.reject(new Error(window.__callbackText))
-    : Promise.resolve({ ok: window.__fetchMode === 'success',
-        statusText: window.__callbackText, text: () => Promise.resolve(window.__callbackText) });
+if (window.__demo.storageBlocked) {
+    for (const name of ['sessionStorage', 'localStorage']) {
+        Object.defineProperty(window, name, { configurable: true, get() { throw new Error('Storage is blocked'); } });
+    }
+}
+window.WebSocket = class {
+    static CONNECTING = 0; static OPEN = 1; static CLOSING = 2; static CLOSED = 3;
+    constructor(url) { this.url = url; this.sent = []; this.readyState = WebSocket.CONNECTING; window.__sockets.push(this); }
+    open() {
+        if (this.readyState !== WebSocket.CONNECTING) return;
+        this.readyState = WebSocket.OPEN; this.onopen?.();
+    }
+    send(text) {
+        if (this.readyState !== WebSocket.OPEN) throw new Error('Socket is not open');
+        this.sent.push(text);
+    }
+    close() {
+        if (this.readyState >= WebSocket.CLOSING) return;
+        this.readyState = WebSocket.CLOSING;
+        setTimeout(() => { this.readyState = WebSocket.CLOSED; this.onclose?.(); }, 0);
+    }
+};
+window.fetch = (url, options) => {
+    window.__fetches.push(url); window.__fetchOptions.push(options);
+    if (window.__fetchMode === 'deferred') {
+        // Resolve after abort/replacement to exercise already-in-flight completion races.
+        return new Promise((resolve, reject) => window.__pendingFetches.push({ resolve, reject }));
+    }
+    return window.__fetchMode === 'reject'
+        ? Promise.reject(new Error(window.__callbackText))
+        : Promise.resolve({ ok: window.__fetchMode === 'success',
+            statusText: window.__callbackText, text: () => Promise.resolve(window.__callbackText) });
+};
 """
 CHECKS = r"""
 (async () => {
@@ -95,15 +139,25 @@ CHECKS = r"""
         }
         throw new Error('callback did not complete');
     }
+    async function openSocket(socket) {
+        window.__fetchMode = 'success'; window.__callbackText = 'ready';
+        socket.open();
+        if (mode.rendezvous) await until(() => !sendBtn.disabled);
+    }
     connect();
     let socket = window.__sockets.at(-1);
-    await check('query values stay separate', () => {
+    await check('query values stay separate', async () => {
         const user = 'user&model=override#fragment +雪';
         const model = 'model?x=1&channelId=override#fragment +雪';
         document.getElementById('userId').value = user;
         document.getElementById('model').value = model;
-        if (mode.streaming) sessionStorage.setItem('sessionId', 'session&extra=value#fragment +雪');
         connect(); socket = window.__sockets.at(-1);
+        await openSocket(socket);
+        if (mode.streaming) {
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'session&extra=value#fragment +雪' }) });
+            connect(); socket = window.__sockets.at(-1);
+            await openSocket(socket);
+        }
         const query = new URLSearchParams(socket.url.split('?')[1].split('#')[0]);
         assert(query.get('userId') === user, 'userId escaped its query value');
         assert(query.get('model') === model, 'model escaped its query value');
@@ -114,7 +168,7 @@ CHECKS = r"""
         }
         if (mode.streaming) {
             expectedKeys.push('sessionId');
-            assert(query.get('sessionId') === sessionStorage.getItem('sessionId'), 'sessionId escaped its query value');
+            assert(query.get('sessionId') === 'session&extra=value#fragment +雪', 'sessionId escaped its query value');
         }
         assert(JSON.stringify(Array.from(query.keys()).sort()) === JSON.stringify(expectedKeys.sort()),
             'unexpected or duplicate query key');
@@ -154,13 +208,16 @@ CHECKS = r"""
     await check('role is also literal text', () => {
         clearLog(); log(payloads[0], 'message'); assertRow(payloads[0], 'message');
     });
-    await check('close message still renders', () => {
-        clearLog(); socket.close(); assertRow('System', 'Disconnected.');
+    await check('close message still renders', async () => {
+        clearLog(); socket.close();
+        assert(socket.readyState === WebSocket.CLOSING, 'close event was synchronous');
+        await until(() => socket.readyState === WebSocket.CLOSED);
+        assertRow('System', 'Disconnected.');
     });
     if (mode.rendezvous) {
         await check('rendezvous callback response', async () => {
             clearLog(); window.__callbackText = payloads[0]; window.__fetchMode = 'success';
-            socket.onopen();
+            connect(); socket = window.__sockets.at(-1); socket.open();
             await until(() => logElement.lastElementChild?.textContent.startsWith('System: Backend Callback Triggered:')
                 || logElement.lastElementChild?.textContent.startsWith('System: Error triggering backend:'));
             assertRow('System', 'Backend Callback Triggered: ' + payloads[0]);
@@ -168,25 +225,171 @@ CHECKS = r"""
         });
         await check('rendezvous callback HTTP error', async () => {
             clearLog(); window.__callbackText = payloads[1]; window.__fetchMode = 'http-error';
-            socket.onopen();
+            connect(); socket = window.__sockets.at(-1); socket.open();
             await until(() => logElement.lastElementChild?.textContent.startsWith('System: Backend Callback Triggered:')
                 || logElement.lastElementChild?.textContent.startsWith('System: Error triggering backend:'));
             assertRow('System', 'Error triggering backend: Error: Connect request failed: ' + payloads[1]);
         });
         await check('rendezvous callback rejected fetch', async () => {
             clearLog(); window.__callbackText = payloads[0]; window.__fetchMode = 'reject';
-            socket.onopen();
+            connect(); socket = window.__sockets.at(-1); socket.open();
             await until(() => logElement.lastElementChild?.textContent.startsWith('System: Backend Callback Triggered:')
                 || logElement.lastElementChild?.textContent.startsWith('System: Error triggering backend:'));
             assertRow('System', 'Error triggering backend: Error: ' + payloads[0]);
         });
     }
     if (mode.streaming) {
-        await check('session info renders literally', () => {
+        await check('fresh page ignores persisted session', () => {
+            assert(!new URL(window.__sockets[0].url).searchParams.has('sessionId'), 'legacy session was resumed');
+            if (!mode.storageBlocked) {
+                assert(window.__legacyStorage.getItem('sessionId') === null, 'legacy session value was not removed');
+                assert(window.__legacyLocalStorage.getItem('sessionId') === null, 'legacy local value was not removed');
+            }
+        });
+        await check('session IDs stay out of storage and logs', async () => {
+            connect(); socket = window.__sockets.at(-1); await openSocket(socket);
             clearLog();
-            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: payloads[0] }) });
-            assertRow('System', 'Session initialized: ' + payloads[0]);
-            assert(sessionStorage.getItem('sessionId') === payloads[0], 'session ID differs');
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'session-secret-canary' }) });
+            assertRow('System', 'Session initialized.');
+            assert(!logElement.textContent.includes('session-secret-canary'), 'session ID was displayed');
+            assert(window.__storageWrites.length === 0, 'page wrote to browser storage');
+            for (const storage of [window.__legacyStorage, window.__legacyLocalStorage]) {
+                for (let index = 0; index < storage.length; index++) {
+                    assert(storage.getItem(storage.key(index)) !== 'session-secret-canary', 'session ID persisted in browser storage');
+                }
+            }
+            assert(!window.__consoleLogs.some(line => line.includes('session-secret-canary')), 'session ID was printed');
+            connect(); socket = window.__sockets.at(-1);
+            assert(new URL(socket.url).searchParams.get('sessionId') === 'session-secret-canary', 'same-context reconnect lost memory ID');
+        });
+        await check('changed context and stale sockets cannot reuse a session', async () => {
+            const stale = socket;
+            document.getElementById('userId').value = 'different-user';
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'changed user reused session');
+            await openSocket(socket);
+            stale.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'stale-session-canary' }) });
+            await until(() => stale.readyState === WebSocket.CLOSED);
+            assert(!messageInput.disabled, 'stale close disabled current connection');
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'stale socket replaced current session');
+            await openSocket(socket);
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'model-session-canary' }) });
+            document.getElementById('model').value = 'different-model';
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'changed model reused session');
+        });
+        await check('invalid session response is not retained', async () => {
+            await openSocket(socket);
+            clearLog();
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'previous-valid-session' }) });
+            clearLog();
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: { invalid: true } }) });
+            assertRow('System', 'Invalid session response.');
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'invalid session was retained');
+        });
+    }
+    if (mode.streaming) {
+        await check('replacement resets stream and prevents sends while connecting', async () => {
+            await openSocket(socket); clearLog();
+            socket.onmessage({ data: 'old-stream' });
+            const oldRow = logElement.lastElementChild, stale = socket;
+            connect(); socket = window.__sockets.at(-1);
+            assert(stale.readyState === WebSocket.CLOSING, 'previous socket was not closed asynchronously');
+            assert(messageInput.disabled && sendBtn.disabled, 'sending remained enabled during connect');
+            messageInput.value = 'retained draft'; sendMessage();
+            assert(socket.sent.length === 0 && messageInput.value === 'retained draft', 'sent or lost draft before OPEN');
+            await openSocket(socket);
+            await until(() => stale.readyState === WebSocket.CLOSED);
+            assert(!messageInput.disabled && !sendBtn.disabled, 'late close disabled current socket');
+            stale.onmessage({ data: 'stale-chunk' });
+            stale.onerror?.({ toString: () => 'stale-error' });
+            socket.onmessage({ data: 'new-stream' });
+            assert(oldRow.textContent === 'Assistant: old-stream', 'previous stream changed');
+            assert(logElement.lastElementChild !== oldRow, 'new stream reused old bubble');
+            assertRow('Assistant', 'new-stream');
+            assert(!logElement.textContent.includes('stale-'), 'stale event was rendered');
+        });
+    }
+    if (mode.rendezvous) {
+        const originalCrypto = Object.getOwnPropertyDescriptor(window, 'crypto');
+        const originalRandom = Math.random;
+        function cryptoSource(value) { Object.defineProperty(window, 'crypto', { configurable: true, value }); }
+        try {
+            Math.random = () => { throw new Error('Weak randomness must not be used'); };
+            await check('native secure channel is shared with callback but not logged', async () => {
+                let calls = 0;
+                const native = { randomUUID() {
+                    assert(this === native, 'native crypto receiver was lost');
+                    calls++;
+                    return calls === 1 ? '00000000-0000-4000-8000-000000000001' : '00000000-0000-4000-8000-000000000002';
+                } };
+                cryptoSource(native);
+                clearLog(); window.__fetchMode = 'success'; window.__callbackText = 'ok';
+                connect(); socket = window.__sockets.at(-1);
+                const channel = new URL(socket.url).searchParams.get('channelId');
+                assert(channel === '00000000-0000-4000-8000-000000000001', 'native generator was not used');
+                socket.open();
+                await until(() => logElement.textContent.includes('Backend Callback Triggered: ok'));
+                assert(new URL(window.__fetches.at(-1)).searchParams.get('channelId') === channel, 'callback channel differs');
+                assert(!logElement.textContent.includes(channel), 'channel ID was displayed');
+                assert(!window.__consoleLogs.some(line => line.includes(channel)), 'channel URL was printed');
+                connect(); socket = window.__sockets.at(-1);
+                assert(new URL(socket.url).searchParams.get('channelId') !== channel, 'channel reused across connections');
+                assert(calls === 2, 'generator call count differs');
+            });
+            await check('getRandomValues creates UUID v4 channel without native UUID', () => {
+                const source = { getRandomValues(bytes) {
+                    assert(this === source && bytes.length === 16, 'invalid cryptographic byte request');
+                    bytes.fill(255); return bytes;
+                } };
+                cryptoSource(source);
+                connect(); socket = window.__sockets.at(-1);
+                assert(new URL(socket.url).searchParams.get('channelId') === 'ffffffff-ffff-4fff-bfff-ffffffffffff', 'UUID bits or byte source differ');
+            });
+            await check('missing or failing crypto prevents socket and callback', () => {
+                for (const source of [undefined, {}, { randomUUID() { throw new Error('provider failure'); } },
+                    { getRandomValues() { throw new Error('provider failure'); } }]) {
+                    cryptoSource(source); clearLog();
+                    const sockets = window.__sockets.length, fetches = window.__fetches.length;
+                    connect();
+                    assert(window.__sockets.length === sockets && window.__fetches.length === fetches, 'insecure connection was attempted');
+                    assertRow('System', 'Secure channel ID generation is unavailable.');
+                }
+            });
+        } finally {
+            Math.random = originalRandom;
+            if (originalCrypto) Object.defineProperty(window, 'crypto', originalCrypto);
+            else delete window.crypto;
+        }
+    }
+    if (mode.rendezvous) {
+        await check('replaced rendezvous sockets and late callbacks cannot affect the current connection', async () => {
+            for (const outcome of ['resolve', 'reject']) {
+                window.__fetchMode = 'deferred'; clearLog();
+                connect(); const stale = window.__sockets.at(-1); stale.open();
+                const oldCallback = window.__pendingFetches.at(-1), oldSignal = window.__fetchOptions.at(-1).signal;
+                connect(); socket = window.__sockets.at(-1);
+                assert(stale.readyState === WebSocket.CLOSING && oldSignal.aborted, 'old connection/callback was not cancelled');
+                socket.open();
+                assert(sendBtn.disabled && messageInput.disabled, 'sending enabled before callback admission');
+                messageInput.value = 'waiting draft'; sendMessage();
+                assert(socket.sent.length === 0 && messageInput.value === 'waiting draft', 'sent before callback admission');
+                const currentCallback = window.__pendingFetches.at(-1);
+                currentCallback.resolve({ ok: true, text: () => Promise.resolve('current-callback') });
+                await until(() => !sendBtn.disabled);
+                const fetches = window.__fetches.length;
+                stale.onopen?.(); stale.onmessage?.({ data: 'stale-message' }); stale.onerror?.({ toString: () => 'stale-error' });
+                if (outcome === 'resolve') oldCallback.resolve({ ok: true, text: () => Promise.resolve('stale-callback') });
+                else oldCallback.reject(new Error('stale-callback'));
+                await new Promise(resolve => setTimeout(resolve, 10));
+                assert(stale.readyState === WebSocket.CLOSED, 'old close did not finish');
+                assert(window.__fetches.length === fetches, 'stale open triggered a callback');
+                assert(!sendBtn.disabled && !messageInput.disabled, 'stale completion disabled active controls');
+                assert(!logElement.textContent.includes('stale-'), 'stale completion was rendered');
+            }
+            window.__fetchMode = 'success';
         });
     }
     await check('structural detector rejects arbitrary elements', () => {
@@ -207,6 +410,17 @@ CHECKS = r"""
 """
 
 
+def configmap_page():
+    lines = (ROOT / 'k8s/light-gateway/public-configmap.yaml').read_text().splitlines()
+    start = lines.index('  index.html: |') + 1
+    body = []
+    for line in lines[start:]:
+        if line.strip() and not line.startswith('    '):
+            break
+        body.append(line[4:] if line.startswith('    ') else '')
+    return '\n'.join(body) + '\n'
+
+
 class ChatDemoSecurityTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -214,10 +428,10 @@ class ChatDemoSecurityTest(unittest.TestCase):
         if not cls.browser:
             raise RuntimeError('Set BROWSER_BIN to a Chromium/Chrome executable; browser tests must not be skipped')
 
-    def assert_demo(self, demo):
-        page = (ROOT / 'config' / demo / 'public/index.html').read_text()
+    def assert_demo(self, demo, storage_blocked=False):
+        page = configmap_page() if demo == 'k8s-ai-gateway' else (ROOT / 'config' / demo / 'public/index.html').read_text()
         # Execute the actual unmodified application script with browser APIs mocked.
-        mode = dict(DEMOS[demo], payloads=PAYLOADS)
+        mode = dict(DEMOS[demo], payloads=PAYLOADS, storageBlocked=storage_blocked)
         # Escape data for the script context, including the literal closing-script payload.
         mode_json = json.dumps(mode).replace('<', r'\u003c')
         mocks = 'window.__demo = ' + mode_json + ';' + MOCKS
@@ -252,7 +466,9 @@ class ChatDemoSecurityTest(unittest.TestCase):
         if DEMOS[demo]['rendezvous']:
             expected |= CALLBACK_CHECKS
         if DEMOS[demo]['streaming']:
-            expected.add('session info renders literally')
+            expected |= {'fresh page ignores persisted session', 'session IDs stay out of storage and logs',
+                         'changed context and stale sockets cannot reuse a session', 'invalid session response is not retained',
+                         'replacement resets stream and prevents sends while connecting'}
         self.assertTrue(expected.issubset(report['checks']), report)
         self.assertEqual(len(report['checks']), len(set(report['checks'])), 'duplicate check names')
         self.assertEqual(report['failures'], [], report)
@@ -263,6 +479,18 @@ class ChatDemoSecurityTest(unittest.TestCase):
 
     def test_ai_gateway(self):
         self.assert_demo('ai-gateway')
+
+    def test_ai_gateway_storage_unavailable(self):
+        self.assert_demo('ai-gateway', storage_blocked=True)
+
+    def test_kubernetes_page_matches_canonical(self):
+        self.assertEqual(configmap_page(), (ROOT / 'config/ai-gateway/public/index.html').read_text())
+
+    def test_kubernetes_ai_gateway(self):
+        self.assert_demo('k8s-ai-gateway')
+
+    def test_kubernetes_ai_gateway_storage_unavailable(self):
+        self.assert_demo('k8s-ai-gateway', storage_blocked=True)
 
     def test_rendezvous(self):
         self.assert_demo('llmchat-rendezvous')
