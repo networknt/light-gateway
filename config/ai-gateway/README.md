@@ -49,3 +49,10 @@ To start the Light Gateway with this configuration:
 3.  **Gateway** accepts the connection and determines the target service is `llmchat-server`.
 4.  **Gateway** connects to `ws://localhost:8080/chat`.
 5.  **Gateway** pipes all traffic between the Browser and `llmchat-server`.
+
+## AI demo reconnect state
+
+See the [A13/A14 security guide](../../docs/security/chat-demo-session-channel.md)
+for the page-memory session lifecycle, cryptographic channel generation, browser
+regressions and backend authorization/expiry requirements. These demo changes do
+not establish production session ownership or peer admission controls.

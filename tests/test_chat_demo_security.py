@@ -1,4 +1,4 @@
-"""Browser regressions for the static chat demos (issues #258 and #259).
+"""Browser regressions for static chat rendering, session lifetime and channel IDs.
 
 Run: BROWSER_BIN=/path/to/chrome python3 -B -m unittest discover -s tests -p test_chat_demo_security.py
 The browser sandbox stays enabled by default. BROWSER_NO_SANDBOX=1 is an explicit
@@ -39,21 +39,44 @@ COMMON_CHECKS = {
 CALLBACK_CHECKS = {
     'rendezvous callback response', 'rendezvous callback HTTP error',
     'rendezvous callback rejected fetch',
+    'native secure channel is shared with callback but not logged',
+    'getRandomValues creates UUID v4 channel without native UUID',
+    'missing or failing crypto prevents socket and callback',
 }
 MOCKS = r"""
 window.__xss = 0;
 window.__sockets = [];
 window.__fetchMode = 'success';
 window.__callbackText = '';
+window.__fetches = [];
+window.__storageWrites = [];
+window.__consoleLogs = [];
+console.log = (...args) => window.__consoleLogs.push(args.join(' '));
+window.__legacyLocalStorage = localStorage;
+window.__legacyStorage = sessionStorage;
+window.__legacyStorage.setItem('sessionId', 'legacy-session-canary');
+const originalSetItem = Storage.prototype.setItem;
+Storage.prototype.setItem = function(key, value) {
+    window.__storageWrites.push({ key, value });
+    return originalSetItem.call(this, key, value);
+};
+if (window.__demo.storageBlocked) {
+    for (const name of ['sessionStorage', 'localStorage']) {
+        Object.defineProperty(window, name, { configurable: true, get() { throw new Error('Storage is blocked'); } });
+    }
+}
 window.WebSocket = class {
     constructor(url) { this.url = url; this.sent = []; window.__sockets.push(this); }
     send(text) { this.sent.push(text); }
     close() { this.onclose?.(); }
 };
-window.fetch = () => window.__fetchMode === 'reject'
-    ? Promise.reject(new Error(window.__callbackText))
-    : Promise.resolve({ ok: window.__fetchMode === 'success',
-        statusText: window.__callbackText, text: () => Promise.resolve(window.__callbackText) });
+window.fetch = (url) => {
+    window.__fetches.push(url);
+    return window.__fetchMode === 'reject'
+        ? Promise.reject(new Error(window.__callbackText))
+        : Promise.resolve({ ok: window.__fetchMode === 'success',
+            statusText: window.__callbackText, text: () => Promise.resolve(window.__callbackText) });
+};
 """
 CHECKS = r"""
 (async () => {
@@ -102,8 +125,11 @@ CHECKS = r"""
         const model = 'model?x=1&channelId=override#fragment +雪';
         document.getElementById('userId').value = user;
         document.getElementById('model').value = model;
-        if (mode.streaming) sessionStorage.setItem('sessionId', 'session&extra=value#fragment +雪');
         connect(); socket = window.__sockets.at(-1);
+        if (mode.streaming) {
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'session&extra=value#fragment +雪' }) });
+            connect(); socket = window.__sockets.at(-1);
+        }
         const query = new URLSearchParams(socket.url.split('?')[1].split('#')[0]);
         assert(query.get('userId') === user, 'userId escaped its query value');
         assert(query.get('model') === model, 'model escaped its query value');
@@ -114,7 +140,7 @@ CHECKS = r"""
         }
         if (mode.streaming) {
             expectedKeys.push('sessionId');
-            assert(query.get('sessionId') === sessionStorage.getItem('sessionId'), 'sessionId escaped its query value');
+            assert(query.get('sessionId') === 'session&extra=value#fragment +雪', 'sessionId escaped its query value');
         }
         assert(JSON.stringify(Array.from(query.keys()).sort()) === JSON.stringify(expectedKeys.sort()),
             'unexpected or duplicate query key');
@@ -182,12 +208,102 @@ CHECKS = r"""
         });
     }
     if (mode.streaming) {
-        await check('session info renders literally', () => {
-            clearLog();
-            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: payloads[0] }) });
-            assertRow('System', 'Session initialized: ' + payloads[0]);
-            assert(sessionStorage.getItem('sessionId') === payloads[0], 'session ID differs');
+        await check('fresh page ignores persisted session', () => {
+            assert(!new URL(window.__sockets[0].url).searchParams.has('sessionId'), 'legacy session was resumed');
+            if (!mode.storageBlocked) assert(window.__legacyStorage.getItem('sessionId') === null, 'legacy value was not removed');
         });
+        await check('session IDs stay out of storage and logs', () => {
+            clearLog();
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'session-secret-canary' }) });
+            assertRow('System', 'Session initialized.');
+            assert(!logElement.textContent.includes('session-secret-canary'), 'session ID was displayed');
+            assert(window.__storageWrites.length === 0, 'page wrote to browser storage');
+            for (const storage of [window.__legacyStorage, window.__legacyLocalStorage]) {
+                for (let index = 0; index < storage.length; index++) {
+                    assert(storage.getItem(storage.key(index)) !== 'session-secret-canary', 'session ID persisted in browser storage');
+                }
+            }
+            assert(!window.__consoleLogs.some(line => line.includes('session-secret-canary')), 'session ID was printed');
+            connect(); socket = window.__sockets.at(-1);
+            assert(new URL(socket.url).searchParams.get('sessionId') === 'session-secret-canary', 'same-context reconnect lost memory ID');
+        });
+        await check('changed context and stale sockets cannot reuse a session', () => {
+            const stale = socket;
+            document.getElementById('userId').value = 'different-user';
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'changed user reused session');
+            socket.onopen();
+            stale.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'stale-session-canary' }) });
+            stale.onclose();
+            assert(!messageInput.disabled, 'stale close disabled current connection');
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'stale socket replaced current session');
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'model-session-canary' }) });
+            document.getElementById('model').value = 'different-model';
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'changed model reused session');
+        });
+        await check('invalid session response is not retained', () => {
+            clearLog();
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: 'previous-valid-session' }) });
+            clearLog();
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: { invalid: true } }) });
+            assertRow('System', 'Invalid session response.');
+            connect(); socket = window.__sockets.at(-1);
+            assert(!new URL(socket.url).searchParams.has('sessionId'), 'invalid session was retained');
+        });
+    }
+    if (mode.rendezvous) {
+        const originalCrypto = Object.getOwnPropertyDescriptor(window, 'crypto');
+        const originalRandom = Math.random;
+        function cryptoSource(value) { Object.defineProperty(window, 'crypto', { configurable: true, value }); }
+        try {
+            Math.random = () => { throw new Error('Weak randomness must not be used'); };
+            await check('native secure channel is shared with callback but not logged', async () => {
+                let calls = 0;
+                const native = { randomUUID() {
+                    assert(this === native, 'native crypto receiver was lost');
+                    calls++;
+                    return calls === 1 ? '00000000-0000-4000-8000-000000000001' : '00000000-0000-4000-8000-000000000002';
+                } };
+                cryptoSource(native);
+                clearLog(); window.__fetchMode = 'success'; window.__callbackText = 'ok';
+                connect(); socket = window.__sockets.at(-1);
+                const channel = new URL(socket.url).searchParams.get('channelId');
+                assert(channel === '00000000-0000-4000-8000-000000000001', 'native generator was not used');
+                socket.onopen();
+                await until(() => logElement.textContent.includes('Backend Callback Triggered: ok'));
+                assert(new URL(window.__fetches.at(-1)).searchParams.get('channelId') === channel, 'callback channel differs');
+                assert(!logElement.textContent.includes(channel), 'channel ID was displayed');
+                assert(!window.__consoleLogs.some(line => line.includes(channel)), 'channel URL was printed');
+                connect(); socket = window.__sockets.at(-1);
+                assert(new URL(socket.url).searchParams.get('channelId') !== channel, 'channel reused across connections');
+                assert(calls === 2, 'generator call count differs');
+            });
+            await check('getRandomValues creates UUID v4 channel without native UUID', () => {
+                const source = { getRandomValues(bytes) {
+                    assert(this === source && bytes.length === 16, 'invalid cryptographic byte request');
+                    bytes.fill(255); return bytes;
+                } };
+                cryptoSource(source);
+                connect(); socket = window.__sockets.at(-1);
+                assert(new URL(socket.url).searchParams.get('channelId') === 'ffffffff-ffff-4fff-bfff-ffffffffffff', 'UUID bits or byte source differ');
+            });
+            await check('missing or failing crypto prevents socket and callback', () => {
+                for (const source of [undefined, {}, { randomUUID() { throw new Error('provider failure'); } },
+                    { getRandomValues() { throw new Error('provider failure'); } }]) {
+                    cryptoSource(source); clearLog();
+                    const sockets = window.__sockets.length, fetches = window.__fetches.length;
+                    connect();
+                    assert(window.__sockets.length === sockets && window.__fetches.length === fetches, 'insecure connection was attempted');
+                    assertRow('System', 'Secure channel ID generation is unavailable.');
+                }
+            });
+        } finally {
+            Math.random = originalRandom;
+            if (originalCrypto) Object.defineProperty(window, 'crypto', originalCrypto);
+            else delete window.crypto;
+        }
     }
     await check('structural detector rejects arbitrary elements', () => {
         for (const tag of ['details', 'video', 'iframe']) {
@@ -214,10 +330,10 @@ class ChatDemoSecurityTest(unittest.TestCase):
         if not cls.browser:
             raise RuntimeError('Set BROWSER_BIN to a Chromium/Chrome executable; browser tests must not be skipped')
 
-    def assert_demo(self, demo):
+    def assert_demo(self, demo, storage_blocked=False):
         page = (ROOT / 'config' / demo / 'public/index.html').read_text()
         # Execute the actual unmodified application script with browser APIs mocked.
-        mode = dict(DEMOS[demo], payloads=PAYLOADS)
+        mode = dict(DEMOS[demo], payloads=PAYLOADS, storageBlocked=storage_blocked)
         # Escape data for the script context, including the literal closing-script payload.
         mode_json = json.dumps(mode).replace('<', r'\u003c')
         mocks = 'window.__demo = ' + mode_json + ';' + MOCKS
@@ -252,7 +368,8 @@ class ChatDemoSecurityTest(unittest.TestCase):
         if DEMOS[demo]['rendezvous']:
             expected |= CALLBACK_CHECKS
         if DEMOS[demo]['streaming']:
-            expected.add('session info renders literally')
+            expected |= {'fresh page ignores persisted session', 'session IDs stay out of storage and logs',
+                         'changed context and stale sockets cannot reuse a session', 'invalid session response is not retained'}
         self.assertTrue(expected.issubset(report['checks']), report)
         self.assertEqual(len(report['checks']), len(set(report['checks'])), 'duplicate check names')
         self.assertEqual(report['failures'], [], report)
@@ -263,6 +380,9 @@ class ChatDemoSecurityTest(unittest.TestCase):
 
     def test_ai_gateway(self):
         self.assert_demo('ai-gateway')
+
+    def test_ai_gateway_storage_unavailable(self):
+        self.assert_demo('ai-gateway', storage_blocked=True)
 
     def test_rendezvous(self):
         self.assert_demo('llmchat-rendezvous')

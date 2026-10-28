@@ -68,22 +68,33 @@
         const disconnectBtn = document.getElementById('disconnectBtn');
 
         function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
+            const source = globalThis.crypto;
+            if (typeof source?.randomUUID === 'function') return source.randomUUID();
+            if (typeof source?.getRandomValues !== 'function') {
+                throw new Error('Secure channel ID generation is unavailable.');
+            }
+            const bytes = new Uint8Array(16);
+            source.getRandomValues(bytes);
+            bytes[6] = (bytes[6] & 0x0f) | 0x40;
+            bytes[8] = (bytes[8] & 0x3f) | 0x80;
+            const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+            return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
         }
 
         function connect() {
             const userId = document.getElementById('userId').value;
             const model = document.getElementById('model').value;
-            const channelId = generateUUID();
-            log('System', 'Generated Channel ID: ' + channelId);
+            let channelId;
+            try {
+                channelId = generateUUID();
+            } catch {
+                log('System', 'Secure channel ID generation is unavailable.');
+                return;
+            }
 
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const query = new URLSearchParams({ userId, model, channelId });
             const url = `${protocol}//${window.location.host}/chat?${query}`;
-            console.log(url);
             ws = new WebSocket(url);
 
             ws.onopen = () => {
@@ -91,7 +102,8 @@
 
                 // Trigger the Backend Callback
                 const httpProtocol = window.location.protocol;
-                const connectUrl = `${httpProtocol}//${window.location.host}/connect?channelId=${channelId}`;
+                const connectQuery = new URLSearchParams({ channelId });
+                const connectUrl = `${httpProtocol}//${window.location.host}/connect?${connectQuery}`;
 
                 fetch(connectUrl, {
                     method: 'GET'

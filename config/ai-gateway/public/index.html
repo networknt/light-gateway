@@ -31,6 +31,11 @@
 
     <script>
         let ws;
+        // Reconnect only within this page and the same selected conversation context.
+        // This is not an authentication boundary; the backend must authorize the owner.
+        let currentSession = null;
+        // Best-effort cleanup of older demo values; blocked storage is tolerated.
+        try { sessionStorage.removeItem('sessionId'); } catch { /* No storage is required. */ }
         let currentAssistantMsgDiv = null;
         const chatLog = document.getElementById('chat-log');
         const messageInput = document.getElementById('messageInput');
@@ -40,30 +45,43 @@
         function connect() {
             const userId = document.getElementById('userId').value;
             const model = document.getElementById('model').value;
-            const sessionId = sessionStorage.getItem('sessionId');
+            if (currentSession && (currentSession.userId !== userId || currentSession.model !== model)) {
+                currentSession = null;
+            }
+            const sessionId = currentSession?.id;
 
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const query = new URLSearchParams({ userId, model });
             if (sessionId) query.set('sessionId', sessionId);
             const url = `${protocol}//${window.location.host}/chat?${query}`;
 
-            ws = new WebSocket(url);
+            const socket = new WebSocket(url);
+            const previous = ws;
+            ws = socket;
+            if (previous) previous.close();
 
-            ws.onopen = () => {
+            socket.onopen = () => {
+                if (ws !== socket) return;
                 log('System', 'Connected to chat server.');
                 messageInput.disabled = false;
                 sendBtn.disabled = false;
                 disconnectBtn.disabled = false;
             };
 
-            ws.onmessage = (event) => {
+            socket.onmessage = (event) => {
+                if (ws !== socket) return;
                 const data = event.data;
                 try {
                     // Check if it's a JSON message (like session info)
                     const json = JSON.parse(data);
                     if (json.type === 'session') {
-                        sessionStorage.setItem('sessionId', json.sessionId);
-                        log('System', 'Session initialized: ' + json.sessionId);
+                        if (typeof json.sessionId === 'string' && json.sessionId.length > 0) {
+                            currentSession = { id: json.sessionId, userId, model };
+                            log('System', 'Session initialized.');
+                        } else {
+                            currentSession = null;
+                            log('System', 'Invalid session response.');
+                        }
                         return;
                     }
                 } catch (e) {
@@ -81,7 +99,8 @@
                 chatLog.scrollTop = chatLog.scrollHeight;
             };
 
-            ws.onclose = () => {
+            socket.onclose = () => {
+                if (ws !== socket) return;
                 log('System', 'Disconnected.');
                 messageInput.disabled = true;
                 sendBtn.disabled = true;
@@ -89,9 +108,9 @@
                 currentAssistantMsgDiv = null;
             };
 
-            ws.onerror = (error) => {
+            socket.onerror = () => {
+                if (ws !== socket) return;
                 log('System', 'Error encountered. Check console.');
-                console.error(error);
             };
         }
 
