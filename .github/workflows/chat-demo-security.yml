@@ -7,6 +7,7 @@ on:
       - 'config/ai-gateway/public/**'
       - 'config/llmchat-gateway/public/**'
       - 'config/llmchat-rendezvous/public/**'
+      - 'k8s/light-gateway/public-configmap.yaml'
       - 'tests/test_chat_demo_security.py'
       - '.github/workflows/chat-demo-security.yml'
   push:
@@ -15,6 +16,7 @@ on:
       - 'config/ai-gateway/public/**'
       - 'config/llmchat-gateway/public/**'
       - 'config/llmchat-rendezvous/public/**'
+      - 'k8s/light-gateway/public-configmap.yaml'
       - 'tests/test_chat_demo_security.py'
       - '.github/workflows/chat-demo-security.yml'
   workflow_dispatch:
@@ -28,7 +30,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Verify literal rendering in all three demo pages
+      - name: Verify chat rendering, session lifetime and channel generation
         env:
           # Explicit opt-in for this disposable hosted runner only; local runs keep the sandbox.
           BROWSER_NO_SANDBOX: '1'
