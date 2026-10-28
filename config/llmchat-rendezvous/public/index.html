@@ -62,6 +62,7 @@
 
     <script>
         let ws;
+        let callbackRequest;
         const chatLog = document.getElementById('chat-log');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
@@ -95,9 +96,20 @@
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const query = new URLSearchParams({ userId, model, channelId });
             const url = `${protocol}//${window.location.host}/chat?${query}`;
-            ws = new WebSocket(url);
+            const socket = new WebSocket(url);
+            const controller = new AbortController();
+            const previous = ws;
+            const previousCallback = callbackRequest;
+            ws = socket;
+            callbackRequest = controller;
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            if (previousCallback) previousCallback.abort();
+            if (previous) previous.close();
 
-            ws.onopen = () => {
+            socket.onopen = () => {
+                if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                 log('System', 'Connected to Gateway. Requesting Backend Callback...');
 
                 // Trigger the Backend Callback
@@ -106,9 +118,11 @@
                 const connectUrl = `${httpProtocol}//${window.location.host}/connect?${connectQuery}`;
 
                 fetch(connectUrl, {
-                    method: 'GET'
+                    method: 'GET',
+                    signal: controller.signal
                 })
                     .then(response => {
+                        if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                         if (response.ok) {
                             return response.text();
                         } else {
@@ -116,19 +130,20 @@
                         }
                     })
                     .then(data => {
+                        if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                         log('System', 'Backend Callback Triggered: ' + data);
                         messageInput.disabled = false;
                         sendBtn.disabled = false;
                         disconnectBtn.disabled = false;
                     })
                     .catch(error => {
+                        if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                         log('System', 'Error triggering backend: ' + error);
-                        // Optionally close socket if backend fails?
-                        // ws.close();
                     });
             };
 
-            ws.onmessage = (event) => {
+            socket.onmessage = (event) => {
+                if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                 // Determine if it's a chunk or full message.
                 // Our server sends raw text chunks.
                 // A simple UI approach: append to last assistant message if generic text,
@@ -137,25 +152,32 @@
                 log('Assistant', event.data);
             };
 
-            ws.onclose = () => {
+            socket.onclose = () => {
+                if (ws !== socket) return;
+                ws = null;
+                controller.abort();
                 log('System', 'Disconnected.');
                 messageInput.disabled = true;
                 sendBtn.disabled = true;
                 disconnectBtn.disabled = true;
             };
 
-            ws.onerror = (error) => {
+            socket.onerror = (error) => {
+                if (ws !== socket) return;
                 log('System', 'Error: ' + error);
             };
         }
 
         function disconnect() {
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            if (callbackRequest) callbackRequest.abort();
             if (ws) ws.close();
         }
 
         function sendMessage() {
             const text = messageInput.value;
-            if (text && ws) {
+            if (text && ws?.readyState === WebSocket.OPEN && !sendBtn.disabled) {
                 log('User', text);
                 ws.send(text);
                 messageInput.value = '';

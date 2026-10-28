@@ -35,7 +35,9 @@
         // This is not an authentication boundary; the backend must authorize the owner.
         let currentSession = null;
         // Best-effort cleanup of older demo values; blocked storage is tolerated.
-        try { sessionStorage.removeItem('sessionId'); } catch { /* No storage is required. */ }
+        for (const name of ['sessionStorage', 'localStorage']) {
+            try { window[name].removeItem('sessionId'); } catch { /* No storage is required. */ }
+        }
         let currentAssistantMsgDiv = null;
         const chatLog = document.getElementById('chat-log');
         const messageInput = document.getElementById('messageInput');
@@ -56,12 +58,16 @@
             const url = `${protocol}//${window.location.host}/chat?${query}`;
 
             const socket = new WebSocket(url);
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            currentAssistantMsgDiv = null;
             const previous = ws;
             ws = socket;
             if (previous) previous.close();
 
             socket.onopen = () => {
-                if (ws !== socket) return;
+                if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                 log('System', 'Connected to chat server.');
                 messageInput.disabled = false;
                 sendBtn.disabled = false;
@@ -69,7 +75,7 @@
             };
 
             socket.onmessage = (event) => {
-                if (ws !== socket) return;
+                if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
                 const data = event.data;
                 try {
                     // Check if it's a JSON message (like session info)
@@ -101,6 +107,7 @@
 
             socket.onclose = () => {
                 if (ws !== socket) return;
+                ws = null;
                 log('System', 'Disconnected.');
                 messageInput.disabled = true;
                 sendBtn.disabled = true;
@@ -115,12 +122,14 @@
         }
 
         function disconnect() {
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
             if (ws) ws.close();
         }
 
         function sendMessage() {
             const text = messageInput.value;
-            if (text && ws) {
+            if (text && ws?.readyState === WebSocket.OPEN && !sendBtn.disabled) {
                 log('User', text);
                 ws.send(text);
                 messageInput.value = '';
