@@ -40,7 +40,8 @@
             const userId = document.getElementById('userId').value;
             const model = document.getElementById('model').value;
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const url = `${protocol}//${window.location.host}/chat?userId=${userId}&model=${model}`;
+            const query = new URLSearchParams({ userId, model });
+            const url = `${protocol}//${window.location.host}/chat?${query}`;
             console.log(url);
             ws = new WebSocket(url);
 

@@ -1,6 +1,8 @@
 """Browser regressions for the static chat demos (issues #258 and #259).
 
-Run: BROWSER_BIN=/path/to/chrome python3 -m unittest discover -s tests -p test_chat_demo_security.py
+Run: BROWSER_BIN=/path/to/chrome python3 -B -m unittest discover -s tests -p test_chat_demo_security.py
+The browser sandbox stays enabled by default. BROWSER_NO_SANDBOX=1 is an explicit
+opt-in only for disposable CI/container environments that cannot support it.
 Only the demo JavaScript runs; WebSocket/fetch are mocked and no Gateway is started.
 """
 import html
@@ -15,6 +17,29 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+DEMOS = {
+    'llmchat-gateway': {'streaming': False, 'rendezvous': False},
+    'llmchat-rendezvous': {'streaming': False, 'rendezvous': True},
+    'ai-gateway': {'streaming': True, 'rendezvous': False},
+}
+PAYLOADS = [
+    '<img src="missing" onerror="window.__xss = 1">',
+    '<svg onload="window.__xss = 1"></svg>',
+    '</strong><script>window.__xss = 1</script>',
+    '<details open ontoggle="window.__xss = 1">nested</details>',
+    '<video src="missing" onerror="window.__xss = 1"></video>',
+    'plain text & < > " quotes and Unicode: 雪',
+]
+COMMON_CHECKS = {
+    'normal role and message order', 'user send preserves raw wire text',
+    'Enter sends literal user text', 'WebSocket error text', 'role is also literal text',
+    'close message still renders', 'query values stay separate',
+    'structural detector rejects arbitrary elements',
+} | {'WebSocket payload ' + str(index) for index in range(len(PAYLOADS))}
+CALLBACK_CHECKS = {
+    'rendezvous callback response', 'rendezvous callback HTTP error',
+    'rendezvous callback rejected fetch',
+}
 MOCKS = r"""
 window.__xss = 0;
 window.__sockets = [];
@@ -34,32 +59,66 @@ CHECKS = r"""
 (async () => {
     const failures = [];
     const checks = [];
-    const payloads = [
-        '<img src="missing" onerror="window.__xss = 1">',
-        '<svg onload="window.__xss = 1"></svg>',
-        '</strong><scr' + 'ipt>window.__xss = 1</scr' + 'ipt>',
-        'plain text & < > " quotes \' and Unicode: 雪'
-    ];
+    const mode = window.__demo;
+    const payloads = mode.payloads;
     function assert(condition, message) { if (!condition) throw new Error(message); }
     async function check(name, action) {
         checks.push(name);
         try { await action(); } catch (error) { failures.push(name + ': ' + error.message); }
     }
     const logElement = document.getElementById('chat-log');
-    function clearLog() { logElement.replaceChildren(); }
+    function clearLog() {
+        logElement.replaceChildren();
+        if (mode.streaming) currentAssistantMsgDiv = null;
+    }
     function assertRow(role, text) {
         const row = logElement.lastElementChild;
         assert(row !== null, 'message is missing');
         assert(row.textContent === role + ': ' + text, 'literal message text differs');
-        assert(row.childNodes.length === 2, 'expected a role element and text node');
+        // Only one element (the fixed strong label) is allowed. Every other node,
+        // including every child of the label, must be text. This rejects ANY injected
+        // tag/attribute synchronously; security does not depend on event timing.
         assert(row.firstChild.tagName === 'STRONG', 'role formatting is missing');
         assert(row.firstChild.textContent === role + ':', 'role was interpreted as HTML');
-        assert(row.lastChild.nodeType === Node.TEXT_NODE, 'message is not a text node');
-        assert(row.querySelectorAll('img,svg,script').length === 0, 'injected markup created elements');
+        assert(row.children.length === 1, 'unexpected message element');
+        assert(row.getAttributeNames().every(name => name === 'class'), 'unexpected row attribute');
+        assert(row.firstChild.getAttributeNames().length === 0, 'unexpected label attribute');
+        assert(Array.from(row.firstChild.childNodes).every(node => node.nodeType === Node.TEXT_NODE),
+            'unexpected label element');
+        assert(Array.from(row.childNodes).slice(1).every(node => node.nodeType === Node.TEXT_NODE),
+            'unexpected message markup');
     }
-    const settle = () => new Promise(resolve => setTimeout(resolve, 0));
+    async function until(condition) {
+        for (let attempt = 0; attempt < 100; attempt++) {
+            if (condition()) return;
+            await new Promise(resolve => setTimeout(resolve, 5));
+        }
+        throw new Error('callback did not complete');
+    }
     connect();
-    const socket = window.__sockets.at(-1);
+    let socket = window.__sockets.at(-1);
+    await check('query values stay separate', () => {
+        const user = 'user&model=override#fragment +雪';
+        const model = 'model?x=1&channelId=override#fragment +雪';
+        document.getElementById('userId').value = user;
+        document.getElementById('model').value = model;
+        if (mode.streaming) sessionStorage.setItem('sessionId', 'session&extra=value#fragment +雪');
+        connect(); socket = window.__sockets.at(-1);
+        const query = new URLSearchParams(socket.url.split('?')[1].split('#')[0]);
+        assert(query.get('userId') === user, 'userId escaped its query value');
+        assert(query.get('model') === model, 'model escaped its query value');
+        const expectedKeys = ['userId', 'model'];
+        if (mode.rendezvous) {
+            expectedKeys.push('channelId');
+            assert(query.get('channelId') !== 'override', 'model overwrote channelId');
+        }
+        if (mode.streaming) {
+            expectedKeys.push('sessionId');
+            assert(query.get('sessionId') === sessionStorage.getItem('sessionId'), 'sessionId escaped its query value');
+        }
+        assert(JSON.stringify(Array.from(query.keys()).sort()) === JSON.stringify(expectedKeys.sort()),
+            'unexpected or duplicate query key');
+    });
     for (const [index, payload] of payloads.entries()) {
         await check('WebSocket payload ' + index, () => {
             clearLog(); socket.onmessage({ data: payload }); assertRow('Assistant', payload);
@@ -67,9 +126,14 @@ CHECKS = r"""
     }
     await check('normal role and message order', () => {
         clearLog(); socket.onmessage({ data: 'first' }); socket.onmessage({ data: 'second' });
-        assert(logElement.children.length === 2, 'message count differs');
-        assert(logElement.firstElementChild.textContent === 'Assistant: first', 'first message differs');
-        assertRow('Assistant', 'second');
+        if (mode.streaming) {
+            assert(logElement.children.length === 1, 'chunks did not share one row');
+            assertRow('Assistant', 'firstsecond');
+        } else {
+            assert(logElement.children.length === 2, 'message count differs');
+            assert(logElement.firstElementChild.textContent === 'Assistant: first', 'first message differs');
+            assertRow('Assistant', 'second');
+        }
         assert(logElement.lastElementChild.className === 'message assistant', 'role class differs');
     });
     await check('user send preserves raw wire text', () => {
@@ -85,7 +149,7 @@ CHECKS = r"""
     });
     await check('WebSocket error text', () => {
         clearLog(); socket.onerror({ toString: () => payloads[0] });
-        assertRow('System', 'Error: ' + payloads[0]);
+        assertRow('System', mode.streaming ? 'Error encountered. Check console.' : 'Error: ' + payloads[0]);
     });
     await check('role is also literal text', () => {
         clearLog(); log(payloads[0], 'message'); assertRow(payloads[0], 'message');
@@ -93,26 +157,48 @@ CHECKS = r"""
     await check('close message still renders', () => {
         clearLog(); socket.close(); assertRow('System', 'Disconnected.');
     });
-    if (typeof generateUUID === 'function') {
+    if (mode.rendezvous) {
         await check('rendezvous callback response', async () => {
             clearLog(); window.__callbackText = payloads[0]; window.__fetchMode = 'success';
-            socket.onopen(); await settle();
+            socket.onopen();
+            await until(() => logElement.lastElementChild?.textContent.startsWith('System: Backend Callback Triggered:')
+                || logElement.lastElementChild?.textContent.startsWith('System: Error triggering backend:'));
             assertRow('System', 'Backend Callback Triggered: ' + payloads[0]);
             assert(!messageInput.disabled && !sendBtn.disabled, 'successful callback did not enable sending');
         });
         await check('rendezvous callback HTTP error', async () => {
             clearLog(); window.__callbackText = payloads[1]; window.__fetchMode = 'http-error';
-            socket.onopen(); await settle();
+            socket.onopen();
+            await until(() => logElement.lastElementChild?.textContent.startsWith('System: Backend Callback Triggered:')
+                || logElement.lastElementChild?.textContent.startsWith('System: Error triggering backend:'));
             assertRow('System', 'Error triggering backend: Error: Connect request failed: ' + payloads[1]);
         });
         await check('rendezvous callback rejected fetch', async () => {
             clearLog(); window.__callbackText = payloads[0]; window.__fetchMode = 'reject';
-            socket.onopen(); await settle();
+            socket.onopen();
+            await until(() => logElement.lastElementChild?.textContent.startsWith('System: Backend Callback Triggered:')
+                || logElement.lastElementChild?.textContent.startsWith('System: Error triggering backend:'));
             assertRow('System', 'Error triggering backend: Error: ' + payloads[0]);
         });
     }
-    await settle();
-    if (window.__xss !== 0) failures.push('an injected event handler executed');
+    if (mode.streaming) {
+        await check('session info renders literally', () => {
+            clearLog();
+            socket.onmessage({ data: JSON.stringify({ type: 'session', sessionId: payloads[0] }) });
+            assertRow('System', 'Session initialized: ' + payloads[0]);
+            assert(sessionStorage.getItem('sessionId') === payloads[0], 'session ID differs');
+        });
+    }
+    await check('structural detector rejects arbitrary elements', () => {
+        for (const tag of ['details', 'video', 'iframe']) {
+            clearLog(); log('Assistant', 'message');
+            logElement.lastElementChild.appendChild(document.createElement(tag));
+            let rejected = false;
+            try { assertRow('Assistant', 'message'); } catch { rejected = true; }
+            assert(rejected, 'detector accepted injected ' + tag);
+        }
+        clearLog();
+    });
     const result = document.createElement('pre');
     result.id = 'chat-security-test-result';
     result.textContent = JSON.stringify({ checks, failures });
@@ -128,18 +214,26 @@ class ChatDemoSecurityTest(unittest.TestCase):
         if not cls.browser:
             raise RuntimeError('Set BROWSER_BIN to a Chromium/Chrome executable; browser tests must not be skipped')
 
-    def assert_demo(self, demo, expected_checks):
+    def assert_demo(self, demo):
         page = (ROOT / 'config' / demo / 'public/index.html').read_text()
         # Execute the actual unmodified application script with browser APIs mocked.
-        page = page.replace('<script>', '<script>' + MOCKS + '</script><script>', 1)
+        mode = dict(DEMOS[demo], payloads=PAYLOADS)
+        # Escape data for the script context, including the literal closing-script payload.
+        mode_json = json.dumps(mode).replace('<', r'\u003c')
+        mocks = 'window.__demo = ' + mode_json + ';' + MOCKS
+        page = page.replace('<script>', '<script>' + mocks + '</script><script>', 1)
         page = page.replace('</body>', '<script>' + CHECKS + '</script></body>', 1)
         with tempfile.TemporaryDirectory(prefix='chat-demo-security-') as directory:
             fixture = Path(directory) / 'index.html'
             fixture.write_text(page)
-            command = [self.browser, '--headless', '--no-sandbox', '--disable-gpu',
+            command = [self.browser, '--headless', '--disable-gpu',
+                       '--disable-dev-shm-usage', '--disable-extensions', '--disable-sync',
+                       '--no-default-browser-check',
                        '--disable-background-networking', '--no-first-run',
                        '--user-data-dir=' + str(Path(directory) / 'profile'),
-                       '--virtual-time-budget=1000', '--dump-dom', fixture.as_uri()]
+                       '--virtual-time-budget=2000', '--dump-dom', fixture.as_uri()]
+            if os.environ.get('BROWSER_NO_SANDBOX') == '1':
+                command.insert(1, '--no-sandbox')
             # Kill the entire fixture browser group on timeout, including child processes,
             # before removing its temporary profile.
             with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -154,15 +248,24 @@ class ChatDemoSecurityTest(unittest.TestCase):
         match = re.search(r'<pre id="chat-security-test-result">(.*?)</pre>', stdout, re.S)
         self.assertIsNotNone(match, 'Browser did not complete the checks: ' + stdout[-3000:])
         report = json.loads(html.unescape(match.group(1)))
-        self.assertEqual(len(report['checks']), expected_checks, report)
+        expected = set(COMMON_CHECKS)
+        if DEMOS[demo]['rendezvous']:
+            expected |= CALLBACK_CHECKS
+        if DEMOS[demo]['streaming']:
+            expected.add('session info renders literally')
+        self.assertTrue(expected.issubset(report['checks']), report)
+        self.assertEqual(len(report['checks']), len(set(report['checks'])), 'duplicate check names')
         self.assertEqual(report['failures'], [], report)
         print(demo + ': ' + str(len(report['checks'])) + ' browser checks passed')
 
     def test_gateway(self):
-        self.assert_demo('llmchat-gateway', 10)
+        self.assert_demo('llmchat-gateway')
+
+    def test_ai_gateway(self):
+        self.assert_demo('ai-gateway')
 
     def test_rendezvous(self):
-        self.assert_demo('llmchat-rendezvous', 13)
+        self.assert_demo('llmchat-rendezvous')
 
 
 if __name__ == '__main__':
