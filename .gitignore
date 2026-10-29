@@ -31,3 +31,6 @@ dependency-reduced-pom.xml
 .claude/
 AGENTS.md
 CLAUDE.md
+
+# Keep retired local values files ignored; existing copies may contain credentials.
+config/ai-gateway/config/values.yml
