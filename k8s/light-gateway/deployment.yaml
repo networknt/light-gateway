@@ -86,9 +86,6 @@ spec:
               mountPath: /config/bootstrap.truststore
               subPath: bootstrap.truststore
               readOnly: true
-            - name: public
-              mountPath: /config/public
-              readOnly: true
       volumes:
         - name: config-workdir
           emptyDir: {}
@@ -98,6 +95,3 @@ spec:
         - name: bootstrap
           secret:
             secretName: ${name:light-gateway}-bootstrap
-        - name: public
-          configMap:
-            name: ${name:light-gateway}-public
