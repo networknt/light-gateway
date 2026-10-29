@@ -2,8 +2,9 @@
 
 This template deploys Java light-gateway as a single-container micro gateway.
 Local startup.yml bootstraps runtime configuration from the config server.
-Choose the maintained configuration for the service being deployed; this template
-no longer downloads or serves an AI chat demo by default.
+This template no longer bundles an AI chat UI. Configuration downloads still
+follow startup.serviceId; review the retained legacy identity defaults and the
+config-server values described below before deploying.
 
 ## Required deployment values
 
