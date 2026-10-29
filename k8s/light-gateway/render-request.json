@@ -1,13 +1,13 @@
 {
   "hostId": "01964b05-552a-7c4b-9184-6857e7f3dc5f",
-  "instanceId": "ai-microgateway-dev",
+  "instanceId": "light-gateway-dev",
   "environment": "dev",
   "clusterId": "local",
   "namespace": "light-gateway",
   "action": "render",
   "values": {
     "namespace": "light-gateway",
-    "name": "ai-microgateway",
+    "name": "light-gateway",
     "image": {
       "repository": "networknt/light-gateway",
       "tag": "2.2.1",
@@ -15,7 +15,7 @@
     },
     "startup": {
       "host": "dev.lightapi.net",
-      "serviceId": "com.networknt.ai.gateway-1.0.0",
+      "serviceId": "com.networknt.light-gateway-1.0.0",
       "envTag": "dev"
     },
     "configServer": {
