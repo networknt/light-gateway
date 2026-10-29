@@ -10,7 +10,7 @@ data:
   startup.yml: |
     configLoaderClass: com.networknt.server.DefaultConfigLoader
     host: ${startup.host:dev.lightapi.net}
-    serviceId: ${startup.serviceId:com.networknt.light-gateway-1.0.0}
+    serviceId: ${startup.serviceId:com.networknt.ai.gateway-1.0.0}
     envTag: ${startup.envTag:dev}
     acceptHeader: application/yaml
     timeout: ${startup.timeout:3000}
