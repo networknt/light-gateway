@@ -1,5 +1,23 @@
 # Change Log
 
+## [2.5.0](https://github.com/networknt/light-gateway/tree/2.5.0) (2026-11-04)
+
+**Commits:**
+
+- upgrade to version 2.5.0 before release in 2.x branch ([59eca53](https://github.com/networknt/light-gateway/commit/59eca53e70d6859946531994b25177596d9fe7fb)) (by Steve Hu)
+- upgrade to version 2.5.0-SNAPSHOT after release in 2.x branch ([4ccd4e1](https://github.com/networknt/light-gateway/commit/4ccd4e11554485f4034149bc9487919ddefadf6e)) (by Steve Hu)
+- upgrade lambda-awssdk to 2.57.8 from 2.55.13 ([7dd87a7](https://github.com/networknt/light-gateway/commit/7dd87a78e2f99b31ea3f96629eb6e1c32b47262e)) (by Steve Hu)
+- upgrade lambda-core to 1.4.1 from 1.4.0 ([733bf45](https://github.com/networknt/light-gateway/commit/733bf4547e4f7772fd2fc13149773e7aa5b49cdb)) (by Steve Hu)
+- upgrade commons-codec to 1.23.0 from 1.22.1 ([5ac8131](https://github.com/networknt/light-gateway/commit/5ac8131fb4ee1b8beb7a446a2087ee86f0733271)) (by Steve Hu)
+- upgrade jackson to 2.22.4 from 2.22.3 ([ca2cf8a](https://github.com/networknt/light-gateway/commit/ca2cf8a74f8245293b2f64cf0fb06c5bca9c2613)) (by Steve Hu)
+- upgrade logback to 1.6.6 from 1.6.5 ([34b5d6f](https://github.com/networknt/light-gateway/commit/34b5d6f534e3476a8681f59579ac4cc0b694b572)) (by Steve Hu)
+- \[2.x\] Remove retired AI chat demos and Kubernetes UI (#266) ([35f743b](https://github.com/networknt/light-gateway/commit/35f743bd0f267f4ac8ff533caa92cebe013462ab)) (by Steve Hu)
+- fix: secure chat session lifetime and rendezvous channels on 2.x (#263) ([b63ec10](https://github.com/networknt/light-gateway/commit/b63ec10570c0bf47311813102e00dcaed053182d)) (by Steve Hu)
+- chore: ignore Python bytecode caches ([d4ed77f](https://github.com/networknt/light-gateway/commit/d4ed77f375133ffd3b27b0960a53bcc06fba30e7)) (by Steve Hu)
+- fix(2.x): render chat demo text safely and cover all three UIs (#261) ([3f299c8](https://github.com/networknt/light-gateway/commit/3f299c82d3eca1d8657bc97e5281e99e5a9278cc)) (by Steve Hu)
+- upgrade maven-version to 2.23.0 from 2.22.0 ([cebed9c](https://github.com/networknt/light-gateway/commit/cebed9c5d50189ff65ac36edab9eac1347e69d23)) (by Steve Hu)
+- upgrade to version 2.4.2-SNAPSHOT after release in master branch ([056f732](https://github.com/networknt/light-gateway/commit/056f73235e146bf3c314500b92c0d58f79b050ca)) (by Steve Hu)
+
 ## [2.4.1](https://github.com/networknt/light-gateway/tree/2.4.1) (2026-10-11)
 
 **Commits:**
