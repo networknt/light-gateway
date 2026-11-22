@@ -1,5 +1,19 @@
 # Change Log
 
+## [2.5.1](https://github.com/networknt/light-gateway/tree/2.5.1) (2026-11-21)
+
+**Commits:**
+
+- upgrade to version 2.5.1 before release in 2.x branch ([febc8af](https://github.com/networknt/light-gateway/commit/febc8af3dcd5f7f82bcab5a90cf9dfc8680de742)) (by Steve Hu)
+- upgrade logback to 1.6.8 from 1.6.7 ([384869b](https://github.com/networknt/light-gateway/commit/384869b32ec79db4e8ddeb37d6f173a45dc40852)) (by Steve Hu)
+- upgrade lambda-awssdk to 2.59.5 from 2.57.8 ([752f663](https://github.com/networknt/light-gateway/commit/752f6633bd1508f45b9a2a0225f73c03c88885de)) (by Steve Hu)
+- upgrade logback to 1.6.7 from 1.6.6 ([af4bb7b](https://github.com/networknt/light-gateway/commit/af4bb7be98fd8228276c3e46a43a2b98f91bc730)) (by Steve Hu)
+- upgrade maven-version to 2.25.2 from 2.23.0 ([2a84ac5](https://github.com/networknt/light-gateway/commit/2a84ac56f76dcc29ee7d0810a516af7304f220f3)) (by Steve Hu)
+- upgrade exec-maven to 3.7.0 from 3.6.4 ([3a7a617](https://github.com/networknt/light-gateway/commit/3a7a617f9ad9a75e69926c40d75765c43231909e)) (by Steve Hu)
+- upgrade maven-compiler to 3.16.0 from 3.8.1 ([2d6ef49](https://github.com/networknt/light-gateway/commit/2d6ef49e5050c2bc308388b61847bc72397795fc)) (by Steve Hu)
+- upgrade maven-surefire to 3.6.1 from 3.6.0 ([64e0e3b](https://github.com/networknt/light-gateway/commit/64e0e3bd911bee2900bda4fbf78aa956395b9eb6)) (by Steve Hu)
+- upgrade to version 2.5.1-SNAPSHOT after release in 2.x branch ([d6e6491](https://github.com/networknt/light-gateway/commit/d6e6491fecc15bedfc3c744c2682c0a6742c7828)) (by Steve Hu)
+
 ## [2.5.0](https://github.com/networknt/light-gateway/tree/2.5.0) (2026-11-04)
 
 **Commits:**
